@@ -19,21 +19,23 @@
 #pragma once
 
 #include <initializer_list>
-#include "common/types.h"
 #include <bitset>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics.hpp>
 
 #define MAX_COMPONENTS 64
 
 using namespace std;
+using namespace sf;
 
 // Every new component must have a type in this enum
 enum class ComponentType : size_t
 {
-	EntityTransform = 0,
-	PhysicsBody,
-	Renderer,
-	PlayerController,
-	Camera,
+	EntityTransform2D = 0,
+	PhysicsBody2D,
+	SpriteRenderer2D,
+	PlayerController2D,
+	Camera2D,
 
 	Invalid = MAX_COMPONENTS
 };
@@ -125,3 +127,44 @@ public:
 //==========================
 // Components
 //==========================
+
+
+struct EntityTransform2D
+{
+	Vector2f position;
+};
+
+
+struct PhysicsBody2D
+{
+	Vector2f velocity;
+	float gravity;
+
+};
+
+
+struct SpriteRenderer2D
+{
+	Sprite sprite;
+	Texture texture;
+	int renderingOrder;
+
+	bool isXFlipped;
+	bool isYFlipped;
+};
+
+
+struct PlayerController2D
+{
+	float moveSpeed;
+	float jumpSpeed;
+};
+
+
+struct Camera2D
+{
+	EntityTransform2D* targetTransform; // if null, will not try to follow a target and will instead be controlled by its transform
+	Vector2f viewOffsetFromPos; // used to center the camera since position is top left corner
+	View cameraView;
+	bool isMainCam; // If true, this camera will be displayed on the window
+};
