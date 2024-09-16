@@ -139,14 +139,23 @@ struct PhysicsBody2D
 {
 	Vector2f velocity;
 	float gravity;
-
 };
 
 
 struct SpriteRenderer2D
 {
 	Sprite sprite;
-	Texture texture;
+	// TODO: can't have textures be statically initialized
+	// b/c the way that textures work they cause memory errors.
+	// Instead have to figure out some clever way to load in textures and then
+	// query them later on. Then have to have some sort of initialization
+	// process for the texture to somehow be added here?
+	// 
+	// Maybe load them in all at once (eventually later have some caching and swapping what is loaded? Or it is loaded and 
+	// unloaded per scene?)
+	// and put them in a map where the key is a image name (or maybe a path with a name?) and then the value 
+	// is the loaded texture. Then in the initialization of componenets, have to fetch the texture and add it here? As a ptr?
+	//Texture texture;
 	int renderingOrder;
 
 	bool isXFlipped;

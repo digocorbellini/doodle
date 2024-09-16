@@ -8,3 +8,5 @@
 #pragma once
 
 typedef unsigned char Byte;
+
+typedef unsigned long long Entity_t;

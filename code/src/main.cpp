@@ -1,7 +1,11 @@
 #include <SFML/Graphics.hpp>
+#include "core/ecs.h"
 
 int main ()
 {
+    // TODO: have to call all "Init"s for all core systems
+    // then have to start game loop
+    
     sf::RenderWindow window ( sf::VideoMode ( 200, 200 ), "SFML works!" );
     sf::CircleShape shape ( 100.f );
     shape.setFillColor ( sf::Color::Green );
