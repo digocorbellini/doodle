@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////
 //
 // This file is meant to contain all components in the game.
-// This may become unruly un a larger project, however,
+// This may become unruly in a larger project, however,
 // this engine is meant to be small and lightweight. 
 // 
 // A component in this engine is simply data represented by 
 // structs. This data will be accessed and modified by
-// systems which will create behaviours. 
+// systems which will create behaviors. 
 // 
 // Entities will only be acted on by a system if they contain
 // a certain set of components. This is why the ComponentMask

@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="src\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
+    <ClCompile Include="src\core\resource_management\resource.cpp" />
+    <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
+    <ClCompile Include="src\core\resource_management\resource_texture.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -28,7 +31,8 @@
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\components.h" />
     <ClInclude Include="src\core\ecs.h" />
-    <ClInclude Include="src\core\texture_loader.h" />
+    <ClInclude Include="src\core\resource_management\resources.h" />
+    <ClInclude Include="src\core\resource_management\resource_manager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -124,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\external\sfml-2.6.1_64-bit\include;$(SolutionDir)\..\external\json-develop\json-develop\single_include\nlohmann</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\external\sfml-2.6.1_64-bit\include;$(SolutionDir)\..\external\json-develop\single_include;$(SolutionDir)\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\external\sfml-2.6.1_64-bit\include;$(SolutionDir)\..\external\json-develop\json-develop\single_include\nlohmann</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\external\sfml-2.6.1_64-bit\include;$(SolutionDir)\..\external\json-develop\single_include;$(SolutionDir)\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

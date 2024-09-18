@@ -1,3 +1,12 @@
+////////////////////////////////////////////////////////////
+//
+// This file is meant to contain all declarations for
+// all of the resource types the resource manager will
+// support. CPP files must be made for each resource type
+// definition.
+//
+////////////////////////////////////////////////////////////
+
 #pragma once
 
 //#include "../components.h"
