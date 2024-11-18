@@ -1,0 +1,29 @@
+{
+    "components": {
+      "EntityTransform2D": [
+        {
+          "index": 0,
+          "position": [1,2]
+        },
+        {
+          "index": 4,
+          "position": [3,5.4]
+        }
+      ],
+      "PhysicsBody2D": [
+        {
+          "index": 4
+        }
+      ]
+    },
+    "assets": [
+      {
+        "path": "./test",
+        "dontFreeOnLoad": false
+      },
+      {
+        "path": "./test",
+        "dontFreeOnLoad": false
+      }
+    ]
+}

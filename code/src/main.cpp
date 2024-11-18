@@ -14,6 +14,9 @@ int main ()
     sf::CircleShape shape ( 100.f );
     shape.setFillColor ( sf::Color::Green );
 
+    // TODO: testing
+    ECS_LoadScene( "" );
+
     while( window.isOpen () )
     {
         sf::Event event;

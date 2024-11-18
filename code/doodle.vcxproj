@@ -24,6 +24,7 @@
     <ClCompile Include="src\core\resource_management\resource.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
     <ClCompile Include="src\core\resource_management\resource_texture.cpp" />
+    <ClCompile Include="src\core\scene_loader.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="src\core\ecs.h" />
     <ClInclude Include="src\core\resource_management\resources.h" />
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
+    <ClInclude Include="src\core\scene_loader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

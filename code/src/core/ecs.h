@@ -1,9 +1,10 @@
 ////////////////////////////////////////////////////////////
 //
-// This file is meant to contain all declarations for
-// all of the resource types the resource manager will
-// support. CPP files must be made for each resource type
-// definition.
+// This file is meant to contain all major functions that
+// relate to operations of the main game loop.
+// 
+// This includes creating and removing entities, changing
+// scenes, etc.
 //
 ////////////////////////////////////////////////////////////
 
@@ -51,8 +52,12 @@ Entity_t ECS_AddEntity( ComponentsMask compMask );
 
 bool ECS_RemoveEntity( Entity_t entity );
 
+// TODO: instead of this, can have a special define for dev only code
+// that is used when building debug or release builds
 void ECS_SetDebugMode( bool isDebug );
 bool ECS_GetDebugMode();
+
+bool ECS_LoadScene( const char* sceneFileName );
 
 // TODO: figure out how to load and parse a scene/level/thing file
 //bool ECS_LoadScene(); or maybe an "init"?

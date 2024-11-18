@@ -1,9 +1,13 @@
 ////////////////////////////////////////////////////////////
 //
-// This file is meant to contain all declarations for
-// all of the resource types the resource manager will
-// support. CPP files must be made for each resource type
-// definition.
+// The resource manager is meant to handle all memory 
+// management related to loading and freeing game assets
+// such as images, sounds, etc. 
+// 
+// Resources are loaded and unloaded by scene.
+// 
+// The supported resource types are all defined in
+// resources.h
 //
 ////////////////////////////////////////////////////////////
 
@@ -13,6 +17,9 @@
 #define RELATIVE_ASSETS_PATH "../assets"
 #define SCENES_DIR_NAME "scenes"
 
+// TODO: have to figure out if this is good as a class or if I can do what
+// ecs files are doing and just keep this as functions. That way it will be
+// easier for systems to work with? Or maybe not? Have to think about workflow
 class ResourceManager
 {
 private:
