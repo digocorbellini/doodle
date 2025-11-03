@@ -25,6 +25,11 @@ using namespace std;
 using json = nlohmann::json;
 bool ECS_LoadScene( const char* sceneFileName )
 {
+	// TODO: maybe automatically handle unloading previous scene if this is called?
+	// or fail if attempting to call this while another scene is active? 
+	// Should only have 1 scene active at a time but maybe can also handle loading
+	// multiple but only having 1 active at a time.
+
 	//const char* testFile = ".\\..\\assets\\test_scene.json";
 	// TODO: have to get executable path when creating relative pathing
 	ifstream inputFile( "../game/scenes/test_scene.json" );

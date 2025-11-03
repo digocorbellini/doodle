@@ -3,6 +3,7 @@
 
 // TODO: testing
 #include "core/resource_management/resources.h"
+#include "core/scene_loader.h"
 
 int main ()
 {
@@ -16,6 +17,8 @@ int main ()
 
     // TODO: testing
     ECS_LoadScene( "" );
+    SceneLoader::GetInstance().LoadSceneFile( "" );
+
 
     while( window.isOpen () )
     {

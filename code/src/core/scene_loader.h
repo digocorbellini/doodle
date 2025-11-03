@@ -18,7 +18,7 @@ using json = nlohmann::json;
 // Then the scene must be split into textures and entities to be 
 // parsed and loaded by the resource manager and ECS respectively.
 
-// Have to figure out how ECS and the resource manager will actually perform
+// TODO: Have to figure out how ECS and the resource manager will actually perform
 // the JSON parsing to see what exactly we have to send them.
 
 // TODO: replace this with a config loaded on start up

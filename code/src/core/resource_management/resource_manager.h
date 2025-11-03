@@ -41,6 +41,11 @@ public:
 	// and then pass it here and also in the entity parsing.
 	void LoadSceneAssets( const char* sceneFileName );
 
+	// TODO: maybe also add support for loading and unloading individual assets?
+	// need to think about that workflow a little more because I don't want to have to manually
+	// load and unload assets whenever I use them which will probably cause memory leaks...
+	// but this can be a later problem. Maybe just do scene based loading for now. 
+
 	~ResourceManager();
 
 private:
