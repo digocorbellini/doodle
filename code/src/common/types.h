@@ -6,9 +6,8 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
+#include <cstdint>
+#include <cstddef>
 
-typedef unsigned char Byte;
-typedef unsigned long long uint64_t;
-typedef signed long long int64_t;
-
-typedef unsigned long long Entity_t;
+typedef std::uint8_t Byte;
+typedef std::uint64_t Entity_t;

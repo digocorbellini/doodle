@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="src\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
-    <ClCompile Include="src\core\HashedString.cpp" />
     <ClCompile Include="src\core\resource_management\resource.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
     <ClCompile Include="src\core\resource_management\resource_texture.cpp" />
@@ -33,7 +32,8 @@
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\components.h" />
     <ClInclude Include="src\core\ecs.h" />
-    <ClInclude Include="src\core\HashedString.h" />
+    <ClInclude Include="src\common\hashing\HashedString.h" />
+    <ClInclude Include="src\common\hashing\HashedString_Internal.h" />
     <ClInclude Include="src\core\resource_management\resources.h" />
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
     <ClInclude Include="src\core\scene_loader.h" />

@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include <initializer_list>
 #include <bitset>
 #include <SFML/System/Vector2.hpp>

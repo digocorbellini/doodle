@@ -12,7 +12,6 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-
 // TODO: replace this with a config file somehow
 #define RELATIVE_ASSETS_PATH "../assets"
 #define SCENES_DIR_NAME "scenes"

@@ -3,6 +3,10 @@
 #include <fstream>
 #include <string>
 
+// TODO: just for testing
+#include "common/hashing/HashedString.h"
+#include <inttypes.h>
+
 using namespace std;
 
 SceneLoader::SceneLoader()
@@ -25,6 +29,11 @@ SceneLoader& SceneLoader::GetInstance()
 bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 {
 	// TODO: maybe take in a JSON?
+
+	// TODO: remove this test
+	HashedString testHash( "test String!" );
+	printf( "Testing: %s = %" PRIu64 "\n", testHash.GetDebugString(), testHash.GetHash());
+
 
 	ifstream inputFile("../game/scenes/test_scene.json");
 
