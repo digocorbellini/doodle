@@ -6,8 +6,11 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-#define IN_USE 1
-#define NOT_IN_USE 0
+// This allows the use of #if USING( X ) to fail at compile time if X has not been defined instead
+// of failing silently.
+#define IN_USE &&
+#define NOT_IN_USE &&!
+#define USING(x) (true x true)
 
 #define DEV_BUILD IN_USE
 
