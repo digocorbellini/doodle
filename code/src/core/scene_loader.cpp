@@ -4,7 +4,7 @@
 #include <string>
 
 // TODO: just for testing
-#include "common/hashing/HashedString.h"
+#include "common/hashing/hashed_string.h"
 #include <inttypes.h>
 
 using namespace std;
@@ -28,7 +28,6 @@ SceneLoader& SceneLoader::GetInstance()
 // ECS must handle this somehow
 bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 {
-	// TODO: maybe take in a JSON?
 
 	// TODO: remove this test
 	HashedString testHash( "test String!" );

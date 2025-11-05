@@ -7,6 +7,8 @@
 
 namespace hashed_string
 {
+	constexpr std::size_t HASHED_STRING_MAX_LENGTH = 64ull;
+
 	constexpr std::uint64_t FNV_PRIME = 1099511628211ull;
 	constexpr std::uint64_t FNV_OFFSET_BASIS = 14695981039346656037ull;
 	// TODO: can eventually add salts for different hashes (Ex: if we want to have a
@@ -19,7 +21,7 @@ namespace hashed_string
 	/// <param name="str">The string to be hashed</param>
 	/// <param name="strLen">The length of the string to be hashed</param>
 	/// <returns>A 64 bit hash for the given string</returns>
-	constexpr std::uint64_t fnv1a_64_hash( const char* str, const std::size_t strLen ) noexcept
+	constexpr std::uint64_t FNV1A_64_Hash( const char* str, const std::size_t strLen ) noexcept
 	{
 		std::uint64_t hash = FNV_OFFSET_BASIS;
 
@@ -31,18 +33,22 @@ namespace hashed_string
 		return hash;
 	}
 
-	constexpr void constexpr_strncpy( char* dest, const char* src, std::size_t count )
-	{
-		std::size_t i = 0ull;
-		for ( ; i < count && src[i] != '\0'; ++i )
-		{
-			dest[i] = src[i];
-		}
+	
+	/// <summary>
+	/// Cache the given string to hash mapping. Will assert if we have reached the max
+	/// number of hashed strings or if the given string has a hash that already exists
+	/// for another string.
+	/// </summary>
+	/// <param name="str">The string used to create the given hash</param>
+	/// <param name="hash">The hash value for the given string</param>
+	void CacheStringHash( const char* str, const std::uint64_t hash );
 
-		// pad dest with null terminators
-		for ( ; i < count; ++i )
-		{
-			dest[i] = '\0';
-		}
-	}
+
+	/// <summary>
+	/// Get the corresponding mappeds tring for the given hash.
+	/// </summary>
+	/// <param name="hash">The hash for which to get the cached string for</param>
+	/// <returns>The string which is mapped tot he given hash. If no string exists
+	/// for the hash, then return nullptr.</returns>
+	const char* GetCachedStringForHash( const std::uint64_t hash );
 }

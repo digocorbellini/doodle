@@ -36,6 +36,9 @@
     <ClCompile Include="src\core\scene_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\hashing\hashed_string_internal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\components.h">
@@ -59,10 +62,13 @@
     <ClInclude Include="src\core\scene_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\hashing\HashedString.h">
+    <ClInclude Include="src\common\hashing\hashed_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\hashing\HashedString_Internal.h">
+    <ClInclude Include="src\common\hashing\hashed_string_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\com_assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
