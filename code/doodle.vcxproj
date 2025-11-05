@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\common\hashing\hashed_string.cpp" />
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp" />
     <ClCompile Include="src\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />

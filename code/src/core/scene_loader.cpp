@@ -31,7 +31,7 @@ bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 
 	// TODO: remove this test
 	HashedString testHash( "test String!" );
-	printf( "Testing: %s = %" PRIu64 "\n", testHash.GetDebugString(), testHash.GetHash());
+	printf( "Testing: %s = %" PRIu64 "\n", testHash.GetStringForHash(), testHash.GetHash());
 
 
 	ifstream inputFile("../game/scenes/test_scene.json");
@@ -53,6 +53,10 @@ bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 
 	json j_complete = json::parse( fileContent );
 	std::cout << std::setw( 4 ) << j_complete << "\n\n";
+
+	// TODO: for now parse all resources as strings and hash them at runtime. Later
+	// can have them pre-hashed in the scene file and then load in the
+	// hash to string translations separately 
 
 	return false;
 }

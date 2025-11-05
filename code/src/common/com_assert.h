@@ -6,7 +6,7 @@
 
 #define COM_ASSERT( expression, fmt, ... )		\
 {												\
-	if ( !expression )							\
+	if ( !(expression) )						\
 	{											\
 		fprintf( stderr, "ASSERT: " );			\
 		fprintf( stderr, fmt, __VA_ARGS__ );	\

@@ -4,6 +4,9 @@
 #include "string.h"
 #include <iostream>
 
+// TODO: eventually wrap this in dev only defines so that the caching and the use of 
+// strings for hashes does not exist in ship
+
 using namespace std;
 using namespace hashed_string;
 
@@ -27,7 +30,7 @@ static size_t s_cachedStringHashLength = 0;
 
 void hashed_string::CacheStringHash( const char* str, const uint64_t hash )
 {
-	COM_ASSERT( s_cachedStringHashLength < MAX_CACHED_STRING_COUNT - 1, "%s - exceeded max cached string count [%zu]\n", __FUNCTION__, MAX_CACHED_STRING_COUNT );
+	COM_ASSERT( s_cachedStringHashLength < MAX_CACHED_STRING_COUNT - 1, "%s - exceeded max cached string count: %zu > %zu\n", __FUNCTION__, s_cachedStringHashLength, MAX_CACHED_STRING_COUNT );
 	
 	const char* hashToString = hashed_string::GetCachedStringForHash( hash );
 	if ( hashToString )
