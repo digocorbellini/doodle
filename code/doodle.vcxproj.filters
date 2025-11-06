@@ -71,7 +71,10 @@
     <ClInclude Include="src\common\hashing\hashed_string_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\com_assert.h">
+    <ClInclude Include="src\common\lib\com_assert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\lib\com_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

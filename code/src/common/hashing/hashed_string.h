@@ -1,5 +1,5 @@
 #pragma once
-#include "common/com_assert.h"
+#include "common/lib/com_assert.h"
 #include "common/global_defines.h"
 #include "common/types.h"
 #include "hashed_string_internal.h"

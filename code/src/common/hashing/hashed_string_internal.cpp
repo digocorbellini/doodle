@@ -1,8 +1,9 @@
-#include "common/com_assert.h"
+#include "common/lib/com_assert.h"
 #include "hashed_string_internal.h"
 #include <unordered_map>
 #include "string.h"
 #include <iostream>
+#include "common/lib/com_array.h"
 
 // TODO: eventually wrap this in dev only defines so that the caching and the use of 
 // strings for hashes does not exist in ship
@@ -22,6 +23,7 @@ static constexpr size_t MAX_CACHED_STRING_COUNT = 512;
 static char s_cachedStrings[MAX_CACHED_STRING_COUNT][HASHED_STRING_MAX_LENGTH];
 static uint64_t s_cachedHashes[MAX_CACHED_STRING_COUNT];
 static size_t s_cachedStringHashLength = 0;
+static_assert( ARRAY_SIZE( s_cachedStrings ) == ARRAY_SIZE( s_cachedHashes ), "Cached strings and cached hash must be the same length" );
 
 
 // =================================

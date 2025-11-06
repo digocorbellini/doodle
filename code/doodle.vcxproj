@@ -30,7 +30,8 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\common\com_assert.h" />
+    <ClInclude Include="src\common\lib\com_array.h" />
+    <ClInclude Include="src\common\lib\com_assert.h" />
     <ClInclude Include="src\common\global_defines.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\components.h" />
