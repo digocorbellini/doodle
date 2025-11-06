@@ -31,7 +31,16 @@ bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 
 	// TODO: remove this test
 	HashedString testHash( "test String!" );
-	printf( "Testing: %s = %" PRIu64 "\n", testHash.GetStringForHash(), testHash.GetHash());
+	printf( "Testing: %s = %" PRIu64 "\n", testHash.GetStringForHash(), testHash.GetHash() );
+
+	HashedString testHash2( "test String 2!" );
+	printf( "Testing: %s = %" PRIu64 "\n", testHash2.GetStringForHash(), testHash2.GetHash() );
+
+	HashedString testHash3( "test String 3!" );
+	printf( "Testing: %s = %" PRIu64 "\n", testHash3.GetStringForHash(), testHash3.GetHash() );
+
+	HashedString testHash4( "test String 3!" );
+	printf( "Testing: %s = %" PRIu64 "\n", testHash4.GetStringForHash(), testHash4.GetHash() );
 
 
 	ifstream inputFile("../game/scenes/test_scene.json");

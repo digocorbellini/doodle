@@ -14,3 +14,5 @@
 	}											\
 }
 
+#define COM_VERIFY_TRUE( expression, fmt, ... ) COM_ASSERT( expression, fmt, __VA_ARGS__ )
+#define COM_VERIFY_FALSE( expression, fmt, ... ) COM_ASSERT( !(expression), fmt, __VA_ARGS__ )

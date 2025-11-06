@@ -1,9 +1,10 @@
+#include "common/lib/com_array.h"
 #include "common/lib/com_assert.h"
 #include "hashed_string_internal.h"
-#include <unordered_map>
-#include "string.h"
+#include <inttypes.h>
 #include <iostream>
-#include "common/lib/com_array.h"
+#include "string.h"
+#include <unordered_map>
 
 // TODO: eventually wrap this in dev only defines so that the caching and the use of 
 // strings for hashes does not exist in ship
@@ -11,19 +12,63 @@
 using namespace std;
 using namespace hashed_string;
 
-static constexpr size_t MAX_CACHED_STRING_COUNT = 512;
+static constexpr size_t MAX_CACHED_STRING_COUNT = ( 1 << 15 );
 
-// TODO: instead of maintaining an unordered map where we can not
-// maintain a static buffer and will need dynamic memory allocation, 
-// perhaps it would be best to maintain a minheap and then use binary search
-// to find cached values. So both insertion and search will be O(logn). Which is 
-// better than a simple array with a linear search but worse than a map with O(1)
+struct CachedHashString
+{
+	uint64_t hash = 0ull;
+	char str[HASHED_STRING_MAX_LENGTH];
+};
 
-// TODO: for now just do a simple linear search for cached hashes
-static char s_cachedStrings[MAX_CACHED_STRING_COUNT][HASHED_STRING_MAX_LENGTH];
-static uint64_t s_cachedHashes[MAX_CACHED_STRING_COUNT];
-static size_t s_cachedStringHashLength = 0;
-static_assert( ARRAY_SIZE( s_cachedStrings ) == ARRAY_SIZE( s_cachedHashes ), "Cached strings and cached hash must be the same length" );
+// TODO: this is pretty intense memory wise, so maybe it is better to have a static buffer
+// and then blocks are allocated which perfectly fit the given string lengths instead of 
+// making all strings 64 bytes long. Although this feature should be dev only... so maybe that's ok?
+// linear probing hash map
+static CachedHashString s_cachedHashStringMap[MAX_CACHED_STRING_COUNT];
+
+
+// =================================
+// Private Helpers
+// =================================
+
+bool AddStringHashToCache( const char* str, const uint64_t hash )
+{
+	// find an open index to cache the given hash and string pair
+	const size_t hashIndex = hash % MAX_CACHED_STRING_COUNT;
+	CachedHashString* newHashStringIndex = nullptr;
+	for ( size_t i = 0; i < MAX_CACHED_STRING_COUNT; ++i )
+	{
+		const size_t currHashIndex = ( hashIndex + i ) % MAX_CACHED_STRING_COUNT;
+		CachedHashString* currHashStringIndex = &s_cachedHashStringMap[currHashIndex];
+		const uint64_t currHash = currHashStringIndex->hash;
+		if ( currHash == 0 )
+		{
+			newHashStringIndex = currHashStringIndex;
+			break;
+		}
+		else if ( currHash == hash )
+		{
+			const char* currStr = currHashStringIndex->str;
+			// true if hash already exists for this string, and false if hash 
+			// already exists for another string which means a hash collision has occured
+			return strncmp( str, currStr, HASHED_STRING_MAX_LENGTH ) == 0;
+		}
+	}
+
+	// see if no open index was found
+	if ( !newHashStringIndex )
+	{
+		return false;
+	}
+
+	// cache str and hash pair at empty index
+	newHashStringIndex->hash = hash;
+	strncpy_s( newHashStringIndex->str, str, HASHED_STRING_MAX_LENGTH );
+	return true;
+}
+
+// TODO: see if I need to support removing cached string. Probably not since I want 
+// to be able to catch all duplicate hashes possible in dev.
 
 
 // =================================
@@ -32,35 +77,37 @@ static_assert( ARRAY_SIZE( s_cachedStrings ) == ARRAY_SIZE( s_cachedHashes ), "C
 
 void hashed_string::CacheStringHash( const char* str, const uint64_t hash )
 {
-	COM_ASSERT( s_cachedStringHashLength < MAX_CACHED_STRING_COUNT - 1, "%s - exceeded max cached string count: %zu > %zu\n", __FUNCTION__, s_cachedStringHashLength, MAX_CACHED_STRING_COUNT );
-	
 	const char* hashToString = hashed_string::GetCachedStringForHash( hash );
 	if ( hashToString )
 	{
 		// check for duplicate hashes
 		if ( strncmp( str, hashToString, HASHED_STRING_MAX_LENGTH ) != 0 )
 		{
-			COM_ASSERT( false, "%s - duplicate hash found for strings '%s' and '%s'. Can be resolved by renaming either string.\n", __FUNCTION__, str, hashToString );
+			COM_ASSERT( false, "%s - duplicate hash [%" PRIu64 "] found for strings '%s' and '%s'. Can be resolved by renaming either string.\n", __FUNCTION__, hash, str, hashToString );
+			return;
 		}
 		else
 		{
+			// this hash/string kvp has already been cached
 			return;
 		}
 	}
 
-	++s_cachedStringHashLength;
-	strncpy_s( s_cachedStrings[s_cachedStringHashLength], str, HASHED_STRING_MAX_LENGTH );
-	s_cachedHashes[s_cachedStringHashLength] = hash;
+	COM_VERIFY_TRUE( AddStringHashToCache( str, hash ), "%s - unable to add hash/string kvp ('%s', %" PRIu64 ") to cache. Might need to bump max hashed strings count. Current max: %zu\n", __FUNCTION__, str, hash, MAX_CACHED_STRING_COUNT );
 }
 
 
 const char* hashed_string::GetCachedStringForHash( const uint64_t hash )
 {
-	for ( int i = 0; i < MAX_CACHED_STRING_COUNT; ++i )
+	const size_t hashIndex = hash % MAX_CACHED_STRING_COUNT;
+	for ( size_t i = 0; i < MAX_CACHED_STRING_COUNT; ++i )
 	{
-		if ( s_cachedHashes[i] == hash )
+		const size_t currHashIndex = ( hashIndex + i ) % MAX_CACHED_STRING_COUNT;
+		CachedHashString* currHashStringIndex = &s_cachedHashStringMap[currHashIndex];
+		const uint64_t currHash = currHashStringIndex->hash;
+		if ( currHash == hash )
 		{
-			return s_cachedStrings[i];
+			return currHashStringIndex->str;
 		}
 	}
 

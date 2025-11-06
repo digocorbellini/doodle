@@ -32,7 +32,7 @@ bool ECS_LoadScene( const char* sceneFileName )
 
 	//const char* testFile = ".\\..\\assets\\test_scene.json";
 	// TODO: have to get executable path when creating relative pathing
-	ifstream inputFile( "../game/scenes/test_scene.json" );
+	/*ifstream inputFile( "../game/scenes/test_scene.json" );
 
 	if( !inputFile.is_open() )
 	{
@@ -47,6 +47,6 @@ bool ECS_LoadScene( const char* sceneFileName )
 		fileContent += currLine;
 		fileContent.push_back( '\n' );
 	}
-	printf( "File content: %s\n", fileContent.c_str() );
+	printf( "File content: %s\n", fileContent.c_str() );*/
 	return true;
 }
