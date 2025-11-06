@@ -14,7 +14,7 @@ public:
 	template <std::size_t N>
 	constexpr HashedString( const char( &str )[N] ) noexcept
 	{
-		COM_STATIC_ASSERT( N <= hashed_string::HASHED_STRING_MAX_LENGTH, "Invalid string length in static hashed string constructor. Can not be hashed." );
+		static_assert( N <= hashed_string::HASHED_STRING_MAX_LENGTH, "Invalid string length in static hashed string constructor. Can not be hashed." );
 		hash = hashed_string::FNV1A_64_Hash( str, N );
 		hashed_string::CacheStringHash( str, hash );
 	}

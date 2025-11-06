@@ -14,5 +14,3 @@
 	}											\
 }
 
-#define COM_STATIC_ASSERT( expression, str ) static_assert( expression, str );
-
