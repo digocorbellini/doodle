@@ -1,20 +1,23 @@
 ////////////////////////////////////////////////////////////
 //
 // The resource manager is meant to handle all memory 
-// management related to loading and freeing game assets
-// such as images, sounds, etc. 
+// management related to loading, caching, and freeing 
+// game assets such as images, sounds, etc. This will
+// also distribute the resources to the systems
+// that request them.
 // 
-// Resources are loaded and unloaded by scene.
-// 
-// The supported resource types are all defined in
-// resources.h
-//
 ////////////////////////////////////////////////////////////
 
 #pragma once
 // TODO: replace this with a config file somehow
 #define RELATIVE_ASSETS_PATH "../assets"
 #define SCENES_DIR_NAME "scenes"
+
+template<typename T>
+struct ResourceHandle
+{
+	HashedString handle;
+};
 
 // TODO: have to figure out if this is good as a class or if I can do what
 // ecs files are doing and just keep this as functions. That way it will be
