@@ -1,3 +1,6 @@
+#include "common/global_defines.h"
+
+#if USING( HASHED_STRING_CACHING )
 #include "common/lib/com_array.h"
 #include "common/lib/com_assert.h"
 #include "hashed_string_internal.h"
@@ -5,9 +8,6 @@
 #include <iostream>
 #include "string.h"
 #include <unordered_map>
-
-// TODO: eventually wrap this in dev only defines so that the caching and the use of 
-// strings for hashes does not exist in ship
 
 using namespace std;
 using namespace hashed_string;
@@ -77,7 +77,7 @@ bool AddStringHashToCache( const char* str, const uint64_t hash )
 
 void hashed_string::CacheStringHash( const char* str, const uint64_t hash )
 {
-	const char* hashToString = hashed_string::GetCachedStringForHash( hash );
+	const char* hashToString = GetCachedStringForHash( hash );
 	if ( hashToString )
 	{
 		// check for duplicate hashes
@@ -113,3 +113,4 @@ const char* hashed_string::GetCachedStringForHash( const uint64_t hash )
 
 	return nullptr;
 }
+#endif // #if USING( HASHED_STRING_CACHING )

@@ -11,6 +11,8 @@
 #define IN_USE &&
 #define NOT_IN_USE &&!
 #define USING(x) (true x true)
+#define USE_IF(x) && x &&
 
 #define DEV_BUILD IN_USE
 
+#define HASHED_STRING_CACHING USE_IF( USING( DEV_BUILD ) )

@@ -16,7 +16,9 @@ public:
 	{
 		static_assert( N <= hashed_string::HASHED_STRING_MAX_LENGTH, "Invalid string length in static hashed string constructor. Can not be hashed." );
 		hash = hashed_string::FNV1A_64_Hash( str, N );
+#if USING( HASHED_STRING_CACHING )
 		hashed_string::CacheStringHash( str, hash );
+#endif // #if USING( HASHED_STRING_CACHING )
 	}
 
 	// Runtime hashing
