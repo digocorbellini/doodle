@@ -23,9 +23,8 @@
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp" />
     <ClCompile Include="src\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
-    <ClCompile Include="src\core\resource_management\resource.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
-    <ClCompile Include="src\core\resource_management\resource_texture.cpp" />
+    <ClCompile Include="src\core\resource_management\resource_types.cpp" />
     <ClCompile Include="src\core\scene_loader.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -38,8 +37,8 @@
     <ClInclude Include="src\core\ecs.h" />
     <ClInclude Include="src\common\hashing\hashed_string.h" />
     <ClInclude Include="src\common\hashing\hashed_string_internal.h" />
-    <ClInclude Include="src\core\resource_management\resources.h" />
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
+    <ClInclude Include="src\core\resource_management\resource_types.h" />
     <ClInclude Include="src\core\scene_loader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

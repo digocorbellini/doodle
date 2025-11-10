@@ -9,11 +9,13 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
+#include "common/hashing/hashed_string.h"
+
 // TODO: replace this with a config file somehow
 #define RELATIVE_ASSETS_PATH "../assets"
 #define SCENES_DIR_NAME "scenes"
 
-template<typename T>
+template <typename T>
 struct ResourceHandle
 {
 	HashedString handle;
@@ -42,6 +44,19 @@ public:
 	// Maybe instead of having a reference to a scene file? Why not only load it once
 	// and then pass it here and also in the entity parsing.
 	void LoadSceneAssets( const char* sceneFileName );
+	
+	
+	/// <summary>
+	/// Get a pointer to the given resource if it has been loaded.
+	/// </summary>
+	/// <typeparam name="T">The type of the resource. Will determine
+	/// the type of the pointer</typeparam>
+	/// <param name="resourcehandle">The handle which is used to identify the resource</param>
+	/// <returns>A pointer of type T to the given resource if it exists and has been loaded, 
+	/// otherwise returns nullptr.</returns>
+	template<typename T>
+	T* GetResource( ResourceHandle<T> resourcehandle );
+
 
 	// TODO: maybe also add support for loading and unloading individual assets?
 	// need to think about that workflow a little more because I don't want to have to manually

@@ -24,12 +24,6 @@
     <ClCompile Include="src\core\ecs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\resource_management\resource_texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\resource_management\resource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\core\resource_management\resource_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +34,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\common\hashing\hashed_string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\resource_management\resource_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,9 +56,6 @@
     <ClInclude Include="src\core\resource_management\resource_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\resource_management\resources.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\core\scene_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\lib\com_array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\resource_management\resource_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
