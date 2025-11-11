@@ -3,7 +3,9 @@
 #include <format>
 #include <iostream>
 #include <stdarg.h>
+#include "common/global_defines.h"
 
+#if USING( DEV_BUILD )
 #define COM_ASSERT( expression, fmt, ... )		\
 {												\
 	if ( !(expression) )						\
@@ -13,6 +15,15 @@
 		assert( false );						\
 	}											\
 }
+#elif // #if USING( DEV_BUILD )
+#define COM_ASSERT( expression, fmt, ... )          \
+{                                                   \
+		if ( !( expression ) )						\
+		{											\
+			assert( false );						\
+		}											\
+}
+#endif // #elif // #if USING( DEV_BUILD )
 
 #define COM_VERIFY_TRUE( expression, fmt, ... ) COM_ASSERT( expression, fmt, __VA_ARGS__ )
 #define COM_VERIFY_FALSE( expression, fmt, ... ) COM_ASSERT( !(expression), fmt, __VA_ARGS__ )
