@@ -7,42 +7,66 @@
 using namespace std;
 using namespace sf;
 
-// TODO: potentially create a static cache of resources which can be added to and removed from
-// as scenes are loaded and unloaded
-// Can be structured as so:
-// - Create a struct which contains: HashedString (used for hashing), pointer to resource
-// - Create a static array of these structs and use this as a linear probing map which you can index
-//   into using HashedStrings
-// - Dynamically allocate resources using heap and assign those pointers to the struct
-//		- Might have to store the resources as void pointers in the struct and then cast them
-//		  to the desired type when they are requested using templated resources 
+
 constexpr size_t MAX_CACHED_RESOURCES = 1 << 19; // ~500,000 resources
+
+typedef void ( *ResourceDeletorFunc )( void* );
+#define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
 
 struct CachedResource
 {
-	void* resourcePtr;
-	ResourceType type;
+	void* resourcePtr = nullptr;
+	ResourceType type = ResourceType::INVALID;
+	HashedString hash = INVALID_HASHED_STRING;
+	ResourceDeletorFunc deletorFunc;
+
+	void Reset()
+	{
+		type = ResourceType::INVALID;
+		hash = INVALID_HASHED_STRING;
+		deletorFunc( resourcePtr );
+		resourcePtr = nullptr;
+	}
 };
 
+// linear probing hash
 static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
 
+// TODO: replace this with a scene type?
+static const char* s_currentlyLoadedScene = nullptr;
 
+// TODO: have to test all of the caching and unloading and getting functions
 // ===========================
 // Private Resource Loaders
 // ===========================
 
-bool CacheResource( HashedString resourceHashName, void* resource, ResourceType resourceType )
+bool CacheResource( HashedString resourceHashName, void* resource, ResourceType resourceType, ResourceDeletorFunc deletorFunct )
 {
-	// TODO: implement caching using resourceHashName for indexing
+	const size_t newIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
-	// TODO: assert of cache is full. Maybe can eventually implement LRU caching instead
-	// but will have to make it so that getter will also load in resources if they are no longer
-	// loaded so that user can safely assume that their resources are still in memory... but that
-	// may not work?? B/c what if a component has a Sprite object which takes in a texture pointer?
-	// Is it possible to have Sprite use a pointer to the texture but then have to re-set it 
-	// the next frame? Maybe just don't ever unload until it is no longer needed explicitly.
-	return true;
+	// iterate through array starting at hash index until an empty slot is found in cache
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		const size_t currIndex = ( newIndex + i ) % MAX_CACHED_RESOURCES;
+		CachedResource* currResource = &s_cachedResources[currIndex];
+		if ( currResource->hash == INVALID_HASHED_STRING )
+		{
+			currResource->resourcePtr = resource;
+			currResource->type = resourceType;
+			currResource->hash = resourceHashName;
+			currResource->deletorFunc = deletorFunct;
+			return true;
+		}
+	}
+
+	COM_ASSERT( false, "%s - no empty slot found for caching resource '%s'. Might need to increase resource cache size. Current max: %zu\n",
+				__FUNCTION__,
+				resourceHashName.GetStringForHash(),
+				MAX_CACHED_RESOURCES );
+
+	return false;
 }
+
 
 template <ResourceType T>
 bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePath )
@@ -52,6 +76,7 @@ bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePa
 				GetResourceTypeString( T ) );
 	return false;
 }
+
 
 template<>
 bool LoadAndCacheResource<ResourceType::INVALID>( HashedString resourceHashName, const char* resourcePath )
@@ -71,7 +96,8 @@ bool LoadAndCacheResource<ResourceType::TEXTURE>( HashedString resourceHashName,
 		return false;
 	}
 
-	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::TEXTURE );
+
+	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::TEXTURE, RESOURCE_DELETOR( Texture ) );
 }
 
 
@@ -79,9 +105,43 @@ bool LoadAndCacheResource<ResourceType::TEXTURE>( HashedString resourceHashName,
 // Private Helpers
 // ===========================
 
+bool UnloadResource( HashedString resourceHashName )
+{
+	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
+
+	// iterate through array starting at hash index until an empty slot is found in cache
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
+		CachedResource* currResource = &s_cachedResources[currIndex];
+		if ( currResource->hash == resourceHashName )
+		{
+			currResource->Reset();
+			return true;
+		}
+	}
+
+	// resource not found
+	return false;
+}
+
+
 const CachedResource* GetCachedResource( HashedString resourceHashName )
 {
-	// TODO: implement getting a resource given a hash
+	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
+
+	// iterate through array starting at hash index until resource for hash is found
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
+		CachedResource* currResource = &s_cachedResources[currIndex];
+		if ( currResource->hash == resourceHashName )
+		{
+			return currResource;
+		}
+	}
+
+	// resource is not cached
 	return nullptr;
 }
 
@@ -90,26 +150,10 @@ const CachedResource* GetCachedResource( HashedString resourceHashName )
 // Public Functions/Methods
 // ===========================
 
-// TODO: do away with the resource manager class and just use functions since we will be working
-// with a static resource buffer instead... unless I want multiple resource managers at once
-// for loading multiple scenes at once... nah that would get messy
-ResourceManager::ResourceManager()
-{
-
-}
-
-
-ResourceManager& ResourceManager::GetInstance()
-{
-	static ResourceManager instance;
-	
-	return instance;
-}
-
-
-void ResourceManager::LoadSceneAssets( const char* sceneFileName )
+void LoadSceneAssets( const char* sceneFileName )
 {
 	// TODO: sceneFileName is a JSON file which contains the defintion of all of the assets to load?
+	// Maybe should be a scene object instead which 
 
 }
 
@@ -119,7 +163,7 @@ void ResourceManager::LoadSceneAssets( const char* sceneFileName )
 // every frame = prevents case where user is using a pointer to a resource that has
 // been freed/moved to another space in memory
 template<typename T>
-T* ResourceManager::GetResource( ResourceHandle<T> resourcehandle )
+T* GetResource( ResourceHandle<T> resourcehandle )
 {
 	const CachedResource* resource = GetCachedResource( resourcehandle.handle.GetHash() );
 	if ( !resource )
@@ -127,15 +171,8 @@ T* ResourceManager::GetResource( ResourceHandle<T> resourcehandle )
 		return nullptr;
 	}
 
-	// TODO: maybe this should be dev only? Or asserts as a whole should be dev only
 	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n",
 				GetResourceTypeString( ResourceTypeForType<T>() ), GetResourceTypeString( resource->type ) );
 
 	return static_cast<T*>( resource->resourcePtr );
-}
-
-
-ResourceManager::~ResourceManager()
-{
-
 }

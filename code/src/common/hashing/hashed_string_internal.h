@@ -2,8 +2,6 @@
 #include "common/types.h"
 #include "common/global_defines.h"
 
-// TODO: need some way to detect collisions and then to assert when it occurs. Must catch the case of both
-// dynamically hashed and statically hashed strings somehow...
 
 namespace hashed_string
 {
