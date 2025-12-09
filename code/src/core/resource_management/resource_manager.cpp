@@ -129,7 +129,7 @@ bool UnloadResource( HashedString resourceHashName )
 const CachedResource* GetCachedResource( HashedString resourceHashName )
 {
 	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
-
+	
 	// iterate through array starting at hash index until resource for hash is found
 	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
 	{

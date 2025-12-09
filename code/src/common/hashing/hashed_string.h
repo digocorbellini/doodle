@@ -36,22 +36,22 @@ public:
 
 	inline bool operator==( const HashedString& other ) const
 	{
-		hash == other.hash;
+		return hash == other.hash;
 	}
 
 	inline bool operator!=( const HashedString& other ) const
 	{
-		hash != other.hash;
+		return hash != other.hash;
 	}
 
 	inline bool operator==( const std::uint64_t& otherHash ) const
 	{
-		hash == otherHash;
+		return hash == otherHash;
 	}
 
 	inline bool operator!=( const std::uint64_t& otherHash ) const
 	{
-		hash != otherHash;
+		return hash != otherHash;
 	}
 };
 
