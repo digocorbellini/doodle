@@ -41,7 +41,7 @@ enum class ComponentType : size_t
 	Count,
 	Invalid = MAX_COMPONENTS
 };
-static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS );
+static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS, "ComponentTypes have exceeded the max number of components." );
 
 
 /// <summary>
