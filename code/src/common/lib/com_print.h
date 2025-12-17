@@ -1,3 +1,12 @@
+////////////////////////////////////////////////////////////
+//
+// Printf wrapper functions and macros for facilitating
+// inclusion of formatting and debug messaging, in
+// addition to supporting dev only printing and 
+// logging to a file.
+//
+////////////////////////////////////////////////////////////
+
 #pragma once
 
 /// <summary>

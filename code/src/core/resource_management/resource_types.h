@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////
+//
+// This file includes all resouce types in the 
+// ResourceType enum as well as helper functions for 
+// dealing with resource types
+//
+////////////////////////////////////////////////////////////
+
 #pragma once
 #include "common/lib/com_assert.h"
 #include "common/lib/com_array.h"

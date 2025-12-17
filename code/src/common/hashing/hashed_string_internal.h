@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////
+//
+// Internal helper functions for hashed strings. None 
+// of the functions in this file should be included or 
+// used anywhere else.
+//
+////////////////////////////////////////////////////////////
+
 #pragma once
 #include "common/types.h"
 #include "common/global_defines.h"

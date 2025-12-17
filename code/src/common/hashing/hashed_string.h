@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////
+//
+// HashedString is meant to be used to facilitate the
+// hash look up of strings while also obfuscating 
+// the original strings in memory in ship builds.
+//
+////////////////////////////////////////////////////////////
+
 #pragma once
 #include "common/lib/com_assert.h"
 #include "common/global_defines.h"
