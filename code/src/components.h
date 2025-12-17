@@ -45,6 +45,15 @@ static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS, "C
 
 
 /// <summary>
+/// Get the string for the given component type
+/// </summary>
+/// <param name="componentType">The component type enum value to get the string for</param>
+/// <returns>The string for the given component type if the type is valid. Otherwise 
+/// nullptr is returned.</returns>
+const char* GetComponentTypeString( ComponentType componentType );
+
+
+/// <summary>
 /// A bitmask used to represent a set of active and inactive components
 /// </summary>
 class ComponentsMask
