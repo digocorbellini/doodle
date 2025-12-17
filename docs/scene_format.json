@@ -1,0 +1,87 @@
+{
+    "sceneName": "exampleSceneName",
+    // TODO: maybe this should be in a different file so that 
+    // it can be shared between scenes? But then scenes have
+    // to know what files to include to know info about prefabs?
+
+    // TODO: need templates in order to know what resources to
+    // load for entities that might not be loaded yet?? The scene
+    // editor tool will somehow have to know which entities 
+    // are included somewhere even if they are not initialized yet.
+    "entityTemplates": [
+        {
+            "name": "prefabName1",
+            "components": [
+                {
+                    "name": "componentName1",
+                    // TODO: figure out if type should be string or int
+                    "type": 1, 
+                    "values": {
+                        "valueName1": 432,
+                        "valueName2": "testVal"
+                    }
+                },
+                {
+                    "name": "componentName2",
+                    "type": 3,
+                    "values": {
+                        "vectorName": [1, 2, 43],
+                        "resoucePtrName": "resource1"
+                    }
+                }
+            ]
+        }
+    ],
+    "loadedEntities": [
+        {
+            // TODO: need to somehow figure out how to handle template 
+            // value overrides?
+            "template": "prefabName1",
+            "components": [
+
+            ]
+        },
+        {
+            "template": null,
+            "components": [
+                {
+                    "name": "componentName1",
+                    "type": 1,
+                    "values": {
+                        "valueName1": 432,
+                        "valueName2": "testVal"
+                    }
+                },
+                {
+                    "name": "componentName2",
+                    "type": 3,
+                    "values": {
+                        "vectorName": [1, 2, 43],
+                        "resoucePtrName": "resource1"
+                    }
+                }
+            ]
+        }
+    ],
+    "resources": [
+        {
+            // TODO: maybe resource name should not be included in scene
+            // for ship builds? Or maybe it doesn't matter for obfuscation
+            // since the path to the resource isn't obfuscated either.
+            "name": "resource1",
+            // TODO: figure out if using a string to handle large ints
+            // is a good idea. Need to see if I can even handle this in the 
+            // engine. Or if I will perform the hash in the engine.
+            "hashName": "123468790",
+            // TODO: figure out if type should be string or int
+            "resourceType": "texture",
+            "path": "relative/path/to/resource.png"
+        },
+        {
+            "name": "resource2",
+            "hashName": "4321",
+            "resourceType": "sound",
+            "path": "relative/path/to/resource.wav"
+        }
+    ]
+}
