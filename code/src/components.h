@@ -17,8 +17,10 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-#include <initializer_list>
 #include <bitset>
+#include "common/lib/com_assert.h"
+#include "common/types.h"
+#include <initializer_list>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -36,8 +38,11 @@ enum class ComponentType : size_t
 	PlayerController2D,
 	Camera2D,
 
+	Count,
 	Invalid = MAX_COMPONENTS
 };
+static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS );
+
 
 /// <summary>
 /// A bitmask used to represent a set of active and inactive components
@@ -126,7 +131,6 @@ public:
 //==========================
 // Components
 //==========================
-
 
 struct EntityTransform2D
 {

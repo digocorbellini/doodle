@@ -1,5 +1,18 @@
 #include "components.h"
 
+// ==================
+// Private Helpers
+// ==================
+
+static bool IsComponentValid( const ComponentType component )
+{
+	return component != ComponentType::Invalid && component != ComponentType::Count;
+}
+
+// ==================
+// Public Methods
+// ==================
+
 ComponentsMask::ComponentsMask( const ComponentsMask& other )
 {
 	mask = other.mask;
@@ -14,7 +27,7 @@ ComponentsMask::ComponentsMask( std::initializer_list<ComponentType> compList )
 
 bool ComponentsMask::AddComponent( const ComponentType component )
 {
-	if( component == ComponentType::Invalid )
+	if ( !IsComponentValid( component ) );
 	{
 		return false;
 	}
@@ -45,7 +58,7 @@ int ComponentsMask::AddComponents( std::initializer_list<ComponentType> compList
 
 bool ComponentsMask::RemoveComponent( const ComponentType component )
 {
-	if( component == ComponentType::Invalid )
+	if( !IsComponentValid( component ) )
 	{
 		return false;
 	}
