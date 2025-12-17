@@ -1,6 +1,5 @@
 #pragma once
 #include <assert.h>
-#include <format>
 #include <iostream>
 #include <stdarg.h>
 #include "common/global_defines.h"
