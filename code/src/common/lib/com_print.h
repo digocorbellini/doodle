@@ -51,5 +51,5 @@ void Com_PrintfWarning( const char* fmt, ... );
 /// is printing this formatted string</param>
 /// <param name="fmtStr">The string to be printed including format</param>
 /// <param name="">Additional arguments to be used in print string</param>
-#define Com_PrintfErrorVerbose( systemNameStr, fmtStr, ... ) \
+#define Com_PrintfWarningVerbose( systemNameStr, fmtStr, ... ) \
 Com_PrintfWarning( "[" systemNameStr "]: " __FUNCTION__ " - " fmtStr "\n", ##__VA_ARGS__ );
