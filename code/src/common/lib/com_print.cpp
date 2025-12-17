@@ -1,24 +1,25 @@
 #include "com_print.h"
 #include <cstdarg>
+#include "common/global_defines.h"
 #include <iostream>
 
 using namespace std;
 
+// TODO: add support for also printing everything to a log file
 
 // ===============================
 // Private Internal Helpers
 // ===============================
 
-static void InternalPrintfImplementation( FILE* const stream, const char* prefixStr, const char* fmtStr, ... )
+static void InternalPrintfImplementation( FILE* const stream, const char* prefixStr, const char* fmtStr, va_list args )
 {
-	va_list args;
-	va_start( args, fmtStr );
+#if USING( DEV_PRINT )
 	if ( prefixStr )
 	{
 		fputs( prefixStr, stream );
 	}
 	vfprintf( stream, fmtStr, args );
-	va_end( args );
+#endif // #if USING( DEV_PRINT )
 }
 
 
