@@ -21,6 +21,8 @@ struct ResourceHandle
 	HashedString handle;
 };
 
+
+
 // TODO: need to determine someway to determine where to load from.
 // Also need some way to unload and reload assets.
 // Idk if we want to be fully tied to "scenes" at all times
@@ -30,7 +32,15 @@ struct ResourceHandle
 //			- so it persists between scenes?
 // Maybe instead of having a reference to a scene file? Why not only load it once
 // and then pass it here and also in the entity parsing.
-void LoadSceneAssets( const char* sceneFileName );
+void ResourceMannager_LoadSceneAssets( const char* sceneFileName );
+
+
+/// <summary>
+/// Unload all resources for the currently loaded scene if a currently loaded 
+/// scene exists.
+/// </summary>
+void ResourceMannager_UnloadCurrentScene();
+
 
 /// <summary>
 /// Get a pointer to the given resource if it has been loaded.
@@ -41,4 +51,4 @@ void LoadSceneAssets( const char* sceneFileName );
 /// <returns>A pointer of type T to the given resource if it exists and has been loaded, 
 /// otherwise returns nullptr.</returns>
 template<typename T>
-T* GetResource( ResourceHandle<T> resourcehandle );
+T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle );

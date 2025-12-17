@@ -18,14 +18,22 @@ struct CachedResource
 	void* resourcePtr = nullptr;
 	ResourceType type = ResourceType::INVALID;
 	HashedString hash = INVALID_HASHED_STRING;
-	ResourceDeletorFunc deletorFunc;
+	ResourceDeletorFunc deletorFunc = nullptr;
 
 	void Reset()
 	{
 		type = ResourceType::INVALID;
 		hash = INVALID_HASHED_STRING;
-		deletorFunc( resourcePtr );
+		if ( deletorFunc )
+		{
+			deletorFunc( resourcePtr );
+		}
 		resourcePtr = nullptr;
+	}
+
+	bool IsEmpty()
+	{
+		return resourcePtr == nullptr;
 	}
 };
 
@@ -33,6 +41,8 @@ struct CachedResource
 static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
 
 // TODO: replace this with a scene type?
+// TODO: also look into the option of having a second loaded scene for
+// the ability of loading a second scene in the background?
 static const char* s_currentlyLoadedScene = nullptr;
 
 // TODO: have to test all of the caching and unloading and getting functions
@@ -49,7 +59,7 @@ bool CacheResource( HashedString resourceHashName, void* resource, ResourceType 
 	{
 		const size_t currIndex = ( newIndex + i ) % MAX_CACHED_RESOURCES;
 		CachedResource* currResource = &s_cachedResources[currIndex];
-		if ( currResource->hash == INVALID_HASHED_STRING )
+		if ( currResource->IsEmpty() )
 		{
 			currResource->resourcePtr = resource;
 			currResource->type = resourceType;
@@ -109,7 +119,7 @@ bool UnloadResource( HashedString resourceHashName )
 {
 	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
-	// iterate through array starting at hash index until an empty slot is found in cache
+	// iterate through array starting at hash index until resource for hash is found
 	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
 	{
 		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
@@ -123,6 +133,19 @@ bool UnloadResource( HashedString resourceHashName )
 
 	// resource not found
 	return false;
+}
+
+
+void UnloadAllResources()
+{
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		CachedResource* currResource = &s_cachedResources[i];
+		if ( !currResource->IsEmpty() )
+		{
+			currResource->Reset();
+		}
+	}
 }
 
 
@@ -147,23 +170,35 @@ const CachedResource* GetCachedResource( HashedString resourceHashName )
 
 
 // ===========================
-// Public Functions/Methods
+// Public Functions
 // ===========================
 
-void LoadSceneAssets( const char* sceneFileName )
+void ResourceMannager_LoadSceneAssets( const char* sceneFileName )
 {
 	// TODO: sceneFileName is a JSON file which contains the defintion of all of the assets to load?
 	// Maybe should be a scene object instead which 
+	
+}
 
+
+void ResourceMannager_UnloadCurrentScene()
+{
+	if ( !s_currentlyLoadedScene )
+	{
+		return;
+	}
+
+	UnloadAllResources();
 }
 
 
 // TODO: maybe figure out a way to return a temporary resource that does not allow
 // caching between frames, so systems have to request the resouce using the handle 
 // every frame = prevents case where user is using a pointer to a resource that has
-// been freed/moved to another space in memory
+// been freed/moved to another space in memory... or just don't clear the resouce
+// from memory until the scene unloads?
 template<typename T>
-T* GetResource( ResourceHandle<T> resourcehandle )
+T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle )
 {
 	const CachedResource* resource = GetCachedResource( resourcehandle.handle.GetHash() );
 	if ( !resource )
