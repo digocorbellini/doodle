@@ -16,10 +16,9 @@
 #define MAX_ENTITIES 5000
 #define INVALID_ENTITY ULLONG_MAX
 
-// Maybe make this private somehow?
 // Systems will operate on this struct of all components in the game
 // Every entity has an entry in every list. Their component is
-// acceced by indexing using their entity id.
+// accessed by indexing using their entity id.
 struct Components
 {
 	// Have a list for every component type in the game. This
@@ -50,11 +49,6 @@ Components* ECS_GetAllComponents();
 Entity_t ECS_AddEntity( ComponentsMask compMask );
 
 bool ECS_RemoveEntity( Entity_t entity );
-
-// TODO: instead of this, can have a special define for dev only code
-// that is used when building debug or release builds
-void ECS_SetDebugMode( bool isDebug );
-bool ECS_GetDebugMode();
 
 bool ECS_LoadScene( const char* sceneFileName );
 

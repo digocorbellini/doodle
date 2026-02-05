@@ -6,6 +6,7 @@
 // TODO: just for testing
 #include "common/hashing/hashed_string.h"
 #include <inttypes.h>
+#include "common/lib/com_print.h"
 
 using namespace std;
 
@@ -41,6 +42,12 @@ bool SceneLoader::LoadSceneFile( const char* sceneFileName )
 
 	HashedString testHash4( "test String 3!" );
 	printf( "Testing: %s = %" PRIu64 "\n", testHash4.GetStringForHash(), testHash4.GetHash() );
+
+
+	Com_Printf( "Test int: %i\n", 10 );
+	Com_PrintfVerbose( "SceneLoader", "Test num: [%i]", -43 );
+	Com_PrintfErrorVerbose( "SceneLoader", "Test num: [%s]", "test");
+	Com_PrintfWarningVerbose( "SceneLoader", "Test num: [%.2f]", 12.432152);
 
 
 	ifstream inputFile("../game/scenes/test_scene.json");

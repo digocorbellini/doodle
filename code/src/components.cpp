@@ -1,6 +1,8 @@
 #include "components.h"
 #include "common/lib/com_array.h"
 
+// TODO: this will eventually be used by the scene parsing logic to know
+// what components to add to an entity
 static const char* s_componentTypeStrings[] =
 {
 	"EntityTransform2D",

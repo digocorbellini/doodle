@@ -20,6 +20,7 @@
 #include <bitset>
 #include "common/lib/com_assert.h"
 #include "common/types.h"
+#include "core/resource_management/resource_manager.h"
 #include <initializer_list>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
@@ -157,17 +158,10 @@ struct PhysicsBody2D
 struct SpriteRenderer2D
 {
 	Sprite sprite;
-	// TODO: can't have textures be statically initialized
-	// b/c the way that textures work they cause memory errors.
-	// Instead have to figure out some clever way to load in textures and then
-	// query them later on. Then have to have some sort of initialization
-	// process for the texture to somehow be added here?
-	// 
-	// Maybe load them in all at once (eventually later have some caching and swapping what is loaded? Or it is loaded and 
-	// unloaded per scene?)
-	// and put them in a map where the key is a image name (or maybe a path with a name?) and then the value 
-	// is the loaded texture. Then in the initialization of componenets, have to fetch the texture and add it here? As a ptr?
-	//Texture texture;
+	// TODO: sprite stores a pointer to the texture so we need some way to either
+	// guarantee that the memory won't be cleared or have to re-set the texture at the start of 
+	// every frame before drawing... although that might be sketch and a waste of compute
+	ResourceHandle<Texture> textureResource;
 	int renderingOrder;
 
 	bool isXFlipped;
@@ -184,6 +178,8 @@ struct PlayerController2D
 
 struct Camera2D
 {
+	// TODO: this needs to be something serializable instead of a pointer... so maybe need some sort of
+	// component manager so that I can convert from a handle/string/hash to a pointer
 	EntityTransform2D* targetTransform; // if null, will not try to follow a target and will instead be controlled by its transform
 	Vector2f viewOffsetFromPos; // used to center the camera since position is top left corner
 	View cameraView;
