@@ -12,8 +12,8 @@
     * This mask can then be used to decide what entities should be modified by your desired system which
       utilizes this component 
 
-* Process for Creating Entities
+# Process for Creating Entities
 TBD
 
-* Process for Adding a New System
+# Process for Adding a New System
 TBD
