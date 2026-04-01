@@ -46,9 +46,9 @@ struct Entity
 
 Components* ECS_GetAllComponents();
 
-Entity_t ECS_AddEntity( ComponentsMask compMask );
+EntityID ECS_AddEntity( ComponentsMask compMask );
 
-bool ECS_RemoveEntity( Entity_t entity );
+bool ECS_RemoveEntity( EntityID entity );
 
 bool ECS_LoadScene( const char* sceneFileName );
 

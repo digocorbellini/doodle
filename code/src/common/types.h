@@ -11,7 +11,7 @@
 #include <type_traits>
 
 typedef std::uint8_t Byte;
-typedef std::uint64_t Entity_t;
+typedef std::uint64_t EntityID;
 
 template <typename T>
 constexpr std::underlying_type_t<T> GetUndelyingEnumVal( T enumVal )

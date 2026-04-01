@@ -4,7 +4,7 @@
 static Entity entities[MAX_ENTITIES];
 
 static Components components;
-static Entity_t numEntities;
+static EntityID numEntities;
 //
 static bool isDebugMode;
 //
