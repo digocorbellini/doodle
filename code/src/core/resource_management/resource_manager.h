@@ -10,6 +10,8 @@
 
 #pragma once
 #include "common/hashing/hashed_string.h"
+#include "common/lib/com_assert.h"
+#include "resource_manager_internal.h"
 
 // TODO: replace this with a config file somehow
 #define RELATIVE_ASSETS_PATH "../assets"
@@ -18,7 +20,7 @@
 template <typename T>
 struct ResourceHandle
 {
-	HashedString handle;
+	HashedString handle = INVALID_HASHED_STRING;
 };
 
 
@@ -51,4 +53,24 @@ void ResourceMannager_UnloadCurrentScene();
 /// <returns>A pointer of type T to the given resource if it exists and has been loaded, 
 /// otherwise returns nullptr.</returns>
 template<typename T>
-T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle );
+T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle )
+{
+	// TODO: maybe figure out a way to return a temporary resource that does not allow
+	// caching between frames, so systems have to request the resouce using the handle
+	// every frame = prevents case where user is using a pointer to a resource that has
+	// been freed / moved to another space in memory... or just don't clear the resouce
+    // from memory until the scene unloads?
+
+	// defined function in header due to it being templated
+
+	const resource_manager_impl::CachedResource* resource = resource_manager_impl::GetCachedResource( resourcehandle.handle.GetHash() );
+	if ( !resource )
+	{
+		return nullptr;
+	}
+
+	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n",
+				GetResourceTypeString( ResourceTypeForType<T>() ), GetResourceTypeString( resource->type ) );
+
+	return static_cast<T*>( resource->resourcePtr );
+}

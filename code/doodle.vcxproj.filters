@@ -80,5 +80,14 @@
     <ClInclude Include="src\common\lib\com_print.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\sprite_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\resource_management\resource_manager_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

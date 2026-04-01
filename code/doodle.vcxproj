@@ -30,6 +30,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\common\constants.h" />
     <ClInclude Include="src\common\lib\com_array.h" />
     <ClInclude Include="src\common\lib\com_assert.h" />
     <ClInclude Include="src\common\global_defines.h" />
@@ -40,8 +41,10 @@
     <ClInclude Include="src\common\hashing\hashed_string.h" />
     <ClInclude Include="src\common\hashing\hashed_string_internal.h" />
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
+    <ClInclude Include="src\core\resource_management\resource_manager_internal.h" />
     <ClInclude Include="src\core\resource_management\resource_types.h" />
     <ClInclude Include="src\core\scene_loader.h" />
+    <ClInclude Include="src\graphics\sprite_renderer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

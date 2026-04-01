@@ -1,41 +1,13 @@
-#include "common/lib/com_assert.h"
-#include "common/types.h"
 #include "resource_manager.h"
-#include "resource_types.h"
 #include <SFML/Graphics.hpp>
+
+#define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
 
 using namespace std;
 using namespace sf;
-
+using namespace resource_manager_impl;
 
 constexpr size_t MAX_CACHED_RESOURCES = 1 << 19; // ~500,000 resources
-
-typedef void ( *ResourceDeletorFunc )( void* );
-#define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
-
-struct CachedResource
-{
-	void* resourcePtr = nullptr;
-	ResourceType type = ResourceType::INVALID;
-	HashedString hash = INVALID_HASHED_STRING;
-	ResourceDeletorFunc deletorFunc = nullptr;
-
-	void Reset()
-	{
-		type = ResourceType::INVALID;
-		hash = INVALID_HASHED_STRING;
-		if ( deletorFunc )
-		{
-			deletorFunc( resourcePtr );
-		}
-		resourcePtr = nullptr;
-	}
-
-	bool IsEmpty()
-	{
-		return resourcePtr == nullptr;
-	}
-};
 
 // linear probing hash
 static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
@@ -149,7 +121,7 @@ void UnloadAllResources()
 }
 
 
-const CachedResource* GetCachedResource( HashedString resourceHashName )
+const CachedResource* resource_manager_impl::GetCachedResource( HashedString resourceHashName )
 {
 	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 	
@@ -189,25 +161,4 @@ void ResourceMannager_UnloadCurrentScene()
 	}
 
 	UnloadAllResources();
-}
-
-
-// TODO: maybe figure out a way to return a temporary resource that does not allow
-// caching between frames, so systems have to request the resouce using the handle 
-// every frame = prevents case where user is using a pointer to a resource that has
-// been freed/moved to another space in memory... or just don't clear the resouce
-// from memory until the scene unloads?
-template<typename T>
-T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle )
-{
-	const CachedResource* resource = GetCachedResource( resourcehandle.handle.GetHash() );
-	if ( !resource )
-	{
-		return nullptr;
-	}
-
-	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n",
-				GetResourceTypeString( ResourceTypeForType<T>() ), GetResourceTypeString( resource->type ) );
-
-	return static_cast<T*>( resource->resourcePtr );
 }

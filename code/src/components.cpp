@@ -53,7 +53,7 @@ ComponentsMask::ComponentsMask( std::initializer_list<ComponentType> compList )
 
 bool ComponentsMask::AddComponent( const ComponentType component )
 {
-	if ( !IsComponentValid( component ) );
+	if ( !IsComponentValid( component ) )
 	{
 		return false;
 	}
