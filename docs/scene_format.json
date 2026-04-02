@@ -34,6 +34,7 @@
     ],
     "loadedEntities": [
         {
+            "entityName": "entity1", // must be unique?
             // TODO: need to somehow figure out how to handle template 
             // value overrides?
             "template": "prefabName1",
@@ -42,12 +43,14 @@
             ]
         },
         {
+            "entityName": "entity2",
             "template": null,
             "components": [
                 {
                     "name": "componentName1",
                     "type": 1,
                     "values": {
+                        "entityName": "entity1", // engine will need to convert this to entity ID somehow
                         "valueName1": 432,
                         "valueName2": "testVal"
                     }
@@ -72,9 +75,13 @@
             // TODO: figure out if using a string to handle large ints
             // is a good idea. Need to see if I can even handle this in the 
             // engine. Or if I will perform the hash in the engine.
+            // TODO: need to see if I can somehow perform hashing in the tool. Maybe export hashing logic to a re-usable library that the tool and engine can use? or don't hash and game will do it all? But then no obfuscation would occur
             "hashName": "123468790",
             // TODO: figure out if type should be string or int
             "resourceType": "texture",
+            // TODO: need to figure out what this is relative to
+            // since EXE and launching debugger have different
+            // source paths
             "path": "relative/path/to/resource.png"
         },
         {
