@@ -9,12 +9,10 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-//#include "../components.h"
-#include "../components.h"
-#include "../common/types.h"
+#include "components.h"
+#include "common/types.h"
 
-#define MAX_ENTITIES 5000
-#define INVALID_ENTITY ULLONG_MAX
+static constexpr EntityID MAX_ENTITIES = 5000;
 
 // Systems will operate on this struct of all components in the game
 // Every entity has an entry in every list. Their component is
@@ -32,27 +30,38 @@ struct Components
 	Camera2D cameras[MAX_ENTITIES];
 };
 
+/// <summary>
+/// Queue up the creation of an entity with the componenets in the given mask which will 
+/// be added at the start of the next frame
+/// </summary>
+/// <param name="compMask">A mask with the components the entity should have</param>
+/// <returns>The ID of the entity to be created. Note that the entity won't be 
+/// active for systems to operate on until the next frame. Will return 
+/// INVALID_ENTITY_ID if no new assets can be added.</returns>
+const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask );
 
-struct Entity
-{
-	ComponentsMask componentsMask;
+/// <summary>
+/// Queue the removal of the given entity at the end of the frame
+/// </summary>
+/// <param name="entity">The ID of the entity to be removed</param>
+/// <returns>True if the entity is found and can be removed at the end of the frame, otherwise
+/// returns false</returns>
+bool ECS_QueueEntityRemoval( const EntityID entityID );
 
-	Entity() = default;
-	Entity( ComponentsMask mask )
-	{
-		componentsMask = mask;
-	}
-};
+/// <summary>
+/// Returns the components mask for the given entity. Will return INVALID_COMPONENTS_MASK
+/// if the entity can not be operated on (Ex: does not exist, is disabled, etc).
+/// </summary>
+/// <param name="entityID">The ID of the desired entity</param>
+/// <returns>The component mask for the given entity if it exists and can be operated on, 
+/// otherwise returns INVALID_COMPONENTS_MASK</returns>
+const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 
-Components* ECS_GetAllComponents();
-
-EntityID ECS_AddEntity( ComponentsMask compMask );
-
-bool ECS_RemoveEntity( EntityID entity );
-
-bool ECS_LoadScene( const char* sceneFileName );
-
-// TODO: figure out how to load and parse a scene/level/thing file
-//bool ECS_LoadScene(); or maybe an "init"?
-
+/// <summary>
+/// Start the game loop logic. The loop will handle :
+/// - creating queued entity creations
+/// - running all systems to modify entities and componenets
+/// - deleting queued entity deletions
+/// - running the rendering logic 
+/// </summary>
 void ECS_StartGameLoop();

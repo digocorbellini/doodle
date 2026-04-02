@@ -15,7 +15,6 @@ int main ()
     shape.setFillColor ( sf::Color::Green );
 
     // TODO: testing
-    ECS_LoadScene( "" );
     SceneLoader::GetInstance().LoadSceneFile( "" );
 
 
