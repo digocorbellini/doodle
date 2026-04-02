@@ -138,6 +138,7 @@ public:
 	}
 };
 
+static constexpr ComponentsMask INVALID_COMPONENTS_MASK;
 
 //==========================
 // Components

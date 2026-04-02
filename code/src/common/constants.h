@@ -9,3 +9,4 @@
 #include "types.h"
 
 static constexpr EntityID INVALID_ENTITY_ID = UINT64_MAX;
+static constexpr EntityID MAX_ENTITY_ID = UINT64_MAX;
