@@ -14,10 +14,10 @@
 
 enum class ResourceType : int
 {
-	INVALID,
-	TEXTURE,
+	Invalid,
+	Texture,
 
-	COUNT
+	Count
 };
 
 const char* GetResourceTypeString( ResourceType resourceType );

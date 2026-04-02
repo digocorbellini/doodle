@@ -61,7 +61,7 @@ bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePa
 
 
 template<>
-bool LoadAndCacheResource<ResourceType::INVALID>( HashedString resourceHashName, const char* resourcePath )
+bool LoadAndCacheResource<ResourceType::Invalid>( HashedString resourceHashName, const char* resourcePath )
 {
 	COM_ASSERT( false, "%s - 'Invalid' resource type is not supported for loading.\n", __FUNCTION__ );
 	return false;
@@ -69,7 +69,7 @@ bool LoadAndCacheResource<ResourceType::INVALID>( HashedString resourceHashName,
 
 
 template <>
-bool LoadAndCacheResource<ResourceType::TEXTURE>( HashedString resourceHashName, const char* resourcePath )
+bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName, const char* resourcePath )
 {
 	Texture* newTexture = new Texture();
 	if ( !newTexture->loadFromFile( resourcePath ) )
@@ -79,7 +79,7 @@ bool LoadAndCacheResource<ResourceType::TEXTURE>( HashedString resourceHashName,
 	}
 
 
-	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::TEXTURE, RESOURCE_DELETOR( Texture ) );
+	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::Texture, RESOURCE_DELETOR( Texture ) );
 }
 
 

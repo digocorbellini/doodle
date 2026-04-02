@@ -8,13 +8,13 @@ static const char* s_resourceTypeStrings[] =
 	"invalid",
 	"texture"
 };
-static_assert( GetUndelyingEnumVal( ResourceType::COUNT ) == ARRAY_SIZE( s_resourceTypeStrings ),
+static_assert( GetUndelyingEnumVal( ResourceType::Count ) == ARRAY_SIZE( s_resourceTypeStrings ),
 			   "ResourceTypeStrings and ResourceType length missmatch" );
 
 
 const char* GetResourceTypeString( ResourceType resourceType )
 {
-	COM_ASSERT( resourceType < ResourceType::COUNT, "%s - Invalid resource type [%i]\n",
+	COM_ASSERT( resourceType < ResourceType::Count, "%s - Invalid resource type [%i]\n",
 				__FUNCTION__,
 				GetUndelyingEnumVal( resourceType ) );
 
@@ -28,12 +28,12 @@ ResourceType ResourceTypeForType()
 	COM_ASSERT( false, "%s - Resource type '%s' is not supported. Make sure it is added to resource_types.h/cpp\n", 
 				__FUNCTION__,  
 				typeid(T).name);
-	return ResourceType::INVALID;
+	return ResourceType::Invalid;
 }
 
 
 template<>
 ResourceType ResourceTypeForType<Texture>()
 {
-	return ResourceType::TEXTURE;
+	return ResourceType::Texture;
 }

@@ -16,13 +16,13 @@ namespace resource_manager_impl
 	struct CachedResource
 	{
 		void* resourcePtr = nullptr;
-		ResourceType type = ResourceType::INVALID;
+		ResourceType type = ResourceType::Invalid;
 		HashedString hash = INVALID_HASHED_STRING;
 		ResourceDeletorFunc deletorFunc = nullptr;
 
 		void Reset()
 		{
-			type = ResourceType::INVALID;
+			type = ResourceType::Invalid;
 			hash = INVALID_HASHED_STRING;
 			if ( deletorFunc )
 			{
