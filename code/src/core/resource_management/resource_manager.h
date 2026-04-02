@@ -69,7 +69,7 @@ T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle )
 		return nullptr;
 	}
 
-	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n",
+	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n", __FUNCTION__,
 				GetResourceTypeString( ResourceTypeForType<T>() ), GetResourceTypeString( resource->type ) );
 
 	return static_cast<T*>( resource->resourcePtr );
