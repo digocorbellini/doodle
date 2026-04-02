@@ -26,7 +26,7 @@ struct Entity
 		componentsMask = mask;
 	}
 
-	bool CanBeOperatedOn()
+	bool CanBeOperatedOn() const
 	{
 		return isEnabled && state == EntityState::Assigned;
 	}
@@ -114,7 +114,16 @@ bool ECS_QueueEntityRemoval( const EntityID entityID )
 
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 {
-	
+	if ( !IsValidEntityID( entityID ) )
+	{
+		return INVALID_COMPONENTS_MASK;
+	}
+
+	const Entity* entity = &s_entities[entityID];
+	if ( entity->CanBeOperatedOn() )
+	{
+		return entity->componentsMask;
+	}
 
 	return INVALID_COMPONENTS_MASK;
 }
