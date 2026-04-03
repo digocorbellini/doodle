@@ -27,6 +27,13 @@ struct Entity
 		componentsMask = mask;
 	}
 
+	void Reset()
+	{
+		componentsMask = INVALID_COMPONENTS_MASK;
+		state = EntityState::Available;
+		isEnabled = false;
+	}
+
 	bool CanBeOperatedOn() const
 	{
 		return isEnabled && state == EntityState::Assigned;
@@ -68,6 +75,57 @@ static uint64_t s_numQueuedDeletions;
 static bool IsValidEntityID( const EntityID id )
 {
 	return id >= 0 && id <= s_numEntities && id != INVALID_ENTITY_ID;
+}
+
+
+static void ProcessEntityCreationQueue()
+{
+	for ( int i = 0; i < s_numQueuedAdditions; ++i )
+	{
+		QueuedEntityAddition* currAddition = &s_entityAdditionQueue[i];
+		if ( !IsValidEntityID( currAddition->claimedID ) )
+		{
+			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "", currAddition->claimedID, MAX_ENTITY_ID );
+			continue;
+		}
+
+		Entity* newEntity = &s_entities[currAddition->claimedID];
+		if ( newEntity->state != EntityState::Claimed )
+		{
+			COM_ALWAYS_ASSERT( "Queued entity with claimed ID of [%" PRIu64 "] is attempting to claim an entity without a 'claimed' state. State: [%i]", currAddition->claimedID, GetUndelyingEnumVal( newEntity->state ) );
+			continue;
+		}
+
+		newEntity->componentsMask = currAddition->componentsMask;
+		newEntity->state = EntityState::Assigned;
+	}
+
+	s_numQueuedAdditions = 0;
+}
+
+
+static void ProcessEntityDeletionQueue()
+{
+	for ( int i = 0; i < s_numQueuedDeletions; ++i )
+	{
+		EntityID currDeletionID = s_entityDeletionQueue[i];
+		if ( !IsValidEntityID( currDeletionID ) )
+		{
+			COM_ALWAYS_ASSERT( "Queued entity deletion has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "", currDeletionID, MAX_ENTITY_ID );
+			continue;
+		}
+
+		Entity* entity = &s_entities[currDeletionID];
+		if ( entity->state != EntityState::Claimed )
+		{
+			COM_ALWAYS_ASSERT( "Queued entity deletion with claimed ID of [%" PRIu64 "] is attempting to delete an entity without a 'assigned' state. State: [%i]", currDeletionID, GetUndelyingEnumVal( entity->state ) );
+			continue;
+		}
+
+		entity->Reset();
+	}
+
+	s_numQueuedDeletions = 0;
 }
 
 
