@@ -77,6 +77,11 @@ static bool IsValidEntityID( const EntityID id )
 
 const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 {
+	if ( compMask == INVALID_COMPONENTS_MASK )
+	{
+		return INVALID_ENTITY_ID;
+	}
+
 	if ( s_numQueuedAdditions >= MAX_ENTITY_QUEUE_SIZE )
 	{
 		COM_ALWAYS_ASSERT( "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
