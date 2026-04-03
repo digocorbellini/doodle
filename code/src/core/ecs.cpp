@@ -1,6 +1,7 @@
 #include "ecs.h"
 #include <cinttypes>
 #include "common/lib/com_print.h"
+#include "common/lib/com_assert.h"
 
 static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
 
@@ -78,7 +79,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 {
 	if ( s_numQueuedAdditions >= MAX_ENTITY_QUEUE_SIZE )
 	{
-		Com_PrintfErrorVerbose( "ECS", "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		COM_ALWAYS_ASSERT( "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
 		return INVALID_ENTITY_ID;
 	}
 
@@ -99,7 +100,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 		}
 	}
 
-	Com_PrintfWarningVerbose( "ECS", "Unable to add new entity due to entities array being full. Entities array size: %" PRIu64 "", MAX_ENTITIES );
+	COM_ALWAYS_ASSERT( "Unable to add new entity due to entities array being full. Entities array size: %" PRIu64 "", MAX_ENTITIES );
 	return INVALID_ENTITY_ID;
 }
 
@@ -108,7 +109,7 @@ bool ECS_QueueEntityRemoval( const EntityID entityID )
 {
 	if ( s_numQueuedDeletions >= MAX_ENTITY_QUEUE_SIZE )
 	{
-		Com_PrintfErrorVerbose( "ECS", "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		COM_ALWAYS_ASSERT( "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
 		return false;
 	}
 
