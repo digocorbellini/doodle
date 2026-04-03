@@ -19,7 +19,7 @@ const char* HashedString::GetStringForHash()
 {
 #if USING( HASHED_STRING_CACHING )
 	return GetCachedStringForHash( hash );
-#elif // #if USING( HASHED_STRING_CACHING )
+#else // #if USING( HASHED_STRING_CACHING )
 	return nullptr;
-#endif // #elif // #if USING( HASHED_STRING_CACHING )
+#endif // #else // #if USING( HASHED_STRING_CACHING )
 }
