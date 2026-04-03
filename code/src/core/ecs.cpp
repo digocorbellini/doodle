@@ -78,7 +78,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 {
 	if ( s_numQueuedAdditions >= MAX_ENTITY_QUEUE_SIZE )
 	{
-		Com_PrintfWarningVerbose( "ECS", "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		Com_PrintfErrorVerbose( "ECS", "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
 		return INVALID_ENTITY_ID;
 	}
 
@@ -106,9 +106,27 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 
 bool ECS_QueueEntityRemoval( const EntityID entityID )
 {
-	// TODO: have to create and manage a queue for deleting at the end of the current game loop iteration 
-	// (AKA current frame)
-	return false;
+	if ( s_numQueuedDeletions >= MAX_ENTITY_QUEUE_SIZE )
+	{
+		Com_PrintfErrorVerbose( "ECS", "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		return false;
+	}
+
+	if ( !IsValidEntityID( entityID ) )
+	{
+		return false;
+	}
+
+	// see if entity even exists 
+	const Entity* entity = &s_entities[entityID];
+	if ( entity->state != EntityState::Assigned )
+	{
+		return false;
+	}
+
+	s_entityDeletionQueue[s_numQueuedDeletions] = entityID;
+	++s_numQueuedDeletions;
+	return true;
 }
 
 
