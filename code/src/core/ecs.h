@@ -58,6 +58,12 @@ bool ECS_QueueEntityRemoval( const EntityID entityID );
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 
 /// <summary>
+/// Register the given system so that it may be run during the ECS game loop
+/// </summary>
+/// <param name="system">A pointer to the system to be registered</param>
+const void ECS_RegisterSystem( const class System* system );
+
+/// <summary>
 /// Start the game loop logic. The loop will handle :
 /// - creating queued entity creations
 /// - running all systems to modify entities and componenets

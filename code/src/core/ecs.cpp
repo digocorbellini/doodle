@@ -2,6 +2,7 @@
 #include <cinttypes>
 #include "common/lib/com_print.h"
 #include "common/lib/com_assert.h"
+#include "core/system.h"
 
 static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
 
@@ -213,6 +214,12 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 }
 
 
+const void ECS_RegisterSystem( const System* system )
+{
+	// TODO: add to a static system list and assert if list is full
+}
+
+
 // TODO: have to figure out how scene loader will mass unload entities + mass load in entities 
 // in respect to game loop. Might have to integrate it somehow into the start of a frame
 // (clear entity list + add new list of entities as a whole). Maybe have a 
@@ -231,15 +238,13 @@ void ECS_StartGameLoop()
 				window.close();
 		}
 
+		// TODO: run the following in this order
+		// - initialize new scene if applicable (AKA clear entities list and fill in new entities)
+		// - add new entities
+		// - run all systems
+		// - delete all queued deletion entities
+		// - run rendering
 		window.clear( s_backgroundColor );
-
 		window.display();
 	}
-
-	// TODO: run the following in this order
-	// - initialize new scene (AKA clear entities list and fill in new entities)
-	// - add new entities
-	// - run all systems
-	// - delete all queued deletion entities
-	// - run rendering 
 }
