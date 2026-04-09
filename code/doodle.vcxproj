@@ -44,6 +44,7 @@
     <ClInclude Include="src\core\resource_management\resource_manager_internal.h" />
     <ClInclude Include="src\core\resource_management\resource_types.h" />
     <ClInclude Include="src\core\scene_loader.h" />
+    <ClInclude Include="src\core\system.h" />
     <ClInclude Include="src\graphics\sprite_renderer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

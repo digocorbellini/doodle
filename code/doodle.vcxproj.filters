@@ -89,5 +89,8 @@
     <ClInclude Include="src\core\resource_management\resource_manager_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
