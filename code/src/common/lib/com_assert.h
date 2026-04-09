@@ -29,3 +29,5 @@
 #define COM_VERIFY_FALSE( expression, fmt, ... ) COM_ASSERT( !(expression), fmt, __VA_ARGS__ )
 
 #define COM_ALWAYS_ASSERT( fmt, ... ) COM_ASSERT( false, fmt, __VA_ARGS__ )
+
+#define COM_INDEX_ASSERT( index, max, fmt, ... ) COM_ASSERT( (index >= 0 && index < max ), fmt, __VA_ARGS__ )
