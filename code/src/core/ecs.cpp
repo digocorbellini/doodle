@@ -59,8 +59,10 @@ static Components s_components;
 //// of static functions in a window.cpp file?
 // TODO: these should be set via a settings/config file maybe? And should be configurable
 // during game loop as well
+static constexpr uint64_t MAX_WINDOW_TITLE_LENGTH = 64;
 static Color s_backgroundColor;
-static Vector2i s_windowSize;
+static Vector2i s_windowSize = Vector2i( 1920, 1080 );
+static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 
 static QueuedEntityAddition s_entityAdditionQueue[MAX_ENTITY_QUEUE_SIZE];
 static uint64_t s_numQueuedAdditions;
@@ -218,6 +220,22 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 
 void ECS_StartGameLoop()
 {
+	sf::RenderWindow window( sf::VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
+
+	while ( window.isOpen() )
+	{
+		sf::Event event;
+		while ( window.pollEvent( event ) )
+		{
+			if ( event.type == sf::Event::Closed )
+				window.close();
+		}
+
+		window.clear( s_backgroundColor );
+
+		window.display();
+	}
+
 	// TODO: run the following in this order
 	// - initialize new scene (AKA clear entities list and fill in new entities)
 	// - add new entities

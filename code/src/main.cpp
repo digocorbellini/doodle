@@ -10,27 +10,29 @@ int main ()
     // then have to start game loop
     //Resource *test = new TextureResource( "hi there!" );
     
-    sf::RenderWindow window ( sf::VideoMode ( 200, 200 ), "SFML works!" );
-    sf::CircleShape shape ( 100.f );
-    shape.setFillColor ( sf::Color::Green );
+    //sf::RenderWindow window ( sf::VideoMode ( 200, 200 ), "SFML works!" );
+    //sf::CircleShape shape ( 100.f );
+    //shape.setFillColor ( sf::Color::Green );
 
-    // TODO: testing
-    SceneLoader::GetInstance().LoadSceneFile( "" );
+    //// TODO: testing
+    //SceneLoader::GetInstance().LoadSceneFile( "" );
 
 
-    while( window.isOpen () )
-    {
-        sf::Event event;
-        while( window.pollEvent ( event ) )
-        {
-            if( event.type == sf::Event::Closed )
-                window.close ();
-        }
+    //while( window.isOpen () )
+    //{
+    //    sf::Event event;
+    //    while( window.pollEvent ( event ) )
+    //    {
+    //        if( event.type == sf::Event::Closed )
+    //            window.close ();
+    //    }
 
-        window.clear ();
-        window.draw ( shape );
-        window.display ();
-    }
+    //    window.clear ();
+    //    window.draw ( shape );
+    //    window.display ();
+    //}
+
+    ECS_StartGameLoop();
 
     return 0;
 }
