@@ -18,7 +18,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\components.cpp">
+    <ClCompile Include="src\core\components.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\ecs.cpp">
@@ -44,7 +44,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\components.h">
+    <ClInclude Include="src\core\components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\types.h">

@@ -22,7 +22,7 @@
     <ClCompile Include="src\common\hashing\hashed_string.cpp" />
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp" />
     <ClCompile Include="src\common\lib\com_print.cpp" />
-    <ClCompile Include="src\components.cpp" />
+    <ClCompile Include="src\core\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
     <ClCompile Include="src\core\resource_management\resource_types.cpp" />
@@ -36,7 +36,7 @@
     <ClInclude Include="src\common\global_defines.h" />
     <ClInclude Include="src\common\lib\com_print.h" />
     <ClInclude Include="src\common\types.h" />
-    <ClInclude Include="src\components.h" />
+    <ClInclude Include="src\core\components.h" />
     <ClInclude Include="src\core\ecs.h" />
     <ClInclude Include="src\common\hashing\hashed_string.h" />
     <ClInclude Include="src\common\hashing\hashed_string_internal.h" />

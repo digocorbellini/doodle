@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-#include "components.h"
+#include "core/components.h"
 #include "common/types.h"
 
 static constexpr EntityID MAX_ENTITIES = 5000;
