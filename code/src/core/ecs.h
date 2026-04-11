@@ -61,7 +61,7 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 /// Register the given system so that it may be run during the ECS game loop
 /// </summary>
 /// <param name="system">A pointer to the system to be registered</param>
-const void ECS_RegisterSystem( const class System* system );
+const void ECS_RegisterSystem( class System* system );
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :

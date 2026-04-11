@@ -5,6 +5,7 @@
 #include "core/system.h"
 
 static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
+static constexpr uint64_t MAX_SYSTEMS = 64;
 
 enum class EntityState : int
 {
@@ -54,6 +55,10 @@ static_assert( ARRAY_SIZE( s_entities ) < MAX_ENTITY_ID, "s_entities array size 
 
 // Struct containing all components for all entities
 static Components s_components;
+
+// List of all systems in the game
+static System* s_systems[MAX_SYSTEMS];
+static uint64_t s_numSystems;
 
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
@@ -214,9 +219,17 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 }
 
 
-const void ECS_RegisterSystem( const System* system )
+const void ECS_RegisterSystem( System* system )
 {
-	// TODO: add to a static system list and assert if list is full
+	COM_ASSERT( system, "System pointer is null" );
+
+	if ( s_numSystems >= MAX_SYSTEMS )
+	{
+		COM_ALWAYS_ASSERT( "Unable to register system since systems list is full. Max systems: %" PRIu64 "", MAX_SYSTEMS );
+		return;
+	}
+
+	s_systems[s_numSystems] = system;
 }
 
 
