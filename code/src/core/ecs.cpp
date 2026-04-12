@@ -263,7 +263,8 @@ void ECS_StartGameLoop()
 
 		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
 		
-		// - TODO: add new queued entities
+		// add new queued entities
+		ProcessEntityCreationQueue();
 
 		// run all systems
 		const SteadyClock::time_point currentTime = SteadyClock::now();
@@ -302,7 +303,8 @@ void ECS_StartGameLoop()
 		window.display();
 
 
-		// - delete all queued deletion entities
+		// delete all queued deletion entities
+		ProcessEntityDeletionQueue();
 
 		s_lastFrameTime = SteadyClock::now();
 	}
