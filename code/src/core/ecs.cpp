@@ -262,6 +262,7 @@ void ECS_StartGameLoop()
 		}
 
 		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
+		// TODO: have to figure out how scene loader will communicate with this ECS system
 		
 		// add new queued entities
 		ProcessEntityCreationQueue();
