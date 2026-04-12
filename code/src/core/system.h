@@ -61,5 +61,5 @@ public:
 	/// <param name="deltaTime">The time since the last frame start</param>
 	/// <param name="numEntities">The number of entities that currently exist</param>
 	/// <param name="componenents">All componenets that currently exist</param>
-	virtual void OnDrawFrame( RenderWindow window, const EntityID numEntities, Components* componenents ) {};
+	virtual void OnDrawFrame( RenderWindow* window, const EntityID numEntities, Components* componenents ) {};
 };
