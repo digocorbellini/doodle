@@ -20,9 +20,7 @@ struct CachedHashString
 	char str[HASHED_STRING_MAX_LENGTH];
 };
 
-// TODO: this is pretty intense memory wise, so maybe it is better to have a static buffer
-// and then blocks are allocated which perfectly fit the given string lengths instead of 
-// making all strings 64 bytes long. Although this feature should be dev only... so maybe that's ok?
+
 // linear probing hash map
 static CachedHashString s_cachedHashStringMap[MAX_CACHED_STRING_COUNT];
 
@@ -66,9 +64,6 @@ bool AddStringHashToCache( const char* str, const uint64_t hash )
 	strncpy_s( newHashStringIndex->str, str, HASHED_STRING_MAX_LENGTH );
 	return true;
 }
-
-// TODO: see if I need to support removing cached string. Probably not since I want 
-// to be able to catch all duplicate hashes possible in dev.
 
 
 // =================================

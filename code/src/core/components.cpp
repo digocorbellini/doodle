@@ -64,8 +64,6 @@ bool ComponentsMask::AddComponent( const ComponentType component )
 }
 
 
-// TODO: maybe only have this and then make the singular "add component" a private helper?
-// That way it is less confusing for users as to which one to use?
 int ComponentsMask::AddComponents( std::initializer_list<ComponentType> compList )
 {
 	int numAdded = 0;

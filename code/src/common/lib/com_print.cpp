@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// TODO: add support for also printing everything to a log file
+// TODO: add support for also printing everything to a log file potentially with ms time stamps
 
 // ===============================
 // Private Internal Helpers
