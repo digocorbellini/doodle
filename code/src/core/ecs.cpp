@@ -1,8 +1,11 @@
 #include "ecs.h"
+#include <chrono>
 #include <cinttypes>
 #include "common/lib/com_print.h"
 #include "common/lib/com_assert.h"
 #include "core/system.h"
+
+using SteadyClock = std::chrono::steady_clock;
 
 static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
 static constexpr uint64_t MAX_SYSTEMS = 64;
@@ -59,6 +62,8 @@ static Components s_components;
 // List of all systems in the game
 static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
+
+static SteadyClock::time_point s_lastFrameTime;
 
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
@@ -242,22 +247,63 @@ void ECS_StartGameLoop()
 {
 	sf::RenderWindow window( sf::VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
 
+	// initialize clock
+	s_lastFrameTime = SteadyClock::now();
+
 	while ( window.isOpen() )
 	{
+		// get user input
 		sf::Event event;
 		while ( window.pollEvent( event ) )
 		{
+			// see if user has closed application window
 			if ( event.type == sf::Event::Closed )
 				window.close();
 		}
 
-		// TODO: run the following in this order
-		// - initialize new scene if applicable (AKA clear entities list and fill in new entities)
-		// - add new entities
-		// - run all systems
-		// - delete all queued deletion entities
-		// - run rendering
+		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
+		
+		// - TODO: add new queued entities
+
+		// run all systems
+		const SteadyClock::time_point currentTime = SteadyClock::now();
+		const double deltaTime = std::chrono::duration<double>( currentTime - s_lastFrameTime ).count();
+
+		// run frame start
+		for ( uint64_t i = 0; i < s_numSystems; ++i )
+		{
+			s_systems[i]->OnFrameStart( deltaTime, s_numEntities, &s_components );
+		}
+
+		// run frame
+		for ( uint64_t i = 0; i < s_numSystems; ++i )
+		{
+			s_systems[i]->OnFrame( deltaTime, s_numEntities, &s_components );
+		}
+
+		// run frame end
+		for ( uint64_t i = 0; i < s_numSystems; ++i )
+		{
+			s_systems[i]->OnFrameEnd( deltaTime, s_numEntities, &s_components );
+		}
+		
+		// run physics frame
+		for ( uint64_t i = 0; i < s_numSystems; ++i )
+		{
+			s_systems[i]->OnPhysicsFrame( deltaTime, s_numEntities, &s_components );
+		}
+
+		// run drawing frame
 		window.clear( s_backgroundColor );
+		for ( uint64_t i = 0; i < s_numSystems; ++i )
+		{
+			s_systems[i]->OnDrawFrame( &window, s_numEntities, &s_components );
+		}
 		window.display();
+
+
+		// - delete all queued deletion entities
+
+		s_lastFrameTime = SteadyClock::now();
 	}
 }

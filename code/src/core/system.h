@@ -11,6 +11,7 @@
 #pragma once
 #include "common/types.h"
 #include "core/ecs.h"
+#include <SFML/Graphics.hpp>
 
 class System
 {
@@ -45,4 +46,20 @@ public:
 	/// <param name="numEntities">The number of entities that currently exist</param>
 	/// <param name="componenents">All componenets that currently exist</param>
 	virtual void OnFrameEnd( const double deltaTime, const EntityID numEntities, Components* componenents ) {};
+
+	/// <summary>
+	/// Called once per frame after all regular logic frames in order to perform physics 
+	/// </summary>
+	/// <param name="deltaTime">The time since the last frame start</param>
+	/// <param name="numEntities">The number of entities that currently exist</param>
+	/// <param name="componenents">All componenets that currently exist</param>
+	virtual void OnPhysicsFrame( const double deltaTime, const EntityID numEntities, Components* componenents ) {};
+
+	/// <summary>
+	/// Called once per frame after all other logic is run in order to draw to the window
+	/// </summary>
+	/// <param name="deltaTime">The time since the last frame start</param>
+	/// <param name="numEntities">The number of entities that currently exist</param>
+	/// <param name="componenents">All componenets that currently exist</param>
+	virtual void OnDrawFrame( RenderWindow window, const EntityID numEntities, Components* componenents ) {};
 };
