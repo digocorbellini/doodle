@@ -5,7 +5,7 @@ using namespace hashed_string;
 
 HashedString::HashedString( const char* str, const size_t strSize ) noexcept
 {
-	COM_ASSERT( strSize <= HASHED_STRING_MAX_LENGTH, "%s - Invalid string length (%zu > %zu). Can not be hashed.",
+	COM_ASSERT( strSize <= HASHED_STRING_MAX_LENGTH, "%s - Invalid string length (%zu > %zu). Can not be hashed.\n",
 					   __FUNCTION__, strSize, HASHED_STRING_MAX_LENGTH );
 
 	hash = hashed_string::FNV1A_64_Hash( str, strSize );
