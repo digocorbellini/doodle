@@ -224,6 +224,18 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 }
 
 
+const bool ECS_CanOperateOnEntity( const EntityID entityID )
+{
+	if ( !IsValidEntityID( entityID ) )
+	{
+		return false;
+	}
+
+	const Entity* entity = &s_entities[entityID];
+	return entity->CanBeOperatedOn();
+}
+
+
 const void ECS_RegisterSystem( System* system )
 {
 	COM_ASSERT( system, "System pointer is null" );

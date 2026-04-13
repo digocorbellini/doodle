@@ -58,6 +58,13 @@ bool ECS_QueueEntityRemoval( const EntityID entityID );
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 
 /// <summary>
+/// See if the given entity can be operated on in a system (AKA is valid, is enabled, etc.)
+/// </summary>
+/// <param name="entityID">The ID of the relevant entity</param>
+/// <returns>True if the entity can be operated on in a system. Otherwise, returns false. </returns>
+const bool ECS_CanOperateOnEntity( const EntityID entityID );
+
+/// <summary>
 /// Register the given system so that it may be run during the ECS game loop
 /// </summary>
 /// <param name="system">A pointer to the system to be registered</param>
