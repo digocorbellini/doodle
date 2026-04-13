@@ -1,9 +1,6 @@
 {
+    "version": 1,
     "sceneName": "exampleSceneName",
-    // TODO: maybe this should be in a different file so that 
-    // it can be shared between scenes? But then scenes have
-    // to know what files to include to know info about prefabs?
-
     // TODO: need templates in order to know what resources to
     // load for entities that might not be loaded yet?? The scene
     // editor tool will somehow have to know which entities 
@@ -11,11 +8,10 @@
     "entityTemplates": [
         {
             "name": "prefabName1",
+            // TODO: parsing logic will have to create serialization and deserialization logic per component which will know what fields to map to what. This is because C++ 20 doesn't support reflection
             "components": [
                 {
                     "name": "componentName1",
-                    // TODO: figure out if type should be string or int
-                    "type": 1, 
                     "values": {
                         "valueName1": 432,
                         "valueName2": "testVal"
@@ -23,10 +19,9 @@
                 },
                 {
                     "name": "componentName2",
-                    "type": 3,
                     "values": {
                         "vectorName": [1, 2, 43],
-                        "resoucePtrName": "resource1"
+                        "resourceHandleStringName": "resource1"
                     }
                 }
             ]
@@ -38,9 +33,8 @@
             // TODO: need to somehow figure out how to handle template 
             // value overrides?
             "template": "prefabName1",
-            "components": [
-
-            ]
+            // TOOD: can serve as overrides for template components
+            "components": [] 
         },
         {
             "entityName": "entity2",
@@ -50,7 +44,7 @@
                     "name": "componentName1",
                     "type": 1,
                     "values": {
-                        "entityName": "entity1", // engine will need to convert this to entity ID somehow
+                        "entityName": "entity1", // engine will need to convert this to entity ID during scene loading
                         "valueName1": 432,
                         "valueName2": "testVal"
                     }
