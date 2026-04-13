@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include "common/lib/com_print.h"
 
+using json = nlohmann::json;
 using namespace std;
 
 SceneLoader::SceneLoader()

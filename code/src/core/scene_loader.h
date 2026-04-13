@@ -10,7 +10,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
 
 // TODO: have to handle the file opening of a scene file with a given name
 // (the starting scene must be set in a config file somewhere).
