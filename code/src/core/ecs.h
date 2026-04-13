@@ -12,23 +12,6 @@
 #include "core/components.h"
 #include "common/types.h"
 
-static constexpr EntityID MAX_ENTITIES = 5000;
-
-// Systems will operate on this struct of all components in the game
-// Every entity has an entry in every list. Their component is
-// accessed by indexing using their entity id.
-struct Components
-{
-	// Have a list for every component type in the game. This
-	// allows for componenets of the same type to be near each
-	// other in memory since they will likely be accessed
-	// together as systems iterate through all entities.
-#define COMPONENT(X) X X ## s[MAX_ENTITIES];
-	COMPONENT_LIST
-#undef COMPONENT
-};
-
-
 /// <summary>
 /// Queue up the creation of an entity with the componenets in the given mask which will 
 /// be added at the start of the next frame
@@ -68,6 +51,18 @@ bool ECS_CanOperateOnEntity( const EntityID entityID );
 /// </summary>
 /// <param name="system">A pointer to the system to be registered</param>
 void ECS_RegisterSystem( class System* system );
+
+/// <summary>
+/// Get the component list for the given component type. This list will contain a component
+/// for each entry.
+/// </summary>
+/// <typeparam name="T">The type of the component list. If this does not match the 
+/// actual type of the component list, an assert will be hit.</typeparam>
+/// <param name="componentType">The component type for the list</param>
+/// <returns>The component list for the given component type. If the componentType is invalid, 
+/// nullptr is returned.</returns>
+template<typename T>
+T* ECS_GetComponentList( ComponentType componentType );
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :

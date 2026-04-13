@@ -4,11 +4,27 @@
 #include "common/lib/com_print.h"
 #include "common/lib/com_assert.h"
 #include "core/system.h"
+#include <typeindex>
 
 using SteadyClock = std::chrono::steady_clock;
 
+static constexpr EntityID MAX_ENTITIES = 5000;
 static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
 static constexpr uint64_t MAX_SYSTEMS = 64;
+
+// Systems will operate on this struct of all components in the game
+// Every entity has an entry in every list. Their component is
+// accessed by indexing using their entity id.
+struct Components
+{
+	// Have a list for every component type in the game. This
+	// allows for componenets of the same type to be near each
+	// other in memory since they will likely be accessed
+	// together as systems iterate through all entities.
+#define COMPONENT(X) X X ## List[MAX_ENTITIES];
+	COMPONENT_LIST
+#undef COMPONENT
+};
 
 enum class EntityState : int
 {
@@ -51,18 +67,32 @@ struct QueuedEntityAddition
 	EntityID claimedID;
 };
 
-// List of all entities in the game
 static Entity s_entities[MAX_ENTITIES];
 static EntityID s_numEntities;
 static_assert( ARRAY_SIZE( s_entities ) < MAX_ENTITY_ID, "s_entities array size is >= MAX_ENTITY_ID" );
 
-// Struct containing all components for all entities
 static Components s_components;
+static void* s_componentsList[] =
+{
+#define COMPONENT(X) s_components. ## X ## List,
+	COMPONENT_LIST
+#undef COMPONENT
+};
+static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentsList ),
+			   "s_componentsList and ComponentType length missmatch" );
 
-// List of all systems in the game
+// used to map component type enum to component type
+static std::type_index s_componentTypeMap[] =
+{
+#define COMPONENT(X) typeid(X),
+	COMPONENT_LIST
+#undef COMPONENT
+};
+static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentTypeMap ),
+			   "s_componentTypeMap and ComponentType length missmatch" );
+
 static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
-
 static SteadyClock::time_point s_lastFrameTime;
 
 static QueuedEntityAddition s_entityAdditionQueue[MAX_ENTITY_QUEUE_SIZE];
@@ -98,14 +128,14 @@ static void ProcessEntityCreationQueue()
 		QueuedEntityAddition* currAddition = &s_entityAdditionQueue[i];
 		if ( !IsValidEntityID( currAddition->claimedID ) )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "", currAddition->claimedID, MAX_ENTITY_ID );
+			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "\n", currAddition->claimedID, MAX_ENTITY_ID );
 			continue;
 		}
 
 		Entity* newEntity = &s_entities[currAddition->claimedID];
 		if ( newEntity->state != EntityState::Claimed )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity with claimed ID of [%" PRIu64 "] is attempting to claim an entity without a 'claimed' state. State: [%i]", currAddition->claimedID, GetUndelyingEnumVal( newEntity->state ) );
+			COM_ALWAYS_ASSERT( "Queued entity with claimed ID of [%" PRIu64 "] is attempting to claim an entity without a 'claimed' state. State: [%i]\n", currAddition->claimedID, GetUndelyingEnumVal( newEntity->state ) );
 			continue;
 		}
 
@@ -124,14 +154,14 @@ static void ProcessEntityDeletionQueue()
 		EntityID currDeletionID = s_entityDeletionQueue[i];
 		if ( !IsValidEntityID( currDeletionID ) )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity deletion has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "", currDeletionID, MAX_ENTITY_ID );
+			COM_ALWAYS_ASSERT( "Queued entity deletion has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "\n", currDeletionID, MAX_ENTITY_ID );
 			continue;
 		}
 
 		Entity* entity = &s_entities[currDeletionID];
 		if ( entity->state != EntityState::Claimed )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity deletion with claimed ID of [%" PRIu64 "] is attempting to delete an entity without a 'assigned' state. State: [%i]", currDeletionID, GetUndelyingEnumVal( entity->state ) );
+			COM_ALWAYS_ASSERT( "Queued entity deletion with claimed ID of [%" PRIu64 "] is attempting to delete an entity without a 'assigned' state. State: [%i]\n", currDeletionID, GetUndelyingEnumVal( entity->state ) );
 			continue;
 		}
 
@@ -155,7 +185,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 
 	if ( s_numQueuedAdditions >= MAX_ENTITY_QUEUE_SIZE )
 	{
-		COM_ALWAYS_ASSERT( "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		COM_ALWAYS_ASSERT( "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "\n", MAX_ENTITY_QUEUE_SIZE );
 		return INVALID_ENTITY_ID;
 	}
 
@@ -176,7 +206,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 		}
 	}
 
-	COM_ALWAYS_ASSERT( "Unable to add new entity due to entities array being full. Entities array size: %" PRIu64 "", MAX_ENTITIES );
+	COM_ALWAYS_ASSERT( "Unable to add new entity due to entities array being full. Entities array size: %" PRIu64 "\n", MAX_ENTITIES );
 	return INVALID_ENTITY_ID;
 }
 
@@ -185,7 +215,7 @@ bool ECS_QueueEntityRemoval( const EntityID entityID )
 {
 	if ( s_numQueuedDeletions >= MAX_ENTITY_QUEUE_SIZE )
 	{
-		COM_ALWAYS_ASSERT( "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "", MAX_ENTITY_QUEUE_SIZE );
+		COM_ALWAYS_ASSERT( "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "\n", MAX_ENTITY_QUEUE_SIZE );
 		return false;
 	}
 
@@ -238,15 +268,28 @@ bool ECS_CanOperateOnEntity( const EntityID entityID )
 
 void ECS_RegisterSystem( System* system )
 {
-	COM_ASSERT( system, "System pointer is null" );
+	COM_ASSERT( system, "System pointer is null\n" );
 
 	if ( s_numSystems >= MAX_SYSTEMS )
 	{
-		COM_ALWAYS_ASSERT( "Unable to register system since systems list is full. Max systems: %" PRIu64 "", MAX_SYSTEMS );
+		COM_ALWAYS_ASSERT( "Unable to register system since systems list is full. Max systems: %" PRIu64 "\n", MAX_SYSTEMS );
 		return;
 	}
 
 	s_systems[s_numSystems] = system;
+}
+
+template<typename T>
+T* ECS_GetComponentList( ComponentType componentType )
+{
+	if ( !Components_IsComponentValid( componentType ) )
+	{
+		return nullptr;
+	}
+
+	COM_ASSERT( ( typeid( T ) == s_componentTypeMap[GetUndelyingEnumVal( componentType )] ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), s_componentTypeMap[GetUndelyingEnumVal( componentType )].name(), Components_GetComponentTypeString( componentType ) );
+
+	return static_cast<T*>( s_componentsList[GetUndelyingEnumVal( componentType )] );
 }
 
 
@@ -286,32 +329,32 @@ void ECS_StartGameLoop()
 		// run frame start
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrameStart( deltaTime, s_numEntities, &s_components );
+			s_systems[i]->OnFrameStart( deltaTime, s_numEntities );
 		}
 
 		// run frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrame( deltaTime, s_numEntities, &s_components );
+			s_systems[i]->OnFrame( deltaTime, s_numEntities );
 		}
 
 		// run frame end
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrameEnd( deltaTime, s_numEntities, &s_components );
+			s_systems[i]->OnFrameEnd( deltaTime, s_numEntities );
 		}
 		
 		// run physics frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnPhysicsFrame( deltaTime, s_numEntities, &s_components );
+			s_systems[i]->OnPhysicsFrame( deltaTime, s_numEntities );
 		}
 
 		// run drawing frame
 		window.clear( s_backgroundColor );
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnDrawFrame( &window, s_numEntities, &s_components );
+			s_systems[i]->OnDrawFrame( &window, s_numEntities );
 		}
 		window.display();
 
