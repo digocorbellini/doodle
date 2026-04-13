@@ -13,22 +13,17 @@ static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_comp
 			   "s_componentTypeStrings and ComponentType length missmatch" );
 
 // ==================
-// Private Helpers
-// ==================
-
-static bool IsComponentValid( const ComponentType component )
-{
-	return component != ComponentType::Invalid && component != ComponentType::Count;
-}
-
-
-// ==================
 // Public Methods
 // ==================
 
-const char* GetComponentTypeString( ComponentType componentType )
+bool Components_IsComponentValid( const ComponentType componentType )
 {
-	if ( !IsComponentValid( componentType ) )
+	return componentType != ComponentType::Invalid && componentType != ComponentType::Count;
+}
+
+const char* Components_GetComponentTypeString( ComponentType componentType )
+{
+	if ( !Components_IsComponentValid( componentType ) )
 	{
 		return nullptr;
 	}
@@ -51,7 +46,7 @@ ComponentsMask::ComponentsMask( std::initializer_list<ComponentType> compList )
 
 bool ComponentsMask::AddComponent( const ComponentType component )
 {
-	if ( !IsComponentValid( component ) )
+	if ( !Components_IsComponentValid( component ) )
 	{
 		return false;
 	}
@@ -80,7 +75,7 @@ int ComponentsMask::AddComponents( std::initializer_list<ComponentType> compList
 
 bool ComponentsMask::RemoveComponent( const ComponentType component )
 {
-	if( !IsComponentValid( component ) )
+	if( !Components_IsComponentValid( component ) )
 	{
 		return false;
 	}

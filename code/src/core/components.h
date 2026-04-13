@@ -51,6 +51,12 @@ enum class ComponentType : size_t
 };
 static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS, "ComponentTypes have exceeded the max number of components." );
 
+/// <summary>
+/// See if the given component type is a valid type (AKA not count or invalid)
+/// </summary>
+/// <param name="componentType">the component type to be validated</param>
+/// <returns>True if the type is valid. Otherwise false.</returns>
+bool Components_IsComponentValid( const ComponentType componentType );
 
 /// <summary>
 /// Get the string for the given component type
@@ -58,8 +64,7 @@ static_assert( GetUndelyingEnumVal( ComponentType::Count ) <= MAX_COMPONENTS, "C
 /// <param name="componentType">The component type enum value to get the string for</param>
 /// <returns>The string for the given component type if the type is valid. Otherwise 
 /// nullptr is returned.</returns>
-const char* GetComponentTypeString( ComponentType componentType );
-
+const char* Components_GetComponentTypeString( ComponentType componentType );
 
 /// <summary>
 /// A bitmask used to represent a set of active and inactive components
