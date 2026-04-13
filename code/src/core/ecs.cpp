@@ -68,7 +68,15 @@ struct QueuedEntityAddition
 };
 
 static Entity s_entities[MAX_ENTITIES];
-static EntityID s_numEntities;
+// TODO: have to figure out if this is even needed since dynamic addition and 
+// deletion will make it so that the entities in the list are no longer stored consequtively... might have to change
+// what is being passed in the frame functions... maybe just pass MAX_ENTITIES?
+// TODO: maybe it would be good to still keep this count and then create an iterator that can be passed to the systems
+// that way the iterator can skip giving the systems un-operable entities and it can know when it has reached the end of the 
+// list since it can know the number of entities (AKA it avoids having to iterate over the entire list every time). This
+// also helps encapsulate the entities list and the systems just have to work with a simple list 
+// that gets entity IDs from the iterator.
+static EntityID s_numEntities; 
 static_assert( ARRAY_SIZE( s_entities ) < MAX_ENTITY_ID, "s_entities array size is >= MAX_ENTITY_ID" );
 
 static Components s_components;
@@ -117,7 +125,7 @@ static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 
 static bool IsValidEntityID( const EntityID id )
 {
-	return id >= 0 && id <= s_numEntities && id != INVALID_ENTITY_ID;
+	return id >= 0 && id < s_numEntities && id != INVALID_ENTITY_ID;
 }
 
 
@@ -159,7 +167,7 @@ static void ProcessEntityDeletionQueue()
 		}
 
 		Entity* entity = &s_entities[currDeletionID];
-		if ( entity->state != EntityState::Claimed )
+		if ( entity->state != EntityState::Assigned )
 		{
 			COM_ALWAYS_ASSERT( "Queued entity deletion with claimed ID of [%" PRIu64 "] is attempting to delete an entity without a 'assigned' state. State: [%i]\n", currDeletionID, GetUndelyingEnumVal( entity->state ) );
 			continue;
@@ -277,6 +285,7 @@ void ECS_RegisterSystem( System* system )
 	}
 
 	s_systems[s_numSystems] = system;
+	++s_numSystems;
 }
 
 template<typename T>
