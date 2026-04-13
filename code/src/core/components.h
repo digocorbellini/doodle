@@ -26,19 +26,25 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
-#define MAX_COMPONENTS 64
+// A list of all components. Used for macro generation of component logic
+#define COMPONENT_LIST \
+COMPONENT(EntityTransform2D) \
+COMPONENT(PhysicsBody2D) \
+COMPONENT(SpriteRenderer2D) \
+COMPONENT(PlayerController2D) \
+COMPONENT(Camera2D) 
 
 using namespace std;
 using namespace sf;
 
+static constexpr uint64_t MAX_COMPONENTS = 64;
+
 // Every new component must have a type in this enum
 enum class ComponentType : size_t
 {
-	EntityTransform2D = 0,
-	PhysicsBody2D,
-	SpriteRenderer2D,
-	PlayerController2D,
-	Camera2D,
+#define COMPONENT(X) X,
+	COMPONENT_LIST
+#undef COMPONENT
 
 	Count,
 	Invalid = MAX_COMPONENTS

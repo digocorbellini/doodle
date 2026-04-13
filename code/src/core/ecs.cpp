@@ -65,6 +65,12 @@ static uint64_t s_numSystems;
 
 static SteadyClock::time_point s_lastFrameTime;
 
+static QueuedEntityAddition s_entityAdditionQueue[MAX_ENTITY_QUEUE_SIZE];
+static uint64_t s_numQueuedAdditions;
+
+static EntityID s_entityDeletionQueue[MAX_ENTITY_QUEUE_SIZE];
+static uint64_t s_numQueuedDeletions;
+
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
 //// of static functions in a window.cpp file?
@@ -74,12 +80,6 @@ static constexpr uint64_t MAX_WINDOW_TITLE_LENGTH = 64;
 static Color s_backgroundColor;
 static Vector2i s_windowSize = Vector2i( 1920, 1080 );
 static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
-
-static QueuedEntityAddition s_entityAdditionQueue[MAX_ENTITY_QUEUE_SIZE];
-static uint64_t s_numQueuedAdditions;
-
-static EntityID s_entityDeletionQueue[MAX_ENTITY_QUEUE_SIZE];
-static uint64_t s_numQueuedDeletions;
 
 // ====================
 // Private Helpers
@@ -224,7 +224,7 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 }
 
 
-const bool ECS_CanOperateOnEntity( const EntityID entityID )
+bool ECS_CanOperateOnEntity( const EntityID entityID )
 {
 	if ( !IsValidEntityID( entityID ) )
 	{
@@ -236,7 +236,7 @@ const bool ECS_CanOperateOnEntity( const EntityID entityID )
 }
 
 
-const void ECS_RegisterSystem( System* system )
+void ECS_RegisterSystem( System* system )
 {
 	COM_ASSERT( system, "System pointer is null" );
 

@@ -5,11 +5,9 @@
 // what components to add to an entity
 static const char* s_componentTypeStrings[] =
 {
-	"EntityTransform2D",
-	"PhysicsBody2D",
-	"SpriteRenderer2D",
-	"PlayerController2D",
-	"Camera2D"
+#define COMPONENT(X) #X,
+	COMPONENT_LIST
+#undef COMPONENT
 };
 static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentTypeStrings ),
 			   "s_componentTypeStrings and ComponentType length missmatch" );

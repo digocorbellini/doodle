@@ -23,12 +23,11 @@ struct Components
 	// allows for componenets of the same type to be near each
 	// other in memory since they will likely be accessed
 	// together as systems iterate through all entities.
-	EntityTransform2D entityTransforms2D[MAX_ENTITIES];
-	PhysicsBody2D physicsBodies2D[MAX_ENTITIES];
-	SpriteRenderer2D spriteRenderers2D[MAX_ENTITIES];
-	PlayerController2D playerControllers2D[MAX_ENTITIES];
-	Camera2D cameras[MAX_ENTITIES];
+#define COMPONENT(X) X X ## s[MAX_ENTITIES];
+	COMPONENT_LIST
+#undef COMPONENT
 };
+
 
 /// <summary>
 /// Queue up the creation of an entity with the componenets in the given mask which will 
@@ -62,13 +61,13 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 /// </summary>
 /// <param name="entityID">The ID of the relevant entity</param>
 /// <returns>True if the entity can be operated on in a system. Otherwise, returns false. </returns>
-const bool ECS_CanOperateOnEntity( const EntityID entityID );
+bool ECS_CanOperateOnEntity( const EntityID entityID );
 
 /// <summary>
 /// Register the given system so that it may be run during the ECS game loop
 /// </summary>
 /// <param name="system">A pointer to the system to be registered</param>
-const void ECS_RegisterSystem( class System* system );
+void ECS_RegisterSystem( class System* system );
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :
