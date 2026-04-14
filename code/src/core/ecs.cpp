@@ -314,7 +314,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 	}
 
 	// find and cache next available ID
-	for ( EntityID entityID = 0; entityID < s_numEntities; ++entityID )
+	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
 	{
 		Entity* currEntity = &s_entities[entityID];
 		if ( currEntity->state == EntityState::Available )
@@ -325,6 +325,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 			QueuedEntityAddition* currQueuedAddition = &s_entityAdditionQueue[s_numQueuedAdditions];
 			currQueuedAddition->claimedID = entityID;
 			currQueuedAddition->componentsMask = compMask;
+			++s_numQueuedAdditions;
 
 			return entityID;
 		}
