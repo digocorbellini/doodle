@@ -299,6 +299,17 @@ const EntityIterator EntityIterator::end()
 // ====================
 // Public Functions
 // ====================
+// TODO: since entities list isn't growing or shrinking as entiies are created and destroyed... why do I need to keep
+// track of a queue? Can't I just immediately create and destory entities by just changing their state?
+// Need to think about this to see if it is better or not to delay addition and removal so that 
+// system's always act on all active entities else some might get skipped
+// Ok so queueing should remain since it makes it easier for systems to assume that they are operating on all active
+// entities and that no entities will be added after they run by a consecutive system. However, I might not need to 
+// spend all of the extra space for these queues and instead I can just directly modify the state of the entities 
+// and then resolve the states in 1 pass (AKA keep track of state to see if it is queued for deletion or addition and
+// then in the resolve pass set to claimed or available depending on if you are adding/deleting. this way the
+// addition queue logic can just directly set the comp mask and return the correct entity ID without having to 
+// keep track of all of that in a separate data structure).
 
 const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 {
