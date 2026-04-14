@@ -125,7 +125,7 @@ static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 
 static bool IsValidEntityID( const EntityID id )
 {
-	return id >= 0 && id < s_numEntities && id != INVALID_ENTITY_ID;
+	return id >= 0 && id < MAX_ENTITIES && id != INVALID_ENTITY_ID;
 }
 
 
@@ -136,7 +136,7 @@ static void ProcessEntityCreationQueue()
 		QueuedEntityAddition* currAddition = &s_entityAdditionQueue[i];
 		if ( !IsValidEntityID( currAddition->claimedID ) )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "\n", currAddition->claimedID, MAX_ENTITY_ID );
+			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entities: %" PRIu64 "\n", currAddition->claimedID, MAX_ENTITIES );
 			continue;
 		}
 
@@ -149,6 +149,9 @@ static void ProcessEntityCreationQueue()
 
 		newEntity->componentsMask = currAddition->componentsMask;
 		newEntity->state = EntityState::Assigned;
+		
+		COM_ASSERT( s_numEntities < MAX_ENTITIES, "num entities is exceeding max number of entities:  %" PRIu64 "\n", MAX_ENTITIES );
+		++s_numEntities;
 	}
 
 	s_numQueuedAdditions = 0;
@@ -174,6 +177,9 @@ static void ProcessEntityDeletionQueue()
 		}
 
 		entity->Reset();
+
+		COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n");
+		--s_numEntities;
 	}
 
 	s_numQueuedDeletions = 0;
