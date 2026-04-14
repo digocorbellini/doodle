@@ -26,5 +26,6 @@
         3. **OnFrameEnd** - End-of-frame cleanup (e.g., post-processing, state finalization)
         4. **OnPhysicsFrame** - Physics simulation and collision resolution
         5. **OnDrawFrame** - Rendering (receives `RenderWindow` to draw to)
-
+* TODO: add explanation here on how to iterate over entities for performing logic on them 
+* TODO: also add explanation on how to use component mask to know which entities to operate on.
 * Create a static instance of your system. The constructor in the base class will register the system to be run during the game loop.
