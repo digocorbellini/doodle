@@ -76,7 +76,7 @@ static Entity s_entities[MAX_ENTITIES];
 // list since it can know the number of entities (AKA it avoids having to iterate over the entire list every time). This
 // also helps encapsulate the entities list and the systems just have to work with a simple list 
 // that gets entity IDs from the iterator.
-static EntityID s_numEntities; 
+static EntityID s_numEntities = 0; 
 static_assert( ARRAY_SIZE( s_entities ) < MAX_ENTITY_ID, "s_entities array size is >= MAX_ENTITY_ID" );
 
 static Components s_components;
@@ -119,6 +119,7 @@ static Color s_backgroundColor;
 static Vector2i s_windowSize = Vector2i( 1920, 1080 );
 static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 
+
 // ====================
 // Private Helpers
 // ====================
@@ -149,7 +150,7 @@ static void ProcessEntityCreationQueue()
 
 		newEntity->componentsMask = currAddition->componentsMask;
 		newEntity->state = EntityState::Assigned;
-		
+
 		COM_ASSERT( s_numEntities < MAX_ENTITIES, "num entities is exceeding max number of entities:  %" PRIu64 "\n", MAX_ENTITIES );
 		++s_numEntities;
 	}
@@ -178,11 +179,120 @@ static void ProcessEntityDeletionQueue()
 
 		entity->Reset();
 
-		COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n");
+		COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n" );
 		--s_numEntities;
 	}
 
 	s_numQueuedDeletions = 0;
+}
+
+
+// ====================
+// Entity Iterator
+// ====================
+
+// This class exists so that only the ECS system can decide when to create iterators. 
+// This is because the EntityIterator class depends on the s_entities list not changing
+// as systems iterate over entities.
+class EntityIteratorCreator
+{
+public:
+	static EntityIterator CreateEntityIterator()
+	{
+		return EntityIterator();
+	}
+
+	static EntityIterator CreateInvalidEntityIterator()
+	{
+		return EntityIterator( INVALID_ENTITY_ID );
+	}
+};
+const static EntityIterator ENTITY_ITERATOR_END = EntityIteratorCreator::CreateInvalidEntityIterator();
+
+
+static EntityID GetNextValidEntityID( const EntityID startingID )
+{
+	if ( !IsValidEntityID( startingID ) )
+	{
+		return INVALID_ENTITY_ID;
+	}
+
+	EntityID nextValidEntityID = INVALID_ENTITY_ID;
+	for ( EntityID entityIndex = startingID; entityIndex < MAX_ENTITIES; ++entityIndex )
+	{
+		Entity* currEntity = &s_entities[entityIndex];
+		if ( currEntity->CanBeOperatedOn() )
+		{
+			nextValidEntityID = entityIndex;
+			break;
+		}
+	}
+	
+	return nextValidEntityID;
+}
+
+
+EntityIterator::EntityIterator()
+{
+	// no entities to iterate over exist
+	if ( s_numEntities == 0 )
+	{
+		count = 0;
+		currEntity = INVALID_ENTITY_ID;
+		return;
+	}
+
+	// find starting index (AKA first entity that can be operated on)
+	currEntity = GetNextValidEntityID( 0 );
+	count = 1;
+}
+
+
+EntityIterator::EntityIterator( const EntityID startingID )
+{
+	if ( !IsValidEntityID( startingID ) )
+	{
+		currEntity = INVALID_ENTITY_ID;
+		count = 0;
+		return;
+	}
+
+	currEntity = GetNextValidEntityID( startingID );
+	count = 1;
+}
+
+
+EntityIterator EntityIterator::operator++()
+{
+	// see if we have reached end
+	if ( currEntity == INVALID_ENTITY_ID || count >= s_numEntities )
+	{
+		currEntity = INVALID_ENTITY_ID;
+		return *this;
+	}
+
+	// get next operable entry
+	currEntity = GetNextValidEntityID( currEntity + 1 );
+	++count;
+	return *this;
+}
+
+
+EntityID EntityIterator::operator*() const
+{
+	return currEntity;
+}
+
+
+bool EntityIterator::operator!=( const EntityIterator& other ) const
+{
+	return currEntity != other.currEntity;
+}
+
+
+const EntityIterator EntityIterator::end()
+{
+	return ENTITY_ITERATOR_END;
 }
 
 
@@ -344,32 +454,37 @@ void ECS_StartGameLoop()
 		// run frame start
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrameStart( deltaTime, s_numEntities );
+			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
+			s_systems[i]->OnFrameStart( deltaTime, &it );
 		}
 
 		// run frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrame( deltaTime, s_numEntities );
+			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
+			s_systems[i]->OnFrame( deltaTime, &it );
 		}
 
 		// run frame end
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnFrameEnd( deltaTime, s_numEntities );
+			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
+			s_systems[i]->OnFrameEnd( deltaTime, &it );
 		}
 		
 		// run physics frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnPhysicsFrame( deltaTime, s_numEntities );
+			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
+			s_systems[i]->OnPhysicsFrame( deltaTime, &it );
 		}
 
 		// run drawing frame
 		window.clear( s_backgroundColor );
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			s_systems[i]->OnDrawFrame( &window, s_numEntities );
+			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
+			s_systems[i]->OnDrawFrame( &window, &it );
 		}
 		window.display();
 

@@ -13,6 +13,51 @@
 #include "common/types.h"
 
 /// <summary>
+/// Iterator class meant to be used for iterating over all entities in the game.
+/// Can't be instantiated and instead will be passed through to registered
+/// systems during each frame of the game loop.
+/// </summary>
+class EntityIterator
+{
+private:
+	EntityID currEntity;
+	EntityID count;
+
+	EntityIterator();
+	EntityIterator( const EntityID startingID );
+
+	friend class EntityIteratorCreator;
+
+public:
+	/// <summary>
+	/// The entity ID that the iterator is currently pointing to.
+	/// </summary>
+	/// <returns>The entity ID that the iterator is currently pointing to. Will be INVALID_ENTITY_ID if 
+	/// it is pointing to the end of the list.</returns>
+	EntityID operator*() const;
+
+	/// <summary>
+	/// Go to the next entity 
+	/// </summary>
+	/// <returns>An EntityIterator pointing to the next entity. Will be equal to end() if
+	/// the end of the list of entities has been reached.</returns>
+	EntityIterator operator++();
+
+	/// <summary>
+	/// Whether two entity iterators are pointing to the same entity ID.
+	/// </summary>
+	/// <param name="other">The other entity iterator to compare to</param>
+	/// <returns>True if the two entity iterators don't equal and false otherwise.</returns>
+	bool operator!=( const EntityIterator& other ) const;
+
+	/// <summary>
+	/// Get the end of the entity list.
+	/// </summary>
+	/// <returns>An iterator to the end of the list. The EntityID will be INVALID_ENTITY_ID</returns>
+	const EntityIterator end();
+};
+
+/// <summary>
 /// Queue up the creation of an entity with the componenets in the given mask which will 
 /// be added at the start of the next frame
 /// </summary>
@@ -66,9 +111,10 @@ T* ECS_GetComponentList( ComponentType componentType );
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :
+/// - loading and unloading scenes
 /// - creating queued entity creations
 /// - running all systems to modify entities and componenets
-/// - deleting queued entity deletions
 /// - running the rendering logic 
+/// - deleting queued entity deletions
 /// </summary>
 void ECS_StartGameLoop();

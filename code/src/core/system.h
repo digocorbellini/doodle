@@ -27,34 +27,29 @@ public:
 	/// Called once per frame at the start of a frame (before the regular frame logic is run)
 	/// </summary>
 	/// <param name="deltaTime">The time since the last frame start</param>
-	/// <param name="numEntities">The number of entities that currently exist</param>
-	virtual void OnFrameStart( const double deltaTime, const EntityID numEntities ) {};
+	virtual void OnFrameStart( const double deltaTime, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame 
 	/// </summary>
 	/// <param name="deltaTime">The time since the last frame start</param>
-	/// <param name="numEntities">The number of entities that currently exist</param>
-	virtual void OnFrame( const double deltaTime, const EntityID numEntities) {};
+	virtual void OnFrame( const double deltaTime, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame at the end of a frame (after the regular frame logic is run)
 	/// </summary>
 	/// <param name="deltaTime">The time since the last frame start</param>
-	/// <param name="numEntities">The number of entities that currently exist</param>
-	virtual void OnFrameEnd( const double deltaTime, const EntityID numEntities) {};
+	virtual void OnFrameEnd( const double deltaTime, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame after all regular logic frames in order to perform physics 
 	/// </summary>
 	/// <param name="deltaTime">The time since the last frame start</param>
-	/// <param name="numEntities">The number of entities that currently exist</param>
-	virtual void OnPhysicsFrame( const double deltaTime, const EntityID numEntities) {};
+	virtual void OnPhysicsFrame( const double deltaTime, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame after all other logic is run in order to draw to the window
 	/// </summary>
 	/// <param name="deltaTime">The time since the last frame start</param>
-	/// <param name="numEntities">The number of entities that currently exist</param>
-	virtual void OnDrawFrame( RenderWindow* window, const EntityID numEntities) {};
+	virtual void OnDrawFrame( RenderWindow* window, const EntityIterator* entityIterator ) {};
 };
