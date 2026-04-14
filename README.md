@@ -3,14 +3,13 @@
 * JSON parsing and serializing - https://github.com/nlohmann/json
 
 # Process for Adding a New Component
-* Add a new component type in the `ComponentType` enum in `components.h`
+* Go to `components.h` and add your new component to the `COMPONENT_LIST` macro in the following format `COMPONENT(<YourComponentName>)`
     * If adding your component causes a static assert, the `MAX_COMPONENTS` value will have to be bumped 
 * Define your component as a struct in the bottom of `components.h` in the section titled "Components"
-* Add a string name for the component type you just made in `s_componentTypeStrings` in `components.cpp`
-* Add an array of your component type in the `Components` struct in `ecs.h`. Make the size `MAX_ENTITIES`
-* You can now add your component to entities through the use of your `ComponentType` in a `ComponentMask`
-    * This mask can then be used to decide what entities should be modified by your desired system which
-      utilizes this component 
+    * The name of your component struct must exactly match your component definition in the `COMPONENT_LIST` macro
+* You can now add your component to entities through the use of the `ComponentType` enum value, which matches your component name defined in `MAX_COMPONENTS`, in a `ComponentMask`
+    * This mask can then be used to decide what entities should be modified by your desired system which utilizes this component 
+* TODO: need to add JSON deserialization logic needed once the scene loader design is finalized.
 
 # Process for Creating/Deleting Entities Dynamically
 * `ECS_QueueEntityCreation` takes a `ComponentMask` and queues up the creation of a new entity at the start of the next frame. 
