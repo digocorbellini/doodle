@@ -32,6 +32,9 @@ int main ()
     //    window.display ();
     //}
 
+    // TODO: remove this testing logic
+    ResourceManager_LoadSceneAssets( nullptr );
+
     ECS_StartGameLoop();
 
     return 0;

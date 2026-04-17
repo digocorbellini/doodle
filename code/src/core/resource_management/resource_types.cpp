@@ -6,13 +6,15 @@ using namespace sf;
 static const char* s_resourceTypeStrings[] =
 {
 	"invalid",
-	"texture"
+#define RESOURCE(X) #X,
+	ALL_RESOURCE_TYPES
+#undef RESOURCE
 };
 static_assert( GetUndelyingEnumVal( ResourceType::Count ) == ARRAY_SIZE( s_resourceTypeStrings ),
 			   "ResourceTypeStrings and ResourceType length missmatch" );
 
 
-const char* GetResourceTypeString( ResourceType resourceType )
+const char* ResourceTypes_GetResourceTypeString( ResourceType resourceType )
 {
 	COM_ASSERT( resourceType < ResourceType::Count, "%s - Invalid resource type [%i]\n",
 				__FUNCTION__,
@@ -23,7 +25,7 @@ const char* GetResourceTypeString( ResourceType resourceType )
 
 
 template<typename T>
-ResourceType ResourceTypeForType()
+ResourceType ResourceTypes_ResourceTypeForType()
 {
 	COM_ASSERT( false, "%s - Resource type '%s' is not supported. Make sure it is added to resource_types.h/cpp\n", 
 				__FUNCTION__,  
@@ -32,8 +34,6 @@ ResourceType ResourceTypeForType()
 }
 
 
-template<>
-ResourceType ResourceTypeForType<Texture>()
-{
-	return ResourceType::Texture;
-}
+#define RESOURCE(X) template<>ResourceType ResourceTypes_ResourceTypeForType<X>() { return ResourceType::X; }
+ALL_RESOURCE_TYPES
+#undef RESOURCE

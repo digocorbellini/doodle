@@ -69,8 +69,8 @@ T* ResourceManager_GetResource( ResourceHandle<T> resourcehandle )
 		return nullptr;
 	}
 
-	COM_ASSERT( ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n", __FUNCTION__,
-				GetResourceTypeString( ResourceTypeForType<T>() ), GetResourceTypeString( resource->type ) );
+	COM_ASSERT( ResourceTypes_ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n", __FUNCTION__,
+				ResourceTypes_GetResourceTypeString( ResourceTypes_ResourceTypeForType<T>() ), ResourceTypes_GetResourceTypeString( resource->type ) );
 
 	return static_cast<T*>( resource->resourcePtr );
 }

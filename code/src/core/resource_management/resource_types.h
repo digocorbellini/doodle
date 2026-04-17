@@ -11,17 +11,22 @@
 #include "common/lib/com_array.h"
 #include "common/types.h"
 
+#define ALL_RESOURCE_TYPES \
+RESOURCE(Texture)
 
 enum class ResourceType : int
 {
 	Invalid,
-	Texture,
+
+#define RESOURCE(X) X,
+	ALL_RESOURCE_TYPES
+#undef RESOURCE
 
 	Count
 };
 
-const char* GetResourceTypeString( ResourceType resourceType );
+const char* ResourceTypes_GetResourceTypeString( ResourceType resourceType );
 
 // Each resouce type should define a type overload for this function in resource_types.cpp
 template<typename T>
-ResourceType ResourceTypeForType();
+ResourceType ResourceTypes_ResourceTypeForType();

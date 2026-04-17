@@ -132,7 +132,7 @@ bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePa
 {
 	COM_ASSERT( false, "%s - Resource type '%s' does not have its own loading function.\n",
 				__FUNCTION__,
-				GetResourceTypeString( T ) );
+				ResourceTypes_GetResourceTypeString( T ) );
 	return false;
 }
 
@@ -174,6 +174,7 @@ void ResourceManager_LoadSceneAssets( const char* sceneFileName )
 {
 	// TODO: sceneFileName is a JSON file which contains the defintion of all of the assets to load?
 	// Maybe should be a scene object instead which 
+	LoadAndCacheResource<ResourceType::Texture>( HashedString( "poggies.png" ), "poggies.png" );
 	
 }
 
