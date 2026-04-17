@@ -1,7 +1,30 @@
+#include "common/lib/com_assert.h"
 #include "scene_loader.h"
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#define SCENES_DIR_PATH GAME_DIR_PATH "scenes/"
+
+constexpr size_t MAX_SCENE_PATH_LEN = 512;
+static char s_fullScenePath[MAX_SCENE_PATH_LEN];
+
+// ===========================
+// Private Helpers
+// ===========================
+
+static const char* GetFullScenePath( const char* scenePath )
+{
+	if ( !scenePath )
+	{
+		return nullptr;
+	}
+
+	COM_ASSERT( ( strlen( scenePath ) + strlen( SCENES_DIR_PATH ) ) < MAX_SCENE_PATH_LEN, "[ResourceManager]: given scene path '%s%s' exceeds max scene path length of '%zu'\n", SCENES_DIR_PATH, scenePath, MAX_SCENE_PATH_LEN );
+
+	snprintf( s_fullScenePath, MAX_SCENE_PATH_LEN, "%s%s", SCENES_DIR_PATH, scenePath );
+	return s_fullScenePath;
+}
 
 // TODO: just for testing
 #include "common/hashing/hashed_string.h"

@@ -18,3 +18,10 @@
 #define DEV_PRINT USE_IF( USING( DEV_BUILD ) )
 
 #define HASHED_STRING_CACHING USE_IF( USING( DEV_BUILD ) )
+
+// TODO: potentially move this to project settings instead 
+#if USING( DEV_BUILD )
+#define GAME_DIR_PATH "../../../game/"
+#elif //#if USING( DEV_BUILD )
+#defiine GAME_DIR_PATH "./game/"
+#endif // #elif //#if USING( DEV_BUILD )

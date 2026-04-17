@@ -1,13 +1,19 @@
 #include "resource_manager.h"
 #include <SFML/Graphics.hpp>
 
-#define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
-
 using namespace std;
 using namespace sf;
 using namespace resource_manager_impl;
 
-constexpr size_t MAX_CACHED_RESOURCES = 1 << 19; // ~500,000 resources
+#define RESOURCES_DIR_PATH GAME_DIR_PATH "resources/"
+
+#define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
+
+static constexpr size_t MAX_CACHED_RESOURCES = 1 << 19; // ~500,000 resources
+
+static constexpr size_t MAX_RESOURCE_PATH_LEN = 512;
+
+static char s_fullResourcePath[MAX_RESOURCE_PATH_LEN];
 
 // linear probing hash
 static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
@@ -17,12 +23,83 @@ static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
 // the ability of loading a second scene in the background?
 static const char* s_currentlyLoadedScene = nullptr;
 
-// TODO: have to test all of the caching and unloading and getting functions
+// ===========================
+// Private Helpers
+// ===========================
+
+static const char* GetFullResourcePath( const char* resourcePath )
+{
+	if ( !resourcePath )
+	{
+		return nullptr;
+	}
+
+	COM_ASSERT( ( strlen( resourcePath ) + strlen( RESOURCES_DIR_PATH ) ) < MAX_RESOURCE_PATH_LEN, "[ResourceManager]: given resource path '%s%s' exceeds max resource path length of '%zu'\n", RESOURCES_DIR_PATH, resourcePath, MAX_RESOURCE_PATH_LEN );
+
+	snprintf( s_fullResourcePath, MAX_RESOURCE_PATH_LEN, "%s%s", RESOURCES_DIR_PATH, resourcePath );
+	return s_fullResourcePath;
+}
+
+
+static bool UnloadResource( HashedString resourceHashName )
+{
+	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
+
+	// iterate through array starting at hash index until resource for hash is found
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
+		CachedResource* currResource = &s_cachedResources[currIndex];
+		if ( currResource->hash == resourceHashName )
+		{
+			currResource->Reset();
+			return true;
+		}
+	}
+
+	// resource not found
+	return false;
+}
+
+
+static void UnloadAllResources()
+{
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		CachedResource* currResource = &s_cachedResources[i];
+		if ( !currResource->IsEmpty() )
+		{
+			currResource->Reset();
+		}
+	}
+}
+
+
+const CachedResource* resource_manager_impl::GetCachedResource( HashedString resourceHashName )
+{
+	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
+
+	// iterate through array starting at hash index until resource for hash is found
+	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
+	{
+		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
+		CachedResource* currResource = &s_cachedResources[currIndex];
+		if ( currResource->hash == resourceHashName )
+		{
+			return currResource;
+		}
+	}
+
+	// resource is not cached
+	return nullptr;
+}
+
+
 // ===========================
 // Private Resource Loaders
 // ===========================
 
-bool CacheResource( HashedString resourceHashName, void* resource, ResourceType resourceType, ResourceDeletorFunc deletorFunct )
+static bool CacheResource( HashedString resourceHashName, void* resource, ResourceType resourceType, ResourceDeletorFunc deletorFunct )
 {
 	const size_t newIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
@@ -71,8 +148,14 @@ bool LoadAndCacheResource<ResourceType::Invalid>( HashedString resourceHashName,
 template <>
 bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName, const char* resourcePath )
 {
+	const char* fullResourcePath = GetFullResourcePath( resourcePath );
+	if ( !fullResourcePath )
+	{
+		return false;
+	}
+
 	Texture* newTexture = new Texture();
-	if ( !newTexture->loadFromFile( resourcePath ) )
+	if ( !newTexture->loadFromFile( fullResourcePath ) )
 	{
 		delete newTexture;
 		return false;
@@ -80,64 +163,6 @@ bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName,
 
 
 	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::Texture, RESOURCE_DELETOR( Texture ) );
-}
-
-
-// ===========================
-// Private Helpers
-// ===========================
-
-bool UnloadResource( HashedString resourceHashName )
-{
-	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
-
-	// iterate through array starting at hash index until resource for hash is found
-	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
-	{
-		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
-		CachedResource* currResource = &s_cachedResources[currIndex];
-		if ( currResource->hash == resourceHashName )
-		{
-			currResource->Reset();
-			return true;
-		}
-	}
-
-	// resource not found
-	return false;
-}
-
-
-void UnloadAllResources()
-{
-	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
-	{
-		CachedResource* currResource = &s_cachedResources[i];
-		if ( !currResource->IsEmpty() )
-		{
-			currResource->Reset();
-		}
-	}
-}
-
-
-const CachedResource* resource_manager_impl::GetCachedResource( HashedString resourceHashName )
-{
-	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
-	
-	// iterate through array starting at hash index until resource for hash is found
-	for ( size_t i = 0; i < MAX_CACHED_RESOURCES; ++i )
-	{
-		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
-		CachedResource* currResource = &s_cachedResources[currIndex];
-		if ( currResource->hash == resourceHashName )
-		{
-			return currResource;
-		}
-	}
-
-	// resource is not cached
-	return nullptr;
 }
 
 
