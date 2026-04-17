@@ -7,6 +7,8 @@
 #include <typeindex>
 
 using SteadyClock = std::chrono::steady_clock;
+using TimePoint = SteadyClock::time_point;
+using Duration = std::chrono::nanoseconds;
 
 static constexpr EntityID MAX_ENTITIES = 5000;
 static constexpr uint64_t MAX_SYSTEMS = 64;
@@ -94,7 +96,7 @@ static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_comp
 
 static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
-static SteadyClock::time_point s_lastFrameTime;
+static TimePoint s_lastFrameTime;
 
 static uint64_t s_numEntitiesQueuedForAddition;
 static uint64_t s_numEntitiesQueuedForDeletion;
@@ -401,35 +403,36 @@ void ECS_StartGameLoop()
 		// TODO: have to figure out how scene loader will communicate with this ECS system
 		
 		// run all systems
-		const SteadyClock::time_point currentTime = SteadyClock::now();
-		const double deltaTime = std::chrono::duration<double>( currentTime - s_lastFrameTime ).count();
+		const TimePoint currentTime = SteadyClock::now();
+		const NanoSeconds deltaTimeNs = std::chrono::duration_cast<Duration>( currentTime - s_lastFrameTime ).count();
+		s_lastFrameTime = currentTime;
 
 		// run frame start
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameStart( deltaTime, &it );
+			s_systems[i]->OnFrameStart( deltaTimeNs, &it );
 		}
 
 		// run frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrame( deltaTime, &it );
+			s_systems[i]->OnFrame( deltaTimeNs, &it );
 		}
 
 		// run frame end
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameEnd( deltaTime, &it );
+			s_systems[i]->OnFrameEnd( deltaTimeNs, &it );
 		}
 		
 		// run physics frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnPhysicsFrame( deltaTime, &it );
+			s_systems[i]->OnPhysicsFrame( deltaTimeNs, &it );
 		}
 
 		// run drawing frame
@@ -443,7 +446,5 @@ void ECS_StartGameLoop()
 
 		// process all entity additions and deletions
 		ProcessEntityCreationAndDeletion();
-
-		s_lastFrameTime = SteadyClock::now();
 	}
 }

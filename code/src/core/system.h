@@ -26,30 +26,30 @@ public:
 	/// <summary>
 	/// Called once per frame at the start of a frame (before the regular frame logic is run)
 	/// </summary>
-	/// <param name="deltaTime">The time since the last frame start</param>
-	virtual void OnFrameStart( const double deltaTime, const EntityIterator* entityIterator ) {};
+	/// <param name="deltaTimeNs">The time since the last frame start</param>
+	virtual void OnFrameStart( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame 
 	/// </summary>
-	/// <param name="deltaTime">The time since the last frame start</param>
-	virtual void OnFrame( const double deltaTime, const EntityIterator* entityIterator ) {};
+	/// <param name="deltaTimeNs">The time since the last frame start</param>
+	virtual void OnFrame( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame at the end of a frame (after the regular frame logic is run)
 	/// </summary>
-	/// <param name="deltaTime">The time since the last frame start</param>
-	virtual void OnFrameEnd( const double deltaTime, const EntityIterator* entityIterator ) {};
+	/// <param name="deltaTimeNs">The time since the last frame start</param>
+	virtual void OnFrameEnd( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame after all regular logic frames in order to perform physics 
 	/// </summary>
-	/// <param name="deltaTime">The time since the last frame start</param>
-	virtual void OnPhysicsFrame( const double deltaTime, const EntityIterator* entityIterator ) {};
+	/// <param name="deltaTimeNs">The time since the last frame start</param>
+	virtual void OnPhysicsFrame( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator ) {};
 
 	/// <summary>
 	/// Called once per frame after all other logic is run in order to draw to the window
 	/// </summary>
-	/// <param name="deltaTime">The time since the last frame start</param>
+	/// <param name="deltaTimeNs">The time since the last frame start</param>
 	virtual void OnDrawFrame( RenderWindow* window, const EntityIterator* entityIterator ) {};
 };

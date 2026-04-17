@@ -15,6 +15,8 @@ typedef std::uint64_t EntityID;
 // TODO: perhaps make like an EntityCounter or something different so that EntityID isn't used for like s_numEntities
 // and instead only used to represent actual entities 
 
+typedef long long NanoSeconds;
+
 template <typename T>
 constexpr std::underlying_type_t<T> GetUndelyingEnumVal( T enumVal )
 {
