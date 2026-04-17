@@ -42,6 +42,9 @@
     <ClCompile Include="src\common\lib\com_print.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\systems\test_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\components.h">
@@ -90,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\test_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
