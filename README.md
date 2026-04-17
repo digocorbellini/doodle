@@ -29,3 +29,11 @@
 * TODO: add explanation here on how to iterate over entities for performing logic on them 
 * TODO: also add explanation on how to use component mask to know which entities to operate on.
 * Create a static instance of your system. The constructor in the base class will register the system to be run during the game loop.
+
+# Temporary Building Process
+* Currently don't have a building pipeline, so using Visual Studio 2022 itself to build. 
+* In "Configuration Properties", the "Debugging -> Working Directory" is set to `$(OutDir)` so that the debugging process can simulate running the built exe directly
+* The "General -> Output Directory" is also set to `$(SolutionDir)\..\builds\$(Platform)\$(Configuration)\`
+* The "General -> Intermediate Directory" is also set to `$(SolutionDir)\..\builds\intermediate\$(Platform)\$(Configuration)\`
+* The long term plan is to have a tool which will perform the compilation and launching of the executable (along with some potential post-compilation tasks) 
+    * This way these per-user settings don't have to be touched and you don't have to rely on using the vs code debugger.
