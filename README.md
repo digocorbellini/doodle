@@ -30,6 +30,9 @@
 * TODO: also add explanation on how to use component mask to know which entities to operate on.
 * Create a static instance of your system. The constructor in the base class will register the system to be run during the game loop.
 
+# Process for Adding a New Resource 
+* TODO: explain process for defining type and then also for creating the loading function 
+
 # Temporary Building Process
 * Currently don't have a building pipeline, so using Visual Studio 2022 itself to build. 
 * In "Configuration Properties", the "Debugging -> Working Directory" is set to `$(OutDir)` so that the debugging process can simulate running the built exe directly
