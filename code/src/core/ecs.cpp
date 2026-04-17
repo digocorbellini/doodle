@@ -96,6 +96,9 @@ static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
 static SteadyClock::time_point s_lastFrameTime;
 
+static uint64_t s_numEntitiesQueuedForAddition;
+static uint64_t s_numEntitiesQueuedForDeletion;
+
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
 //// of static functions in a window.cpp file?
@@ -121,6 +124,11 @@ static void ProcessEntityCreationAndDeletion()
 {
 	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
 	{
+		if ( s_numEntitiesQueuedForAddition == 0 && s_numEntitiesQueuedForDeletion == 0 )
+		{
+			break;
+		}
+
 		Entity* currEntity = &s_entities[entityID];
 
 		if ( currEntity->state == EntityState::Claimed )
@@ -129,6 +137,8 @@ static void ProcessEntityCreationAndDeletion()
 			currEntity->state = EntityState::Assigned;
 			COM_ASSERT( s_numEntities < MAX_ENTITIES, "num entities is exceeding max number of entities:  %" PRIu64 "\n", MAX_ENTITIES );
 			++s_numEntities;
+
+			--s_numEntitiesQueuedForAddition;
 		}
 		else if ( currEntity->state == EntityState::MarkedForDelete )
 		{
@@ -136,6 +146,8 @@ static void ProcessEntityCreationAndDeletion()
 			currEntity->Reset();
 			COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n" );
 			--s_numEntities;
+
+			--s_numEntitiesQueuedForDeletion;
 		}
 	}
 }
@@ -271,6 +283,8 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 			currEntity->componentsMask = compMask;
 			currEntity->isEnabled = true;
 
+			++s_numEntitiesQueuedForAddition;
+
 			return entityID;
 		}
 	}
@@ -295,6 +309,8 @@ bool ECS_QueueEntityRemoval( const EntityID entityID )
 	}
 
 	entity->state = EntityState::MarkedForDelete;
+
+	++s_numEntitiesQueuedForDeletion;
 
 	return true;
 }
