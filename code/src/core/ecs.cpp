@@ -9,7 +9,6 @@
 using SteadyClock = std::chrono::steady_clock;
 
 static constexpr EntityID MAX_ENTITIES = 5000;
-static constexpr uint64_t MAX_ENTITY_QUEUE_SIZE = MAX_ENTITIES / 2;
 static constexpr uint64_t MAX_SYSTEMS = 64;
 
 // Systems will operate on this struct of all components in the game
@@ -28,9 +27,11 @@ struct Components
 
 enum class EntityState : int
 {
+
 	Available = 0,
-	Claimed, // claimed by queue addition system
-	Assigned // entity is assigned an entity ID by ecs system
+	Claimed,        // claimed by queue addition system 
+	Assigned,       // entity is assigned an entity ID by ecs system
+	MarkedForDelete // entity is still active but will be deleted at the end of the frame
 };
 
 struct Entity
@@ -57,7 +58,7 @@ struct Entity
 
 	bool CanBeOperatedOn() const
 	{
-		return isEnabled && state == EntityState::Assigned;
+		return isEnabled && (state == EntityState::Assigned || state == EntityState::MarkedForDelete);
 	}
 };
 
@@ -68,14 +69,6 @@ struct QueuedEntityAddition
 };
 
 static Entity s_entities[MAX_ENTITIES];
-// TODO: have to figure out if this is even needed since dynamic addition and 
-// deletion will make it so that the entities in the list are no longer stored consequtively... might have to change
-// what is being passed in the frame functions... maybe just pass MAX_ENTITIES?
-// TODO: maybe it would be good to still keep this count and then create an iterator that can be passed to the systems
-// that way the iterator can skip giving the systems un-operable entities and it can know when it has reached the end of the 
-// list since it can know the number of entities (AKA it avoids having to iterate over the entire list every time). This
-// also helps encapsulate the entities list and the systems just have to work with a simple list 
-// that gets entity IDs from the iterator.
 static EntityID s_numEntities = 0; 
 static_assert( ARRAY_SIZE( s_entities ) < MAX_ENTITY_ID, "s_entities array size is >= MAX_ENTITY_ID" );
 
@@ -103,12 +96,6 @@ static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
 static SteadyClock::time_point s_lastFrameTime;
 
-static QueuedEntityAddition s_entityAdditionQueue[MAX_ENTITY_QUEUE_SIZE];
-static uint64_t s_numQueuedAdditions;
-
-static EntityID s_entityDeletionQueue[MAX_ENTITY_QUEUE_SIZE];
-static uint64_t s_numQueuedDeletions;
-
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
 //// of static functions in a window.cpp file?
@@ -130,60 +117,27 @@ static bool IsValidEntityID( const EntityID id )
 }
 
 
-static void ProcessEntityCreationQueue()
+static void ProcessEntityCreationAndDeletion()
 {
-	for ( int i = 0; i < s_numQueuedAdditions; ++i )
+	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
 	{
-		QueuedEntityAddition* currAddition = &s_entityAdditionQueue[i];
-		if ( !IsValidEntityID( currAddition->claimedID ) )
+		Entity* currEntity = &s_entities[entityID];
+
+		if ( currEntity->state == EntityState::Claimed )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity creation has invalid entity ID [%" PRIu64 "]. Max entities: %" PRIu64 "\n", currAddition->claimedID, MAX_ENTITIES );
-			continue;
+			// add entity
+			currEntity->state = EntityState::Assigned;
+			COM_ASSERT( s_numEntities < MAX_ENTITIES, "num entities is exceeding max number of entities:  %" PRIu64 "\n", MAX_ENTITIES );
+			++s_numEntities;
 		}
-
-		Entity* newEntity = &s_entities[currAddition->claimedID];
-		if ( newEntity->state != EntityState::Claimed )
+		else if ( currEntity->state == EntityState::MarkedForDelete )
 		{
-			COM_ALWAYS_ASSERT( "Queued entity with claimed ID of [%" PRIu64 "] is attempting to claim an entity without a 'claimed' state. State: [%i]\n", currAddition->claimedID, GetUndelyingEnumVal( newEntity->state ) );
-			continue;
+			// delete entity
+			currEntity->Reset();
+			COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n" );
+			--s_numEntities;
 		}
-
-		newEntity->componentsMask = currAddition->componentsMask;
-		newEntity->state = EntityState::Assigned;
-
-		COM_ASSERT( s_numEntities < MAX_ENTITIES, "num entities is exceeding max number of entities:  %" PRIu64 "\n", MAX_ENTITIES );
-		++s_numEntities;
 	}
-
-	s_numQueuedAdditions = 0;
-}
-
-
-static void ProcessEntityDeletionQueue()
-{
-	for ( int i = 0; i < s_numQueuedDeletions; ++i )
-	{
-		EntityID currDeletionID = s_entityDeletionQueue[i];
-		if ( !IsValidEntityID( currDeletionID ) )
-		{
-			COM_ALWAYS_ASSERT( "Queued entity deletion has invalid entity ID [%" PRIu64 "]. Max entity ID: %" PRIu64 "\n", currDeletionID, MAX_ENTITY_ID );
-			continue;
-		}
-
-		Entity* entity = &s_entities[currDeletionID];
-		if ( entity->state != EntityState::Assigned )
-		{
-			COM_ALWAYS_ASSERT( "Queued entity deletion with claimed ID of [%" PRIu64 "] is attempting to delete an entity without a 'assigned' state. State: [%i]\n", currDeletionID, GetUndelyingEnumVal( entity->state ) );
-			continue;
-		}
-
-		entity->Reset();
-
-		COM_ASSERT( s_numEntities > 0, "num entities is already 0 but attempting to decrement it.\n" );
-		--s_numEntities;
-	}
-
-	s_numQueuedDeletions = 0;
 }
 
 
@@ -299,17 +253,6 @@ const EntityIterator EntityIterator::end()
 // ====================
 // Public Functions
 // ====================
-// TODO: since entities list isn't growing or shrinking as entiies are created and destroyed... why do I need to keep
-// track of a queue? Can't I just immediately create and destory entities by just changing their state?
-// Need to think about this to see if it is better or not to delay addition and removal so that 
-// system's always act on all active entities else some might get skipped
-// Ok so queueing should remain since it makes it easier for systems to assume that they are operating on all active
-// entities and that no entities will be added after they run by a consecutive system. However, I might not need to 
-// spend all of the extra space for these queues and instead I can just directly modify the state of the entities 
-// and then resolve the states in 1 pass (AKA keep track of state to see if it is queued for deletion or addition and
-// then in the resolve pass set to claimed or available depending on if you are adding/deleting. this way the
-// addition queue logic can just directly set the comp mask and return the correct entity ID without having to 
-// keep track of all of that in a separate data structure).
 
 const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 {
@@ -318,25 +261,15 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 		return INVALID_ENTITY_ID;
 	}
 
-	if ( s_numQueuedAdditions >= MAX_ENTITY_QUEUE_SIZE )
-	{
-		COM_ALWAYS_ASSERT( "Unable to add new entity due to addition queue being full. Max addition queue size: %" PRIu64 "\n", MAX_ENTITY_QUEUE_SIZE );
-		return INVALID_ENTITY_ID;
-	}
-
-	// find and cache next available ID
+	// clainm first available entity for addition
 	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
 	{
 		Entity* currEntity = &s_entities[entityID];
 		if ( currEntity->state == EntityState::Available )
 		{
 			currEntity->state = EntityState::Claimed;
-
-			// add to queue
-			QueuedEntityAddition* currQueuedAddition = &s_entityAdditionQueue[s_numQueuedAdditions];
-			currQueuedAddition->claimedID = entityID;
-			currQueuedAddition->componentsMask = compMask;
-			++s_numQueuedAdditions;
+			currEntity->componentsMask = compMask;
+			currEntity->isEnabled = true;
 
 			return entityID;
 		}
@@ -349,26 +282,20 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 
 bool ECS_QueueEntityRemoval( const EntityID entityID )
 {
-	if ( s_numQueuedDeletions >= MAX_ENTITY_QUEUE_SIZE )
-	{
-		COM_ALWAYS_ASSERT( "Unable to queue entity for deletion since queue is full. Max deletion queue size: %" PRIu64 "\n", MAX_ENTITY_QUEUE_SIZE );
-		return false;
-	}
-
 	if ( !IsValidEntityID( entityID ) )
 	{
 		return false;
 	}
 
-	// see if entity even exists 
-	const Entity* entity = &s_entities[entityID];
+	// see if entity can be deleted
+	Entity* entity = &s_entities[entityID];
 	if ( entity->state != EntityState::Assigned )
 	{
 		return false;
 	}
 
-	s_entityDeletionQueue[s_numQueuedDeletions] = entityID;
-	++s_numQueuedDeletions;
+	entity->state = EntityState::MarkedForDelete;
+
 	return true;
 }
 
@@ -416,6 +343,7 @@ void ECS_RegisterSystem( System* system )
 	++s_numSystems;
 }
 
+
 template<typename T>
 T* ECS_GetComponentList( ComponentType componentType )
 {
@@ -456,9 +384,6 @@ void ECS_StartGameLoop()
 		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
 		// TODO: have to figure out how scene loader will communicate with this ECS system
 		
-		// add new queued entities
-		ProcessEntityCreationQueue();
-
 		// run all systems
 		const SteadyClock::time_point currentTime = SteadyClock::now();
 		const double deltaTime = std::chrono::duration<double>( currentTime - s_lastFrameTime ).count();
@@ -500,9 +425,8 @@ void ECS_StartGameLoop()
 		}
 		window.display();
 
-
-		// delete all queued deletion entities
-		ProcessEntityDeletionQueue();
+		// process all entity additions and deletions
+		ProcessEntityCreationAndDeletion();
 
 		s_lastFrameTime = SteadyClock::now();
 	}

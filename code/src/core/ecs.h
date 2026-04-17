@@ -59,7 +59,7 @@ public:
 
 /// <summary>
 /// Queue up the creation of an entity with the componenets in the given mask which will 
-/// be added at the start of the next frame
+/// be added at the end of the frame.
 /// </summary>
 /// <param name="compMask">A mask with the components the entity should have</param>
 /// <returns>The ID of the entity to be created. Note that the entity won't be 
@@ -112,9 +112,8 @@ T* ECS_GetComponentList( ComponentType componentType );
 /// <summary>
 /// Start the game loop logic. The loop will handle :
 /// - loading and unloading scenes
-/// - creating queued entity creations
 /// - running all systems to modify entities and componenets
 /// - running the rendering logic 
-/// - deleting queued entity deletions
+/// - deleting and creating queued entities 
 /// </summary>
 void ECS_StartGameLoop();
