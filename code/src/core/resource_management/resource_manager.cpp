@@ -145,7 +145,7 @@ const CachedResource* resource_manager_impl::GetCachedResource( HashedString res
 // Public Functions
 // ===========================
 
-void ResourceMannager_LoadSceneAssets( const char* sceneFileName )
+void ResourceManager_LoadSceneAssets( const char* sceneFileName )
 {
 	// TODO: sceneFileName is a JSON file which contains the defintion of all of the assets to load?
 	// Maybe should be a scene object instead which 
@@ -153,7 +153,7 @@ void ResourceMannager_LoadSceneAssets( const char* sceneFileName )
 }
 
 
-void ResourceMannager_UnloadCurrentScene()
+void ResourceManager_UnloadCurrentScene()
 {
 	if ( !s_currentlyLoadedScene )
 	{

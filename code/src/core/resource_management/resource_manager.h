@@ -34,14 +34,14 @@ struct ResourceHandle
 //			- so it persists between scenes?
 // Maybe instead of having a reference to a scene file? Why not only load it once
 // and then pass it here and also in the entity parsing.
-void ResourceMannager_LoadSceneAssets( const char* sceneFileName );
+void ResourceManager_LoadSceneAssets( const char* sceneFileName );
 
 
 /// <summary>
 /// Unload all resources for the currently loaded scene if a currently loaded 
 /// scene exists.
 /// </summary>
-void ResourceMannager_UnloadCurrentScene();
+void ResourceManager_UnloadCurrentScene();
 
 
 /// <summary>
@@ -53,7 +53,7 @@ void ResourceMannager_UnloadCurrentScene();
 /// <returns>A pointer of type T to the given resource if it exists and has been loaded, 
 /// otherwise returns nullptr.</returns>
 template<typename T>
-T* ResourceMannager_GetResource( ResourceHandle<T> resourcehandle )
+T* ResourceManager_GetResource( ResourceHandle<T> resourcehandle )
 {
 	// TODO: maybe figure out a way to return a temporary resource that does not allow
 	// caching between frames, so systems have to request the resouce using the handle

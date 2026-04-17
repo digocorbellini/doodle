@@ -25,7 +25,7 @@ private:
 	/// </summary>
 	virtual void draw( sf::RenderTarget& target, sf::RenderStates states ) const override
 	{
-		sf::Texture* texturePtr = ResourceMannager_GetResource( textureHandle );
+		sf::Texture* texturePtr = ResourceManager_GetResource( textureHandle );
 		if ( texturePtr )
 		{
 			const_cast<sf::Sprite&>( sprite ).setTexture( *texturePtr );
