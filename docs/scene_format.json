@@ -1,48 +1,41 @@
 {
     "version": 1,
-    "sceneName": "exampleSceneName",
-    "includedEntityTemplates": [
-        "template1",
-        "temp_dir/template2"
-    ],
-    // resources not included in temlates
+    // resources not included in templates
     "resources": [
         {
-            "name": "resource1",
-            "resourceType": "Texture",
-            "path": "relative/path/to/resource.png"
+            "ref": "relative/path/to/resource.png",
+            "resourceType": "Texture"
         },
         {
-            "name": "resource2",
-            "resourceType": "Sound",
-            "path": "relative/path/to/resource.wav"
+            "ref": "relative/path/to/resource.wav",
+            "resourceType": "Sound"
         }
     ],
     "loadedEntities": [
         {
             // example of using template
             "entityName": "unique_name_1",
-            "template": "template1",
+            "template": "template1.json",
             "components": []
         },
         {
             // example of template but overriding a component's values
             "entityName": "unique_name_2",
-            "template": "temp_dir/template2",
+            "template": "temp_dir/template2.json",
             "components": [
                 {
                     "name": "componentName1",
-                    "values": [
-                        {
+                    "values": {
+                        "fieldName1": {
                             "val": "unique_name_1"
                         },
-                        {
+                        "fieldName2": {
                             "val": 432
                         },
-                        {
+                        "fieldName3": {
                             "val": "testVal"
                         }
-                    ]
+                    }
                 }
             ]
         },
@@ -53,43 +46,41 @@
             "components": [
                 {
                     "name": "componentName1",
-                    "values": [
-                        {
-                            "fieldName": "entityName",
+                    "values": {
+                        "entityName": {
                             "val": "unique_name_1",
                             "fieldType": "entity"
                         },
-                        {
-                            "fieldName": "valueName1",
+                        "valueName1": {
                             "val": 432,
                             "fieldType": "int"
                         },
-                        {
-                            "fieldName": "valueName2",
+                        "valueName2": {
                             "val": "testVal",
                             "fieldType": "string"
                         },
-                        {
-                            "fieldName": "resourceName",
-                            "val": "resource2",
+                        "resourceRef": {
+                            "val": "relative/path/to/resource.wav",
                             "fieldType": "resource"
                         }
-                    ]
+                    }
                 },
                 {
                     "name": "componentName2",
-                    "values": [
-                        {
-                            "fieldName": "vectorName",
-                            "val": [1, 2, 43],
+                    "values": {
+                        "vectorName": {
+                            "val": [
+                                1,
+                                2,
+                                43
+                            ],
                             "fieldType": "vector"
                         },
-                        {
-                            "fieldName": "resourceName",
-                            "val": "resource1",
+                        "resourceRef": {
+                            "val": "relative/path/to/resource.png",
                             "fieldType": "resource"
                         }
-                    ]
+                    }
                 }
             ]
         }
