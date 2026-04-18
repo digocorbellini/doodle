@@ -31,7 +31,11 @@
 * Create a static instance of your system. The constructor in the base class will register the system to be run during the game loop.
 
 # Process for Adding a New Resource 
-* TODO: explain process for defining type and then also for creating the loading function 
+* In `resource_types.h`, add your new resource type to the `ALL_RESOURCE_TYPES` macro.
+    * The resource type name should be the same as the data type of your actual resource. So for example, for the resource type that represents a SFML `Texture`, the resource type is also `Texture`. This is due to the way in which the macro is used for code generation.
+* In `resource_manager.cpp` under the `Private Resource Loaders` section, overload the `LoadAndCacheResource` function for your new resource type.
+    * This function should load in the new resource into the heap and then cache the new resource pointer using the `CacheResource` private helper function.
+    * Use the `RESOURCE_DELETOR` macro for creating a resource deleting callback function if applicable. 
 
 # Temporary Building Process
 * Currently don't have a building pipeline, so using Visual Studio 2022 itself to build. 
