@@ -27,7 +27,7 @@ const char* ResourceTypes_GetResourceTypeString( ResourceType resourceType )
 
 ResourceType ResourceTypes_GetResourceTypeForString( const char* resourceTypeStr )
 {
-	for ( size_t i = 0; i < GetUndelyingEnumVal( ResourceType::Count ); ++i )
+	for ( int i = 0; i < GetUndelyingEnumVal( ResourceType::Count ); ++i )
 	{
 		if ( strcmp( resourceTypeStr, s_resourceTypeStrings[i] ) == 0 )
 		{
