@@ -1,29 +1,93 @@
 {
-    "components": {
-      "EntityTransform2D": [
+    "version": 1,
+    "sceneName": "exampleSceneName",
+    "includedEntityTemplates": [
+        "template1",
+        "temp_dir/template2"
+    ],
+    "resources": [
         {
-          "index": 0,
-          "position": [1,2]
+            "name": "resource1",
+            "resourceType": "Texture",
+            "path": "relative/path/to/resource.png"
         },
         {
-          "index": 4,
-          "position": [3,5.4]
+            "name": "resource2",
+            "resourceType": "Sound",
+            "path": "relative/path/to/resource.wav"
         }
-      ],
-      "PhysicsBody2D": [
+    ],
+    "loadedEntities": [
         {
-          "index": 4
+            "entityName": "unique_name_1",
+            "template": "template1",
+            "components": []
+        },
+        {
+            "entityName": "unique_name_2",
+            "template": "temp_dir/template2",
+            "components": [
+                {
+                    "name": "componentName1",
+                    "values": [
+                        {
+                            "val": "unique_name_1"
+                        },
+                        {
+                            "val": 432
+                        },
+                        {
+                            "val": "testVal"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "entityName": "unique_name_3",
+            "template": null,
+            "components": [
+                {
+                    "name": "componentName1",
+                    "values": [
+                        {
+                            "fieldName": "entityName",
+                            "val": "unique_name_1",
+                            "fieldType": "entity"
+                        },
+                        {
+                            "fieldName": "valueName1",
+                            "val": 432,
+                            "fieldType": "int"
+                        },
+                        {
+                            "fieldName": "valueName2",
+                            "val": "testVal",
+                            "fieldType": "string"
+                        },
+                        {
+                            "fieldName": "resourceName",
+                            "val": "resource2",
+                            "fieldType": "resource"
+                        }
+                    ]
+                },
+                {
+                    "name": "componentName2",
+                    "values": [
+                        {
+                            "fieldName": "vectorName",
+                            "val": [1, 2, 43],
+                            "fieldType": "vector"
+                        },
+                        {
+                            "fieldName": "resourceName",
+                            "val": "resource1",
+                            "fieldType": "resource"
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    },
-    "assets": [
-      {
-        "path": "./test",
-        "dontFreeOnLoad": false
-      },
-      {
-        "path": "./test",
-        "dontFreeOnLoad": false
-      }
     ]
 }

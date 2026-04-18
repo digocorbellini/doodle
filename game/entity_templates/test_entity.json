@@ -1,0 +1,39 @@
+{
+    "version": 1,
+    "parentTemplate": "example_dir/template_parent",
+    "resources": [
+        {
+            "name": "resource1",
+            "resourceType": "Texture",
+            "path": "relative/path/to/resource.png"
+        }
+    ],
+    "components": [
+        {
+            "name": "componentName1",
+            "values": [
+                {
+                    "val": 432
+                },
+                {
+                    "val": "testVal"
+                }
+            ]
+        },
+        {
+            "name": "componentName2",
+            "values": [
+                {
+                    "fieldName": "vectorName",
+                    "val": [1, 2, 43],
+                    "fieldType": "vector"
+                },
+                {
+                    "fieldName": "resourceHandleStringName",
+                    "val": "resource1",
+                    "fieldType": "resource"
+                }
+            ]
+        }
+    ]
+}
