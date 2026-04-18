@@ -8,12 +8,29 @@
     ],
     "loadedEntities": [
         {
-            "entityName": "entity_1",
+            "entityName": "using_template",
             "template": "test_entity.json",
             "components": []
         },
         {
-            "entityName": "entity_2",
+            "entityName": "template_override_values",
+            "template": "test_entity.json",
+            "components": [
+                {
+                    "name": "EntityTransform2D",
+                    "values": {
+                        "position": {
+                            "val": [
+                                10,
+                                10
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "entityName": "no_template_entity",
             "template": null,
             "components": [
                 {
@@ -21,8 +38,8 @@
                     "values": {
                         "position": {
                             "val": [
-                                0,
-                                0
+                                -10,
+                                -10
                             ],
                             "fieldType": "vector2"
                         }
