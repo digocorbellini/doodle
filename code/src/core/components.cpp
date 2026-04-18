@@ -21,6 +21,7 @@ bool Components_IsComponentValid( const ComponentType componentType )
 	return componentType != ComponentType::Invalid && componentType != ComponentType::Count;
 }
 
+
 const char* Components_GetComponentTypeString( ComponentType componentType )
 {
 	if ( !Components_IsComponentValid( componentType ) )
@@ -29,6 +30,20 @@ const char* Components_GetComponentTypeString( ComponentType componentType )
 	}
 
 	return s_componentTypeStrings[GetUndelyingEnumVal( componentType )];
+}
+
+
+ComponentType Components_GetComponentTypeForString( const char* componentStr )
+{
+	for ( size_t i = 0; i < GetUndelyingEnumVal( ComponentType::Count ); ++i )
+	{
+		if ( strcmp( componentStr, s_componentTypeStrings[i] ) == 0 )
+		{
+			return static_cast<ComponentType>( i );
+		}
+	}
+
+	return ComponentType::Invalid;
 }
 
 

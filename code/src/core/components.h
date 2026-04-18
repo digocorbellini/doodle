@@ -67,6 +67,14 @@ bool Components_IsComponentValid( const ComponentType componentType );
 const char* Components_GetComponentTypeString( ComponentType componentType );
 
 /// <summary>
+/// Get the component type for the given string
+/// </summary>
+/// <param name="componentStr">The component type string value</param>
+/// <returns>The component type for the given string if the string is valid. Otherwise 
+/// invalid component is returned.</returns>
+ComponentType Components_GetComponentTypeForString( const char* componentStr );
+
+/// <summary>
 /// A bitmask used to represent a set of active and inactive components
 /// </summary>
 class ComponentsMask
