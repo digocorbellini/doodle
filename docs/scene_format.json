@@ -1,88 +1,97 @@
 {
     "version": 1,
     "sceneName": "exampleSceneName",
-    // TODO: need templates in order to know what resources to
-    // load for entities that might not be loaded yet?? The scene
-    // editor tool will somehow have to know which entities 
-    // are included somewhere even if they are not initialized yet.
-    "entityTemplates": [
-        {
-            "name": "prefabName1",
-            // TODO: parsing logic will have to create serialization and deserialization logic per component which will know what fields to map to what. This is because C++ 20 doesn't support reflection
-            "components": [
-                {
-                    "name": "componentName1",
-                    "values": {
-                        "valueName1": 432,
-                        "valueName2": "testVal"
-                    }
-                },
-                {
-                    "name": "componentName2",
-                    "values": {
-                        "vectorName": [1, 2, 43],
-                        "resourceHandleStringName": "resource1"
-                    }
-                }
-            ]
-        }
+    "includedEntityTemplates": [
+        "template1",
+        "temp_dir/template2"
     ],
-    "loadedEntities": [
-        {
-            "entityName": "entity1", // must be unique?
-            // TODO: need to somehow figure out how to handle template 
-            // value overrides?
-            "template": "prefabName1",
-            // TOOD: can serve as overrides for template components
-            "components": [] 
-        },
-        {
-            "entityName": "entity2",
-            "template": null,
-            "components": [
-                {
-                    "name": "componentName1",
-                    "type": 1,
-                    "values": {
-                        "entityName": "entity1", // engine will need to convert this to entity ID during scene loading
-                        "valueName1": 432,
-                        "valueName2": "testVal"
-                    }
-                },
-                {
-                    "name": "componentName2",
-                    "type": 3,
-                    "values": {
-                        "vectorName": [1, 2, 43],
-                        "resoucePtrName": "resource1"
-                    }
-                }
-            ]
-        }
-    ],
+    // resources not included in temlates
     "resources": [
         {
-            // TODO: maybe resource name should not be included in scene
-            // for ship builds? Or maybe it doesn't matter for obfuscation
-            // since the path to the resource isn't obfuscated either.
             "name": "resource1",
-            // TODO: figure out if using a string to handle large ints
-            // is a good idea. Need to see if I can even handle this in the 
-            // engine. Or if I will perform the hash in the engine.
-            // TODO: need to see if I can somehow perform hashing in the tool. Maybe export hashing logic to a re-usable library that the tool and engine can use? or don't hash and game will do it all? But then no obfuscation would occur
-            "hashName": "123468790",
-            // TODO: figure out if type should be string or int
-            "resourceType": "texture",
-            // TODO: need to figure out what this is relative to
-            // since EXE and launching debugger have different
-            // source paths
+            "resourceType": "Texture",
             "path": "relative/path/to/resource.png"
         },
         {
             "name": "resource2",
-            "hashName": "4321",
-            "resourceType": "sound",
+            "resourceType": "Sound",
             "path": "relative/path/to/resource.wav"
+        }
+    ],
+    "loadedEntities": [
+        {
+            // example of using template
+            "entityName": "unique_name_1",
+            "template": "template1",
+            "components": []
+        },
+        {
+            // example of template but overriding a component's values
+            "entityName": "unique_name_2",
+            "template": "temp_dir/template2",
+            "components": [
+                {
+                    "name": "componentName1",
+                    "values": [
+                        {
+                            "val": "unique_name_1"
+                        },
+                        {
+                            "val": 432
+                        },
+                        {
+                            "val": "testVal"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            // example of not using a template and defining an entity
+            "entityName": "unique_name_3",
+            "template": null,
+            "components": [
+                {
+                    "name": "componentName1",
+                    "values": [
+                        {
+                            "fieldName": "entityName",
+                            "val": "unique_name_1",
+                            "fieldType": "entity"
+                        },
+                        {
+                            "fieldName": "valueName1",
+                            "val": 432,
+                            "fieldType": "int"
+                        },
+                        {
+                            "fieldName": "valueName2",
+                            "val": "testVal",
+                            "fieldType": "string"
+                        },
+                        {
+                            "fieldName": "resourceName",
+                            "val": "resource2",
+                            "fieldType": "resource"
+                        }
+                    ]
+                },
+                {
+                    "name": "componentName2",
+                    "values": [
+                        {
+                            "fieldName": "vectorName",
+                            "val": [1, 2, 43],
+                            "fieldType": "vector"
+                        },
+                        {
+                            "fieldName": "resourceName",
+                            "val": "resource1",
+                            "fieldType": "resource"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
