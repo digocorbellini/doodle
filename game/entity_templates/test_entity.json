@@ -1,43 +1,16 @@
 {
     "version": 1,
-    "parentTemplate": null,
-    "resources": [
-        {
-            "ref": "poggies.png",
-            "resourceType": "Texture"
-        }
-    ],
+    "parentTemplate": "test/test_entity_parent.json",
+    "resources": [],
     "components": [
         {
             "name": "EntityTransform2D",
             "values": {
                 "position": {
                     "val": [
-                        0,
-                        0
-                    ],
-                    "fieldType": "vector2"
-                }
-            }
-        },
-        {
-            "name": "SpriteRenderer2D",
-            "values": {
-                "sprite": {
-                    "val": "poggies.png",
-                    "fieldType": "resource"
-                },
-                "renderingOrder": {
-                    "val": 0,
-                    "fieldType": "int"
-                },
-                "isXFlipped": {
-                    "val": false,
-                    "fieldType": "bool"
-                },
-                "isYFlipped": {
-                    "val": false,
-                    "fieldType": "bool"
+                        1,
+                        1
+                    ]
                 }
             }
         }
