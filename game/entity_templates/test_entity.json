@@ -1,39 +1,45 @@
 {
     "version": 1,
-    "parentTemplate": "example_dir/template_parent",
+    "parentTemplate": null,
     "resources": [
         {
-            "name": "resource1",
-            "resourceType": "Texture",
-            "path": "relative/path/to/resource.png"
+            "ref": "poggies.png",
+            "resourceType": "Texture"
         }
     ],
     "components": [
         {
-            "name": "componentName1",
-            "values": [
-                {
-                    "val": 432
-                },
-                {
-                    "val": "testVal"
+            "name": "EntityTransform2D",
+            "values": {
+                "position": {
+                    "val": [
+                        0,
+                        0
+                    ],
+                    "fieldType": "vector2"
                 }
-            ]
+            }
         },
         {
-            "name": "componentName2",
-            "values": [
-                {
-                    "fieldName": "vectorName",
-                    "val": [1, 2, 43],
-                    "fieldType": "vector"
-                },
-                {
-                    "fieldName": "resourceHandleStringName",
-                    "val": "resource1",
+            "name": "SpriteRenderer2D",
+            "values": {
+                "sprite": {
+                    "val": "poggies.png",
                     "fieldType": "resource"
+                },
+                "renderingOrder": {
+                    "val": 0,
+                    "fieldType": "int"
+                },
+                "isXFlipped": {
+                    "val": false,
+                    "fieldType": "bool"
+                },
+                "isYFlipped": {
+                    "val": false,
+                    "fieldType": "bool"
                 }
-            ]
+            }
         }
     ]
 }

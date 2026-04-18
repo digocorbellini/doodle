@@ -1,91 +1,53 @@
 {
     "version": 1,
-    "sceneName": "exampleSceneName",
-    "includedEntityTemplates": [
-        "template1",
-        "temp_dir/template2"
-    ],
     "resources": [
         {
-            "name": "resource1",
-            "resourceType": "Texture",
-            "path": "relative/path/to/resource.png"
-        },
-        {
-            "name": "resource2",
-            "resourceType": "Sound",
-            "path": "relative/path/to/resource.wav"
+            "ref": "test_dir/true.png",
+            "resourceType": "Texture"
         }
     ],
     "loadedEntities": [
         {
-            "entityName": "unique_name_1",
-            "template": "template1",
+            "entityName": "entity_1",
+            "template": "test_entity.json",
             "components": []
         },
         {
-            "entityName": "unique_name_2",
-            "template": "temp_dir/template2",
-            "components": [
-                {
-                    "name": "componentName1",
-                    "values": [
-                        {
-                            "val": "unique_name_1"
-                        },
-                        {
-                            "val": 432
-                        },
-                        {
-                            "val": "testVal"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "entityName": "unique_name_3",
+            "entityName": "entity_2",
             "template": null,
             "components": [
                 {
-                    "name": "componentName1",
-                    "values": [
-                        {
-                            "fieldName": "entityName",
-                            "val": "unique_name_1",
-                            "fieldType": "entity"
-                        },
-                        {
-                            "fieldName": "valueName1",
-                            "val": 432,
-                            "fieldType": "int"
-                        },
-                        {
-                            "fieldName": "valueName2",
-                            "val": "testVal",
-                            "fieldType": "string"
-                        },
-                        {
-                            "fieldName": "resourceName",
-                            "val": "resource2",
-                            "fieldType": "resource"
+                    "name": "EntityTransform2D",
+                    "values": {
+                        "position": {
+                            "val": [
+                                0,
+                                0
+                            ],
+                            "fieldType": "vector2"
                         }
-                    ]
+                    }
                 },
                 {
-                    "name": "componentName2",
-                    "values": [
-                        {
-                            "fieldName": "vectorName",
-                            "val": [1, 2, 43],
-                            "fieldType": "vector"
-                        },
-                        {
-                            "fieldName": "resourceName",
-                            "val": "resource1",
+                    "name": "SpriteRenderer2D",
+                    "values": {
+                        "sprite": {
+                            "val": "test_dir/true.png",
                             "fieldType": "resource"
+                        },
+                        "renderingOrder": {
+                            "val": 0,
+                            "fieldType": "int"
+                        },
+                        "isXFlipped": {
+                            "val": false,
+                            "fieldType": "bool"
+                        },
+                        "isYFlipped": {
+                            "val": false,
+                            "fieldType": "bool"
                         }
-                    ]
+                    }
                 }
             ]
         }
