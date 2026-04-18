@@ -1,3 +1,4 @@
+#include "common/types.h"
 #include "resource_types.h"
 #include <SFML/Graphics.hpp>
 
@@ -21,6 +22,20 @@ const char* ResourceTypes_GetResourceTypeString( ResourceType resourceType )
 				GetUndelyingEnumVal( resourceType ) );
 
 	return s_resourceTypeStrings[GetUndelyingEnumVal( resourceType )];
+}
+
+
+ResourceType ResourceTypes_GetResourceTypeForString( const char* resourceTypeStr )
+{
+	for ( size_t i = 0; i < GetUndelyingEnumVal( ResourceType::Count ); ++i )
+	{
+		if ( strcmp( resourceTypeStr, s_resourceTypeStrings[i] ) == 0 )
+		{
+			return static_cast<ResourceType>( i );
+		}
+	}
+
+	return ResourceType::Invalid;
 }
 
 
