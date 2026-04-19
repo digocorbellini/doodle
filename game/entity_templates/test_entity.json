@@ -13,6 +13,14 @@
                     ]
                 }
             }
+        },
+        {
+            "name": "SpriteRenderer2D",
+            "values": {
+                "isXFlipped": {
+                    "val": true
+                }
+            }
         }
     ]
 }
