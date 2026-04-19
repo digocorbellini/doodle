@@ -11,7 +11,7 @@
             "resourceType": "Sound"
         }
     ],
-    "loadedEntities": [
+    "entities": [
         {
             // example of using template
             "entityName": "unique_name_1",

@@ -6,7 +6,7 @@
             "resourceType": "Texture"
         }
     ],
-    "loadedEntities": [
+    "entities": [
         {
             "entityName": "using_template",
             "template": "test_entity.json",
