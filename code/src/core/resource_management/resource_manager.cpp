@@ -1,3 +1,4 @@
+#include "common/lib/com_print.h"
 #include "resource_manager.h"
 #include <SFML/Graphics.hpp>
 
@@ -5,6 +6,7 @@ using namespace std;
 using namespace sf;
 using namespace resource_manager_impl;
 
+#define RESOURCE_MANAGER_STR "ResourceManager" 
 #define RESOURCES_DIR_PATH GAME_DIR_PATH "resources/"
 
 #define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
@@ -34,7 +36,7 @@ static const char* GetFullResourcePath( const char* resourcePath )
 		return nullptr;
 	}
 
-	COM_ASSERT( ( strlen( resourcePath ) + strlen( RESOURCES_DIR_PATH ) ) < MAX_RESOURCE_PATH_LEN, "[ResourceManager]: given resource path '%s%s' exceeds max resource path length of '%zu'\n", RESOURCES_DIR_PATH, resourcePath, MAX_RESOURCE_PATH_LEN );
+	COM_ASSERT( ( strlen( resourcePath ) + strlen( RESOURCES_DIR_PATH ) ) < MAX_RESOURCE_PATH_LEN, "[%s]: given resource path '%s%s' exceeds max resource path length of '%zu'\n", RESOURCE_MANAGER_STR, RESOURCES_DIR_PATH, resourcePath, MAX_RESOURCE_PATH_LEN );
 
 	snprintf( s_fullResourcePath, MAX_RESOURCE_PATH_LEN, "%s%s", RESOURCES_DIR_PATH, resourcePath );
 	return s_fullResourcePath;
@@ -95,6 +97,12 @@ const CachedResource* resource_manager_impl::GetCachedResource( HashedString res
 }
 
 
+const bool CachedResourceExists( HashedString resourceHashName )
+{
+	return resource_manager_impl::GetCachedResource( resourceHashName ) != nullptr;
+}
+
+
 // ===========================
 // Private Resource Loaders
 // ===========================
@@ -115,6 +123,12 @@ static bool CacheResource( HashedString resourceHashName, void* resource, Resour
 			currResource->hash = resourceHashName;
 			currResource->deletorFunc = deletorFunct;
 			return true;
+		}
+		else if (currResource->hash == resourceHashName )
+		{
+			// resource has already been cached
+			Com_PrintfWarningVerbose( RESOURCE_MANAGER_STR, "Attempting to cache resource that is already cached. Resource: %s", resourceHashName.GetStringForHash() );
+			return false;
 		}
 	}
 
@@ -148,6 +162,11 @@ bool LoadAndCacheResource<ResourceType::Invalid>( HashedString resourceHashName,
 template <>
 bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName, const char* resourcePath )
 {
+	if ( CachedResourceExists( resourceHashName ) )
+	{
+		return false;
+	}
+
 	const char* fullResourcePath = GetFullResourcePath( resourcePath );
 	if ( !fullResourcePath )
 	{
@@ -160,7 +179,6 @@ bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName,
 		delete newTexture;
 		return false;
 	}
-
 
 	return CacheResource( resourceHashName, static_cast<void*>( newTexture ), ResourceType::Texture, RESOURCE_DELETOR( Texture ) );
 }
