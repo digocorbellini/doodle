@@ -86,7 +86,12 @@ const CachedResource* resource_manager_impl::GetCachedResource( HashedString res
 	{
 		const size_t currIndex = ( resourceIndex + i ) % MAX_CACHED_RESOURCES;
 		CachedResource* currResource = &s_cachedResources[currIndex];
-		if ( currResource->hash == resourceHashName )
+		if ( currResource->IsEmpty() )
+		{
+			// end linear probing because empty entity found
+			return nullptr;
+		}
+		else if ( currResource->hash == resourceHashName )
 		{
 			return currResource;
 		}
