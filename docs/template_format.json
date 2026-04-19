@@ -2,12 +2,11 @@
     "version": 1,
     "parentTemplate": "example_dir/template_parent.json",
     // resources not included in parent template
-    "resources": [
-        {
-            "ref": "relative/path/to/resource.png",
+    "resources": {
+        "relative/path/to/resource.png": {
             "resourceType": "Texture"
         }
-    ],
+    },
     "components": [
         {
             // example of overriding parent component

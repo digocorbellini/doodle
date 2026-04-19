@@ -1,16 +1,14 @@
 {
     "version": 1,
     // resources not included in templates
-    "resources": [
-        {
-            "ref": "relative/path/to/resource.png",
+    "resources": {
+        "relative/path/to/resource.png": {
             "resourceType": "Texture"
         },
-        {
-            "ref": "relative/path/to/resource.wav",
+        "relative/path/to/resource.wav": {
             "resourceType": "Sound"
         }
-    ],
+    },
     "entities": [
         {
             // example of using template

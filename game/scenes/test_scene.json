@@ -1,11 +1,10 @@
 {
     "version": 1,
-    "resources": [
-        {
-            "ref": "test_dir/true.png",
+    "resources": {
+        "test_dir/true.png": {
             "resourceType": "Texture"
         }
-    ],
+    },
     "entities": [
         {
             "entityName": "using_template",

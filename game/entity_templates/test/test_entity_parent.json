@@ -1,12 +1,11 @@
 {
     "version": 1,
     "parentTemplate": null,
-    "resources": [
-        {
-            "ref": "poggies.png",
+    "resources": {
+        "poggies.png": {
             "resourceType": "Texture"
         }
-    ],
+    },
     "components": [
         {
             "name": "EntityTransform2D",
