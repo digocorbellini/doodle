@@ -13,13 +13,13 @@ using namespace std;
 using namespace hashed_string;
 
 static constexpr size_t MAX_CACHED_STRING_COUNT = ( 1 << 15 );
+static constexpr uint64_t INVALID_HASH = 0ull;
 
 struct CachedHashString
 {
-	uint64_t hash = 0ull;
+	uint64_t hash = INVALID_HASH;
 	char str[HASHED_STRING_MAX_LENGTH];
 };
-
 
 // linear probing hash map
 static CachedHashString s_cachedHashStringMap[MAX_CACHED_STRING_COUNT];
@@ -39,7 +39,7 @@ bool AddStringHashToCache( const char* str, const uint64_t hash )
 		const size_t currHashIndex = ( hashIndex + i ) % MAX_CACHED_STRING_COUNT;
 		CachedHashString* currHashStringIndex = &s_cachedHashStringMap[currHashIndex];
 		const uint64_t currHash = currHashStringIndex->hash;
-		if ( currHash == 0 )
+		if ( currHash == INVALID_HASH )
 		{
 			newHashStringIndex = currHashStringIndex;
 			break;
@@ -72,6 +72,11 @@ bool AddStringHashToCache( const char* str, const uint64_t hash )
 
 void hashed_string::CacheStringHash( const char* str, const uint64_t hash )
 {
+	if ( !str || hash == INVALID_HASH )
+	{
+		return;
+	}
+
 	const char* hashToString = GetCachedStringForHash( hash );
 	if ( hashToString )
 	{
@@ -94,13 +99,23 @@ void hashed_string::CacheStringHash( const char* str, const uint64_t hash )
 
 const char* hashed_string::GetCachedStringForHash( const uint64_t hash )
 {
+	if ( hash == INVALID_HASH )
+	{
+		return nullptr;
+	}
+
 	const size_t hashIndex = hash % MAX_CACHED_STRING_COUNT;
 	for ( size_t i = 0; i < MAX_CACHED_STRING_COUNT; ++i )
 	{
 		const size_t currHashIndex = ( hashIndex + i ) % MAX_CACHED_STRING_COUNT;
 		CachedHashString* currHashStringIndex = &s_cachedHashStringMap[currHashIndex];
 		const uint64_t currHash = currHashStringIndex->hash;
-		if ( currHash == hash )
+		if ( currHash == INVALID_HASH )
+		{
+			// can stop linear probing because found empty entry
+			return nullptr;
+		}
+		else if ( currHash == hash )
 		{
 			return currHashStringIndex->str;
 		}
