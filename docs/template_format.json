@@ -1,30 +1,30 @@
 {
     "version": 1,
     "parentTemplate": "example_dir/template_parent.json",
-    // resources not included in parent template
-    "resources": {
-        "relative/path/to/resource.png": {
+    // resources included in this template (ignore parent resources)
+    "resources": [
+        {
+            "resourceName": "relative/path/to/resource.png",
             "resourceType": "Texture"
         }
-    },
-    "components": [
-        {
+    ],
+    "components": {
+        "componentName1": {
+            // example of taking all parent values for component
+        },
+        "componentName2": {
             // example of overriding parent component
-            "name": "componentName1",
             "values": {
                 "valueName1": {
-                    "val": 432,
-                    "fieldType": "int"
+                    "val": 432
                 },
                 "valueName2": {
-                    "val": "testVal",
-                    "fieldType": "string"
+                    "val": "testVal"
                 }
             }
         },
-        {
+        "componentName3": {
             // example of adding component that parent does not have
-            "name": "componentName2",
             "values": {
                 "vectorName": {
                     "val": [
@@ -39,5 +39,5 @@
                 }
             }
         }
-    ]
+    }
 }

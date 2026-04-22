@@ -1,28 +1,45 @@
 {
     "version": 1,
     // resources not included in templates
-    "resources": {
-        "relative/path/to/resource.png": {
+    "resources": [
+        {
+            "resourceName": "relative/path/to/resource.png",
             "resourceType": "Texture"
         },
-        "relative/path/to/resource.wav": {
+        {
+            "resourceName": "relative/path/to/resource.wav",
             "resourceType": "Sound"
         }
-    },
+    ],
+    // list of all entities loaded in the scene in alphabetical order by entityName
     "entities": [
         {
-            // example of using template
             "entityName": "unique_name_1",
-            "template": "template1.json",
-            "components": []
+            "template": "template1.json"
         },
         {
-            // example of template but overriding a component's values
             "entityName": "unique_name_2",
-            "template": "temp_dir/template2.json",
-            "components": [
+            "template": "template1.json"
+        },
+        {
+            "entityName": "unique_name_2",
+            "template": null
+        }
+    ],
+    // entity component definitions grouped by component in order to take advantage of ECS caching characteristic
+    "components": [
+        {
+            "componentName": "componentName1",
+            // list is sorted by entityName in alphabetical order
+            "perEntityValues": [ 
                 {
-                    "name": "componentName1",
+                    // example of using a template
+                    "entityName": "unique_name_1", 
+                    "values": {}
+                },
+                {
+                    // example of using a template and overriding values for given component
+                    "entityName": "unique_name_2",
                     "values": {
                         "fieldName1": {
                             "val": "unique_name_1"
@@ -33,17 +50,13 @@
                         "fieldName3": {
                             "val": "testVal"
                         }
+                        // component might have "fieldName4" but since we are not overriding it, will
+                        // grab values from parent
                     }
-                }
-            ]
-        },
-        {
-            // example of not using a template and defining an entity
-            "entityName": "unique_name_3",
-            "template": null,
-            "components": [
+                },
                 {
-                    "name": "componentName1",
+                    // example of not using a template
+                    "entityName": "unique_name_3",
                     "values": {
                         "entityName": {
                             "val": "unique_name_1",
@@ -62,9 +75,14 @@
                             "fieldType": "resource"
                         }
                     }
-                },
+                }
+            ]
+        },
+        {
+            "componentName": "componentName2",
+            "perEntityValues": [ 
                 {
-                    "name": "componentName2",
+                    "entityName": "unique_name_3",
                     "values": {
                         "vectorName": {
                             "val": [

@@ -1,51 +1,57 @@
 {
     "version": 1,
-    "resources": {
-        "test_dir/true.png": {
+    "resources": [
+        {
+            "resourceName": "test_dir/true.png",
             "resourceType": "Texture"
         }
-    },
+    ],
     "entities": [
         {
-            "entityName": "using_template",
-            "template": "test_entity.json",
-            "components": []
+            "entityName": "no_template_entity",
+            "template": null
         },
         {
             "entityName": "template_override_values",
-            "template": "test_entity.json",
-            "components": [
-                {
-                    "name": "EntityTransform2D",
-                    "values": {
-                        "position": {
-                            "val": [
-                                10,
-                                10
-                            ]
-                        }
-                    }
-                }
-            ]
+            "template": "test_entity.json"
         },
         {
-            "entityName": "no_template_entity",
-            "template": null,
-            "components": [
+            "entityName": "using_template",
+            "template": "test_entity.json"
+        }
+    ],
+    "components": [
+        {
+            "componentName": "EntityTransform2D",
+            "perEntityValues": [
                 {
-                    "name": "EntityTransform2D",
+                    "entityName": "no_template_entity",
                     "values": {
                         "position": {
-                            "val": [
-                                -10,
-                                -10
-                            ],
+                            "val": [-10, -10],
                             "fieldType": "vector2"
                         }
                     }
                 },
                 {
-                    "name": "SpriteRenderer2D",
+                    "entityName": "template_override_values",
+                    "values": {
+                        "position": {
+                            "val": [10, 10]
+                        }
+                    }
+                },
+                {
+                    "entityName": "using_template",
+                    "values": {}
+                }
+            ]
+        },
+        {
+            "componentName": "SpriteRenderer2D",
+            "perEntityValues": [
+                {
+                    "entityName": "no_template_entity",
                     "values": {
                         "sprite": {
                             "val": "test_dir/true.png",
@@ -64,6 +70,14 @@
                             "fieldType": "bool"
                         }
                     }
+                },
+                {
+                    "entityName": "template_override_values",
+                    "values": {}
+                },
+                {
+                    "entityName": "using_template",
+                    "values": {}
                 }
             ]
         }

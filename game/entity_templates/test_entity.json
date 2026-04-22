@@ -2,25 +2,20 @@
     "version": 1,
     "parentTemplate": "test/test_entity_parent.json",
     "resources": [],
-    "components": [
-        {
-            "name": "EntityTransform2D",
+    "components": {
+        "EntityTransform2D": {
             "values": {
                 "position": {
-                    "val": [
-                        1,
-                        1
-                    ]
+                    "val": [1, 1]
                 }
             }
         },
-        {
-            "name": "SpriteRenderer2D",
+        "SpriteRenderer2D": {
             "values": {
                 "isXFlipped": {
                     "val": true
                 }
             }
         }
-    ]
+    }
 }
