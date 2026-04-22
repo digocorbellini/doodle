@@ -5,7 +5,8 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-#include <array>
+#include <cstddef>
+#include <cstring>
 
 namespace ObfuscatedStringImpl
 {
@@ -36,7 +37,7 @@ namespace ObfuscatedStringImpl
     template<size_t N>
     struct ObfuscatedStringLiteral
     {
-        std::array<char, N> encrypted{};
+        char encrypted[N] = { 0 };
 
         // occurs at compile time
         constexpr ObfuscatedStringLiteral( const char( &str )[N] )
@@ -49,7 +50,7 @@ namespace ObfuscatedStringImpl
     template<size_t N>
     struct DeobfuscatedString
     {
-        char buf[N]{};
+        char buf[N] = { 0 };
 
         // occurs at runtime
         DeobfuscatedString( const ObfuscatedStringLiteral<N>& s )
@@ -81,5 +82,5 @@ namespace ObfuscatedStringImpl
 }
 
 // meant to obfuscate sting in memory so that it is harder to perform simple string searches
-#define OBFUSCATED_STRING( s ) ObfuscatedStringImpl::DeobfuscatedString<sizeof( s )>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( s )>( s ) )
+#define OBFUSCATED_STRING( str ) ObfuscatedStringImpl::DeobfuscatedString<sizeof( str )>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
 #define OBFUSCATED_STRING_CONCAT( obfuscatedStr, str ) ObfuscatedStringImpl::ObfuscatedStringConcatHelper( obfuscatedStr, ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
