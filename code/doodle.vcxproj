@@ -36,6 +36,7 @@
     <ClInclude Include="src\common\lib\com_assert.h" />
     <ClInclude Include="src\common\global_defines.h" />
     <ClInclude Include="src\common\lib\com_print.h" />
+    <ClInclude Include="src\common\lib\com_string.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\core\components.h" />
     <ClInclude Include="src\core\ecs.h" />

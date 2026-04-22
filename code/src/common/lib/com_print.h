@@ -25,7 +25,7 @@ void Com_Printf( const char* fmtStr, ... );
 /// <param name="fmtStr">The string to be printed including format</param>
 /// <param name="">Additional arguments to be used in print string</param>
 #define Com_PrintfVerbose( systemNameStr, fmtStr, ... ) \
-Com_Printf( "[" systemNameStr "]: " __FUNCTION__ " - " fmtStr "\n", ##__VA_ARGS__ );
+    Com_Printf( "[%s]: %s - " fmtStr "\n", systemNameStr, __FUNCTION__, ##__VA_ARGS__ );
 
 /// <summary>
 /// Will print the given formatted string into stderr with an "ERROR:" prefix
@@ -43,7 +43,7 @@ void Com_PrintfError( const char* fmt, ... );
 /// <param name="fmtStr">The string to be printed including format</param>
 /// <param name="">Additional arguments to be used in print string</param>
 #define Com_PrintfErrorVerbose( systemNameStr, fmtStr, ... ) \
-Com_PrintfError( "[" systemNameStr "]: " __FUNCTION__ " - " fmtStr "\n", ##__VA_ARGS__ );
+    Com_PrintfError( "[%s]: %s - " fmtStr "\n", systemNameStr, __FUNCTION__, ##__VA_ARGS__ );
 
 /// <summary>
 /// Will print the given formatted string into stdout with an "WARNING:" prefix
@@ -61,4 +61,4 @@ void Com_PrintfWarning( const char* fmt, ... );
 /// <param name="fmtStr">The string to be printed including format</param>
 /// <param name="">Additional arguments to be used in print string</param>
 #define Com_PrintfWarningVerbose( systemNameStr, fmtStr, ... ) \
-Com_PrintfWarning( "[" systemNameStr "]: " __FUNCTION__ " - " fmtStr "\n", ##__VA_ARGS__ );
+    Com_PrintfWarning( "[%s]: %s - " fmtStr "\n", systemNameStr, __FUNCTION__, ##__VA_ARGS__ );
