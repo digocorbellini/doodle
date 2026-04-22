@@ -71,8 +71,15 @@ namespace ObfuscatedStringImpl
             return buf;
         }
     };
+
+    template<size_t A, size_t B>
+    DeobfuscatedString<A + B - 1> ObfuscatedStringConcatHelper( const DeobfuscatedString<A>& a, const ObfuscatedStringLiteral<B>& b )
+    {
+        // -1 in order to ignore 1 of the 2 null terminators 
+        return DeobfuscatedString<A + B - 1>( a, DeobfuscatedString<B>( b ) );
+    }
 }
 
 // meant to obfuscate sting in memory so that it is harder to perform simple string searches
 #define OBFUSCATED_STRING( s ) ObfuscatedStringImpl::DeobfuscatedString<sizeof( s )>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( s )>( s ) )
-#define OBFUSCATED_STRING_CONCAT( a, b ) ObfuscatedStringImpl::DeobfuscatedString<sizeof(a) + sizeof(b) - 1>( OBFUSCATED_STRING(a), OBFUSCATED_STRING(b) )
+#define OBFUSCATED_STRING_CONCAT( obfuscatedStr, str ) ObfuscatedStringImpl::ObfuscatedStringConcatHelper( obfuscatedStr, ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )

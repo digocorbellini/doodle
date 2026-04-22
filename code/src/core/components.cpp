@@ -5,7 +5,7 @@
 // what components to add to an entity
 static const char* s_componentTypeStrings[] =
 {
-#define COMPONENT(X) #X,
+#define COMPONENT(X) OBFUSCATED_STRING(#X),
 	COMPONENT_LIST
 #undef COMPONENT
 };

@@ -6,6 +6,8 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
+#include "common/lib/com_string.h"
+
 // This allows the use of #if USING( X ) to fail at compile time if X has not been defined instead
 // of failing silently.
 #define IN_USE &&
@@ -21,7 +23,7 @@
 
 // TODO: potentially move this to project settings instead 
 #if USING( DEV_BUILD )
-#define GAME_DIR_PATH "../../../game/"
+#define GAME_DIR_PATH OBFUSCATED_STRING( "../../../game/" )
 #elif //#if USING( DEV_BUILD )
-#defiine GAME_DIR_PATH "./game/"
+#defiine GAME_DIR_PATH OBFUSCATED_STRING( "./game/" )
 #endif // #elif //#if USING( DEV_BUILD )

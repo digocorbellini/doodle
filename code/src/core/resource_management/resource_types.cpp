@@ -6,7 +6,7 @@ using namespace sf;
 
 static const char* s_resourceTypeStrings[] =
 {
-#define RESOURCE(X) #X,
+#define RESOURCE(X) OBFUSCATED_STRING(#X),
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 };

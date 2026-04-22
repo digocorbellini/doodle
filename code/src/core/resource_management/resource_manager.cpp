@@ -6,8 +6,8 @@ using namespace std;
 using namespace sf;
 using namespace resource_manager_impl;
 
-#define RESOURCE_MANAGER_STR "ResourceManager" 
-#define RESOURCES_DIR_PATH GAME_DIR_PATH "resources/"
+#define RESOURCE_MANAGER_STR OBFUSCATED_STRING( "ResourceManager" )
+#define RESOURCES_DIR_PATH OBFUSCATED_STRING_CONCAT( GAME_DIR_PATH, "resources/" )
 
 #define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
 
