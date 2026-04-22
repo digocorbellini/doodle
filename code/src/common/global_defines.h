@@ -18,10 +18,9 @@
 #define DEV_BUILD IN_USE
 
 #define DEV_PRINT USE_IF( USING( DEV_BUILD ) )
-
+#define DEV_ASSERTS USE_IF( USING( DEV_BUILD ) )
 #define HASHED_STRING_CACHING USE_IF( USING( DEV_BUILD ) )
 
-// TODO: potentially move this to project settings instead 
 #if USING( DEV_BUILD )
 #define GAME_DIR_PATH OBFUSCATED_STRING( "../../../game/" )
 #elif //#if USING( DEV_BUILD )
