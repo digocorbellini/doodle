@@ -76,6 +76,12 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask );
 bool ECS_QueueEntityRemoval( const EntityID entityID );
 
 /// <summary>
+/// Delete all entities in the game at once
+/// </summary>
+/// <returns>True if successful and false otherwise</returns>
+bool ECS_DeleteAllEntities();
+
+/// <summary>
 /// Returns the components mask for the given entity. Will return INVALID_COMPONENTS_MASK
 /// if the entity can not be operated on (Ex: does not exist, is disabled, etc).
 /// </summary>
