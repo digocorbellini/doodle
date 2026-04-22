@@ -20,10 +20,7 @@ static char s_fullResourcePath[MAX_RESOURCE_PATH_LEN];
 // linear probing hash
 static CachedResource s_cachedResources[MAX_CACHED_RESOURCES];
 
-// TODO: replace this with a scene type?
-// TODO: also look into the option of having a second loaded scene for
-// the ability of loading a second scene in the background?
-static const char* s_currentlyLoadedScene = nullptr;
+typedef bool ( *LoadAndCacheResourceFunctPtr )( const HashedString resourceHashName, const char* resourcePath );
 
 // ===========================
 // Private Helpers
@@ -45,6 +42,11 @@ static const char* GetFullResourcePath( const char* resourcePath )
 
 static bool UnloadResource( HashedString resourceHashName )
 {
+	if ( resourceHashName == INVALID_HASHED_STRING )
+	{
+		return false;
+	}
+
 	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
 	// iterate through array starting at hash index until resource for hash is found
@@ -79,6 +81,11 @@ static void UnloadAllResources()
 
 const CachedResource* resource_manager_impl::GetCachedResource( HashedString resourceHashName )
 {
+	if ( resourceHashName == INVALID_HASHED_STRING )
+	{
+		return nullptr;
+	}
+
 	const size_t resourceIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
 	// iterate through array starting at hash index until resource for hash is found
@@ -104,6 +111,11 @@ const CachedResource* resource_manager_impl::GetCachedResource( HashedString res
 
 const bool CachedResourceExists( HashedString resourceHashName )
 {
+	if ( resourceHashName == INVALID_HASHED_STRING )
+	{
+		return false;
+	}
+
 	return resource_manager_impl::GetCachedResource( resourceHashName ) != nullptr;
 }
 
@@ -112,8 +124,13 @@ const bool CachedResourceExists( HashedString resourceHashName )
 // Private Resource Loaders
 // ===========================
 
-static bool CacheResource( HashedString resourceHashName, void* resource, ResourceType resourceType, ResourceDeletorFunc deletorFunct )
+static bool CacheResource( HashedString resourceHashName, void* resource, const ResourceType resourceType, ResourceDeletorFunc deletorFunct )
 {
+	if ( resourceHashName == INVALID_HASHED_STRING || !resource || resourceType == ResourceType::Invalid )
+	{
+		return false;
+	}
+
 	const size_t newIndex = resourceHashName.GetHash() % MAX_CACHED_RESOURCES;
 
 	// iterate through array starting at hash index until an empty slot is found in cache
@@ -147,7 +164,7 @@ static bool CacheResource( HashedString resourceHashName, void* resource, Resour
 
 
 template <ResourceType T>
-bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePath )
+bool LoadAndCacheResource( const HashedString resourceHashName, const char* resourcePath )
 {
 	COM_ASSERT( false, "%s - Resource type '%s' does not have its own loading function.\n",
 				__FUNCTION__,
@@ -157,7 +174,7 @@ bool LoadAndCacheResource( HashedString resourceHashName, const char* resourcePa
 
 
 template<>
-bool LoadAndCacheResource<ResourceType::Invalid>( HashedString resourceHashName, const char* resourcePath )
+bool LoadAndCacheResource<ResourceType::Invalid>( const HashedString resourceHashName, const char* resourcePath )
 {
 	COM_ASSERT( false, "%s - 'Invalid' resource type is not supported for loading.\n", __FUNCTION__ );
 	return false;
@@ -165,7 +182,7 @@ bool LoadAndCacheResource<ResourceType::Invalid>( HashedString resourceHashName,
 
 
 template <>
-bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName, const char* resourcePath )
+bool LoadAndCacheResource<ResourceType::Texture>( const HashedString resourceHashName, const char* resourcePath )
 {
 	if ( CachedResourceExists( resourceHashName ) )
 	{
@@ -189,25 +206,31 @@ bool LoadAndCacheResource<ResourceType::Texture>( HashedString resourceHashName,
 }
 
 
+static LoadAndCacheResourceFunctPtr s_LoadAndCacheFunctions[]
+{
+#define RESOURCE(X) LoadAndCacheResource<ResourceType::X>,
+	ALL_RESOURCE_TYPES
+#undef RESOURCE
+};
+static_assert( ARRAY_SIZE( s_LoadAndCacheFunctions ) == GetUndelyingEnumVal( ResourceType::Count ) );
+
+
 // ===========================
 // Public Functions
 // ===========================
 
-void ResourceManager_LoadSceneAssets( const char* sceneFileName )
+bool ResourceManager_LoadAsset( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType )
 {
-	// TODO: sceneFileName is a JSON file which contains the defintion of all of the assets to load?
-	// Maybe should be a scene object instead which 
-	LoadAndCacheResource<ResourceType::Texture>( HashedString( "poggies.png" ), "poggies.png" );
-	
+	if ( resourceType == ResourceType::Invalid || !resourcePath || resourceHashName == INVALID_HASHED_STRING )
+	{
+		return false;
+	}
+
+	return s_LoadAndCacheFunctions[GetUndelyingEnumVal( resourceType )]( resourceHashName, resourcePath );
 }
 
 
-void ResourceManager_UnloadCurrentScene()
+void ResourceManager_UnloadAllResources()
 {
-	if ( !s_currentlyLoadedScene )
-	{
-		return;
-	}
-
 	UnloadAllResources();
 }

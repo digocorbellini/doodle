@@ -6,7 +6,6 @@ using namespace sf;
 
 static const char* s_resourceTypeStrings[] =
 {
-	"invalid",
 #define RESOURCE(X) #X,
 	ALL_RESOURCE_TYPES
 #undef RESOURCE

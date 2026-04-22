@@ -16,13 +16,12 @@ RESOURCE(Texture)
 
 enum class ResourceType : int
 {
-	Invalid,
-
 #define RESOURCE(X) X,
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 
-	Count
+	Count,
+	Invalid = Count,
 };
 
 /// <summary>

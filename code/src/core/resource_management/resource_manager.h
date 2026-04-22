@@ -13,35 +13,30 @@
 #include "common/lib/com_assert.h"
 #include "resource_manager_internal.h"
 
-// TODO: replace this with a config file somehow
-#define RELATIVE_ASSETS_PATH "../assets"
-#define SCENES_DIR_NAME "scenes"
-
 template <typename T>
 struct ResourceHandle
 {
 	HashedString handle = INVALID_HASHED_STRING;
+
+	inline bool IsInvalid()
+	{
+		return handle == INVALID_HASHED_STRING;
+	}
 };
 
-
-
-// TODO: need to determine someway to determine where to load from.
-// Also need some way to unload and reload assets.
-// Idk if we want to be fully tied to "scenes" at all times
-// because there might be some assets we want loaded at all times 
-// (like loading scenes maybe? or audio that is used between scenes)
-//		- maybe have the same thing as unity where they "don't destroy on load"
-//			- so it persists between scenes?
-// Maybe instead of having a reference to a scene file? Why not only load it once
-// and then pass it here and also in the entity parsing.
-void ResourceManager_LoadSceneAssets( const char* sceneFileName );
-
+/// <summary>
+/// Load the given asset and store it using the given resourceHashName
+/// </summary>
+/// <param name="resourceHashName">The hash name for the resource used to retrieve the resource</param>
+/// <param name="resourcePath">the path to the resource</param>
+/// <param name="resourceType">the type of the resource</param>
+/// <returns></returns>
+bool ResourceManager_LoadAsset( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType );
 
 /// <summary>
-/// Unload all resources for the currently loaded scene if a currently loaded 
-/// scene exists.
+/// Unload all currently loaded resources.
 /// </summary>
-void ResourceManager_UnloadCurrentScene();
+void ResourceManager_UnloadAllResources();
 
 
 /// <summary>
@@ -55,13 +50,17 @@ void ResourceManager_UnloadCurrentScene();
 template<typename T>
 T* ResourceManager_GetResource( ResourceHandle<T> resourcehandle )
 {
+	// defined function in header due to it being templated
+
+	if ( resourcehandle.IsInvalid() )
+	{
+		return nullptr;
+	}
 	// TODO: maybe figure out a way to return a temporary resource that does not allow
 	// caching between frames, so systems have to request the resouce using the handle
 	// every frame = prevents case where user is using a pointer to a resource that has
 	// been freed / moved to another space in memory... or just don't clear the resouce
     // from memory until the scene unloads?
-
-	// defined function in header due to it being templated
 
 	const resource_manager_impl::CachedResource* resource = resource_manager_impl::GetCachedResource( resourcehandle.handle.GetHash() );
 	if ( !resource )

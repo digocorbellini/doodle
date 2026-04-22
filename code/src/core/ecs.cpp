@@ -376,11 +376,31 @@ T* ECS_GetComponentList( ComponentType componentType )
 }
 
 
+bool ECS_DeleteAllEntities()
+{
+	// TODO: add a safety check so that this can not be performed while systems are being processed.
+	// AKA: only run during scene initialization
+
+	for ( EntityID entityIndex = 0; entityIndex < MAX_ENTITIES && s_numEntities > 0; ++entityIndex )
+	{
+		Entity* currEntity = &s_entities[entityIndex];
+		if ( currEntity->state == EntityState::Available )
+		{
+			continue;
+		}
+
+		currEntity->Reset();
+		--s_numEntities;
+	}
+
+	return true;
+}
+
+
 // TODO: have to figure out how scene loader will mass unload entities + mass load in entities 
 // in respect to game loop. Might have to integrate it somehow into the start of a frame
 // (clear entity list + add new list of entities as a whole). Maybe have a 
-// load scene wrapper which calls the load scene functions which return a list of entities? 
-
+// load scene wrapper which calls the load scene functions which return a list of entities?
 void ECS_StartGameLoop()
 {
 	sf::RenderWindow window( sf::VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
