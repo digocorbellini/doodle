@@ -1,6 +1,6 @@
 #include "com_print.h"
 
-#if USING( DEV_PRINT )
+#if IS_ENABLED( DEV_PRINT )
 #include <cstdarg>
 #include <iostream>
 
@@ -51,4 +51,4 @@ void Com_PrintfWarningImpl( const char* fmtStr, ... )
 	InternalPrintfImplementation( stdout, "WARNING: ", fmtStr, args );
 	va_end( args );
 }
-#endif // #if USING( DEV_PRINT )
+#endif // #if IS_ENABLED( DEV_PRINT )

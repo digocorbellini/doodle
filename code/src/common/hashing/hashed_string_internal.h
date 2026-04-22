@@ -39,7 +39,7 @@ namespace hashed_string
 		return hash;
 	}
 
-#if USING( HASHED_STRING_CACHING )
+#if IS_ENABLED( HASHED_STRING_CACHING )
 	/// <summary>
 	/// Cache the given string to hash mapping. Will assert if we have reached the max
 	/// number of hashed strings or if the given string has a hash that already exists
@@ -57,5 +57,5 @@ namespace hashed_string
 	/// <returns>The string which is mapped tot he given hash. If no string exists
 	/// for the hash, then return nullptr.</returns>
 	const char* GetCachedStringForHash( const std::uint64_t hash );
-#endif // #if USING( HASHED_STRING_CACHING )
+#endif // #if IS_ENABLED( HASHED_STRING_CACHING )
 }

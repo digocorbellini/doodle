@@ -9,17 +9,17 @@ HashedString::HashedString( const char* str, const size_t strSize ) noexcept
 					   __FUNCTION__, strSize, HASHED_STRING_MAX_LENGTH );
 
 	hash = hashed_string::FNV1A_64_Hash( str, strSize );
-#if USING( HASHED_STRING_CACHING )
+#if IS_ENABLED( HASHED_STRING_CACHING )
 	hashed_string::CacheStringHash( str, hash );
-#endif // #if USING( HASHED_STRING_CACHING )
+#endif // #if IS_ENABLED( HASHED_STRING_CACHING )
 }
 
 
 const char* HashedString::GetStringForHash()
 {
-#if USING( HASHED_STRING_CACHING )
+#if IS_ENABLED( HASHED_STRING_CACHING )
 	return GetCachedStringForHash( hash );
-#else // #if USING( HASHED_STRING_CACHING )
+#else // #if IS_ENABLED( HASHED_STRING_CACHING )
 	return nullptr;
-#endif // #else // #if USING( HASHED_STRING_CACHING )
+#endif // #else // #if IS_ENABLED( HASHED_STRING_CACHING )
 }

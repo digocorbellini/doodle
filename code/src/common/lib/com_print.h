@@ -10,7 +10,7 @@
 #pragma once
 #include "common/global_defines.h"
 
-#if USING( DEV_PRINT )
+#if IS_ENABLED( DEV_PRINT )
 void Com_PrintfImpl( const char* fmtStr, ... );
 void Com_PrintfErrorImpl( const char* fmtStr, ... );
 void Com_PrintfWarningImpl( const char* fmtStr, ... );
@@ -72,7 +72,7 @@ void Com_PrintfWarningImpl( const char* fmtStr, ... );
 #define Com_PrintfWarningVerbose( systemNameStr, fmtStr, ... ) \
     Com_PrintfWarning( "[%s]: %s - " fmtStr "\n", systemNameStr, __FUNCTION__, ##__VA_ARGS__ );
 
-#else // #if USING( DEV_PRINT )
+#else // #if IS_ENABLED( DEV_PRINT )
 #define Com_Printf( fmtStr, ... )                             (void)0
 #define Com_PrintfError( fmtStr, ... )                        (void)0
 #define Com_PrintfWarning( fmtStr, ... )                      (void)0

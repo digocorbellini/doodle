@@ -1,6 +1,6 @@
 #include "common/global_defines.h"
 
-#if USING( HASHED_STRING_CACHING )
+#if IS_ENABLED( HASHED_STRING_CACHING )
 #include "common/lib/com_array.h"
 #include "common/lib/com_assert.h"
 #include "hashed_string_internal.h"
@@ -123,4 +123,4 @@ const char* hashed_string::GetCachedStringForHash( const uint64_t hash )
 
 	return nullptr;
 }
-#endif // #if USING( HASHED_STRING_CACHING )
+#endif // #if IS_ENABLED( HASHED_STRING_CACHING )
