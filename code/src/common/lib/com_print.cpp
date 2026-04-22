@@ -1,6 +1,7 @@
 #include "com_print.h"
+
+#if USING( DEV_PRINT )
 #include <cstdarg>
-#include "common/global_defines.h"
 #include <iostream>
 
 using namespace std;
@@ -13,13 +14,11 @@ using namespace std;
 
 static void InternalPrintfImplementation( FILE* const stream, const char* prefixStr, const char* fmtStr, va_list args )
 {
-#if USING( DEV_PRINT )
 	if ( prefixStr )
 	{
 		fputs( prefixStr, stream );
 	}
 	vfprintf( stream, fmtStr, args );
-#endif // #if USING( DEV_PRINT )
 }
 
 
@@ -27,7 +26,7 @@ static void InternalPrintfImplementation( FILE* const stream, const char* prefix
 // Public Functions
 // ===============================
 
-void Com_Printf( const char* fmtStr, ... )
+void Com_PrintfImpl( const char* fmtStr, ... )
 {
 	va_list args;
 	va_start( args, fmtStr );
@@ -36,7 +35,7 @@ void Com_Printf( const char* fmtStr, ... )
 }
 
 
-void Com_PrintfError( const char* fmtStr, ... )
+void Com_PrintfErrorImpl( const char* fmtStr, ... )
 {
 	va_list args;
 	va_start( args, fmtStr );
@@ -45,11 +44,11 @@ void Com_PrintfError( const char* fmtStr, ... )
 }
 
 
-void Com_PrintfWarning( const char* fmtStr, ... )
+void Com_PrintfWarningImpl( const char* fmtStr, ... )
 {
 	va_list args;
 	va_start( args, fmtStr );
 	InternalPrintfImplementation( stdout, "WARNING: ", fmtStr, args );
 	va_end( args );
 }
-
+#endif // #if USING( DEV_PRINT )
