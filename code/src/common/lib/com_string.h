@@ -7,6 +7,7 @@
 #pragma once
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 namespace ObfuscatedStringImpl
 {
@@ -70,6 +71,11 @@ namespace ObfuscatedStringImpl
         operator const char* ( ) const
         {
             return buf;
+        }
+
+        std::string toStdString() const
+        {
+            return std::string( buf );
         }
     };
 
