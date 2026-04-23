@@ -73,7 +73,7 @@ namespace ObfuscatedStringImpl
             return buf;
         }
 
-        std::string toStdString() const
+        std::string ToStdString() const
         {
             return std::string( buf );
         }
