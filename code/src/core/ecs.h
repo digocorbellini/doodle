@@ -12,6 +12,8 @@
 #include "core/components.h"
 #include "common/types.h"
 
+static constexpr EntityID MAX_ENTITIES = 5000;
+
 /// <summary>
 /// Iterator class meant to be used for iterating over all entities in the game.
 /// Can't be instantiated and instead will be passed through to registered

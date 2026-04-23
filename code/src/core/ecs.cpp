@@ -10,7 +10,6 @@ using SteadyClock = std::chrono::steady_clock;
 using TimePoint = SteadyClock::time_point;
 using Duration = std::chrono::nanoseconds;
 
-static constexpr EntityID MAX_ENTITIES = 5000;
 static constexpr uint64_t MAX_SYSTEMS = 64;
 
 // Systems will operate on this struct of all components in the game
