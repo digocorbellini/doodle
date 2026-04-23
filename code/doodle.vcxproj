@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\constants.h" />
+    <ClInclude Include="src\common\hashing\hash.h" />
     <ClInclude Include="src\common\lib\com_array.h" />
     <ClInclude Include="src\common\lib\com_assert.h" />
     <ClInclude Include="src\common\global_defines.h" />

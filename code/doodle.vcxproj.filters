@@ -101,5 +101,8 @@
     <ClInclude Include="src\common\lib\com_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\hashing\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

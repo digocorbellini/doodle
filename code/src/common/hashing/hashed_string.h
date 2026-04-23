@@ -10,6 +10,7 @@
 #include "common/lib/com_assert.h"
 #include "common/global_defines.h"
 #include "common/types.h"
+#include "hash.h"
 #include "hashed_string_internal.h"
 
 
@@ -23,7 +24,7 @@ public:
 	constexpr HashedString( const char( &str )[N] ) noexcept
 	{
 		static_assert( N <= hashed_string::HASHED_STRING_MAX_LENGTH, "Invalid string length in static hashed string constructor. Can not be hashed." );
-		hash = hashed_string::FNV1A_64_Hash( str, N );
+		hash = FNV1A_64_Hash( str, N );
 #if IS_ENABLED( HASHED_STRING_CACHING )
 		hashed_string::CacheStringHash( str, hash );
 #endif // #if IS_ENABLED( HASHED_STRING_CACHING )
