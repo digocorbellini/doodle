@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "parentTemplate": null,
+    "parentTemplate": "",
     "resources": [
         {
             "resourceName": "poggies.png",

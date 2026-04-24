@@ -9,7 +9,7 @@
     "entities": [
         {
             "entityName": "no_template_entity",
-            "template": null
+            "template": ""
         },
         {
             "entityName": "template_override_values",

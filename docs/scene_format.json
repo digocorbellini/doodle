@@ -23,7 +23,7 @@
         },
         {
             "entityName": "unique_name_2",
-            "template": null
+            "template": ""
         }
     ],
     // entity component definitions grouped by component in order to take advantage of ECS caching characteristic
