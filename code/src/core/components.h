@@ -25,6 +25,7 @@
 #include <initializer_list>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
+#include <typeindex>
 
 // A list of all components. Used for macro generation of component logic
 #define COMPONENT_LIST \
@@ -64,7 +65,7 @@ bool Components_IsComponentValid( const ComponentType componentType );
 /// <param name="componentType">The component type enum value to get the string for</param>
 /// <returns>The string for the given component type if the type is valid. Otherwise 
 /// nullptr is returned.</returns>
-const char* Components_GetComponentTypeString( ComponentType componentType );
+const char* Components_GetComponentTypeString( const ComponentType componentType );
 
 /// <summary>
 /// Get the component type for the given string
@@ -73,6 +74,15 @@ const char* Components_GetComponentTypeString( ComponentType componentType );
 /// <returns>The component type for the given string if the string is valid. Otherwise 
 /// invalid component is returned.</returns>
 ComponentType Components_GetComponentTypeForString( const char* componentStr );
+
+/// <summary>
+/// Get the type index for the component struct type equivalent for the given 
+/// component type enum
+/// </summary>
+/// <param name="componentType">The enum component type</param>
+/// <returns> The type index for the component struct type equivalent for the given 
+/// component type enum</returns>
+std::type_index Components_GetComponentTypeIndex( const ComponentType componentType );
 
 /// <summary>
 /// A bitmask used to represent a set of active and inactive components

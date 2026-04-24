@@ -4,7 +4,6 @@
 #include "common/lib/com_print.h"
 #include "common/lib/com_assert.h"
 #include "core/system.h"
-#include <typeindex>
 
 using SteadyClock = std::chrono::steady_clock;
 using TimePoint = SteadyClock::time_point;
@@ -83,15 +82,6 @@ static void* s_componentsList[] =
 static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentsList ),
 			   "s_componentsList and ComponentType length missmatch" );
 
-// used to map component type enum to component type
-static std::type_index s_componentTypeMap[] =
-{
-#define COMPONENT(X) typeid(X),
-	COMPONENT_LIST
-#undef COMPONENT
-};
-static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentTypeMap ),
-			   "s_componentTypeMap and ComponentType length missmatch" );
 
 static System* s_systems[MAX_SYSTEMS];
 static uint64_t s_numSystems;
@@ -334,6 +324,18 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 }
 
 
+bool ECS_AddComponentToEntity( const EntityID entityID, const ComponentType component )
+{
+	if ( !IsValidEntityID( entityID ) )
+	{
+		return false;
+	}
+
+	Entity* entity = &s_entities[entityID];
+	return entity->componentsMask.AddComponent( component );
+}
+
+
 bool ECS_CanOperateOnEntity( const EntityID entityID )
 {
 	if ( !IsValidEntityID( entityID ) )
@@ -361,20 +363,19 @@ void ECS_RegisterSystem( System* system )
 }
 
 
-template<typename T>
-T* ECS_GetComponentList( ComponentType componentType )
+void* ECS_GetComponentListRaw( ComponentType componentType )
 {
 	if ( !Components_IsComponentValid( componentType ) )
 	{
 		return nullptr;
 	}
 
-	COM_ASSERT( ( typeid( T ) == s_componentTypeMap[GetUndelyingEnumVal( componentType )] ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), s_componentTypeMap[GetUndelyingEnumVal( componentType )].name(), Components_GetComponentTypeString( componentType ) );
+	return s_componentsList[GetUndelyingEnumVal( componentType )];
 
-	return static_cast<T*>( s_componentsList[GetUndelyingEnumVal( componentType )] );
 }
 
 
+// TODO: this should ideally be private and scene adding should be done in here
 bool ECS_DeleteAllEntities()
 {
 	// TODO: add a safety check so that this can not be performed while systems are being processed.
@@ -393,6 +394,28 @@ bool ECS_DeleteAllEntities()
 	}
 
 	return true;
+}
+
+
+EntityID ECS_AddEntity()
+{
+	if ( s_numEntities >= MAX_ENTITIES )
+	{
+		return INVALID_ENTITY_ID;
+	}
+
+	for ( EntityID entityIndex = 0; entityIndex < MAX_ENTITIES; ++entityIndex )
+	{
+		Entity* currEntity = &s_entities[entityIndex];
+		if ( currEntity->state == EntityState::Available )
+		{
+			currEntity->state = EntityState::Assigned;
+			++s_numEntities;
+			return entityIndex;
+		}
+	}
+
+	return INVALID_ENTITY_ID;
 }
 
 

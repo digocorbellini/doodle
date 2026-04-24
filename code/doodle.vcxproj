@@ -26,7 +26,8 @@
     <ClCompile Include="src\core\ecs.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
     <ClCompile Include="src\core\resource_management\resource_types.cpp" />
-    <ClCompile Include="src\core\scene_loader.cpp" />
+    <ClCompile Include="src\core\scene_loading\scene_component_parsers.cpp" />
+    <ClCompile Include="src\core\scene_loading\scene_loader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\systems\test_system.cpp" />
   </ItemGroup>
@@ -46,7 +47,8 @@
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
     <ClInclude Include="src\core\resource_management\resource_manager_internal.h" />
     <ClInclude Include="src\core\resource_management\resource_types.h" />
-    <ClInclude Include="src\core\scene_loader.h" />
+    <ClInclude Include="src\core\scene_loading\scene_component_parsers.h" />
+    <ClInclude Include="src\core\scene_loading\scene_loader.h" />
     <ClInclude Include="src\core\system.h" />
     <ClInclude Include="src\graphics\sprite_renderer.h" />
     <ClInclude Include="src\systems\test_system.h" />

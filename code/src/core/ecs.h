@@ -11,6 +11,7 @@
 #pragma once
 #include "core/components.h"
 #include "common/types.h"
+#include <typeindex>
 
 static constexpr EntityID MAX_ENTITIES = 5000;
 
@@ -83,6 +84,9 @@ bool ECS_QueueEntityRemoval( const EntityID entityID );
 /// <returns>True if successful and false otherwise</returns>
 bool ECS_DeleteAllEntities();
 
+// TODO: add a comment or make this private ideally
+EntityID ECS_AddEntity();
+
 /// <summary>
 /// Returns the components mask for the given entity. Will return INVALID_COMPONENTS_MASK
 /// if the entity can not be operated on (Ex: does not exist, is disabled, etc).
@@ -91,6 +95,9 @@ bool ECS_DeleteAllEntities();
 /// <returns>The component mask for the given entity if it exists and can be operated on, 
 /// otherwise returns INVALID_COMPONENTS_MASK</returns>
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
+
+// TODO: add a way to modify entity component mask (adding/removing components)
+bool ECS_AddComponentToEntity( const EntityID entityID, const ComponentType component );
 
 /// <summary>
 /// See if the given entity can be operated on in a system (AKA is valid, is enabled, etc.)
@@ -105,6 +112,9 @@ bool ECS_CanOperateOnEntity( const EntityID entityID );
 /// <param name="system">A pointer to the system to be registered</param>
 void ECS_RegisterSystem( class System* system );
 
+// TODO: comment this
+void* ECS_GetComponentListRaw( ComponentType componentType );
+
 /// <summary>
 /// Get the component list for the given component type. This list will contain a component
 /// for each entry.
@@ -115,7 +125,11 @@ void ECS_RegisterSystem( class System* system );
 /// <returns>The component list for the given component type. If the componentType is invalid, 
 /// nullptr is returned.</returns>
 template<typename T>
-T* ECS_GetComponentList( ComponentType componentType );
+T* ECS_GetComponentList( ComponentType componentType )
+{
+	COM_ASSERT( typeid( T ) == Components_GetComponentTypeIndex( componentType ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), Components_GetComponentTypeIndex( componentType ).name(), Components_GetComponentTypeString( componentType ) );
+	return static_cast<T*>( ECS_GetComponentListRaw( componentType ) );
+}
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :

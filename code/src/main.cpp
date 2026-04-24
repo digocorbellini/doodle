@@ -2,7 +2,7 @@
 #include "core/ecs.h"
 
 // TODO: testing
-#include "core/scene_loader.h"
+#include "core/scene_loading/scene_loader.h"
 
 int main ()
 {

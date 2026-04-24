@@ -5,12 +5,24 @@
 // what components to add to an entity
 static const char* s_componentTypeStrings[] =
 {
-#define COMPONENT(X) OBFUSCATED_STRING(#X),
+	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 
+	// current obscure string implementation which is temporary
+#define COMPONENT(X) #X,
 	COMPONENT_LIST
 #undef COMPONENT
 };
 static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentTypeStrings ),
 			   "s_componentTypeStrings and ComponentType length missmatch" );
+
+// used to map component type enum to component type
+static std::type_index s_componentTypeMap[] =
+{
+#define COMPONENT(X) typeid(X),
+	COMPONENT_LIST
+#undef COMPONENT
+};
+static_assert( GetUndelyingEnumVal( ComponentType::Count ) == ARRAY_SIZE( s_componentTypeMap ),
+			   "s_componentTypeMap and ComponentType length missmatch" );
 
 // ==================
 // Public Methods
@@ -22,7 +34,7 @@ bool Components_IsComponentValid( const ComponentType componentType )
 }
 
 
-const char* Components_GetComponentTypeString( ComponentType componentType )
+const char* Components_GetComponentTypeString( const ComponentType componentType )
 {
 	if ( !Components_IsComponentValid( componentType ) )
 	{
@@ -44,6 +56,17 @@ ComponentType Components_GetComponentTypeForString( const char* componentStr )
 	}
 
 	return ComponentType::Invalid;
+}
+
+
+std::type_index Components_GetComponentTypeIndex( const ComponentType componentType )
+{
+	if ( !Components_IsComponentValid( componentType ) )
+	{
+		return typeid(nullptr);
+	}
+
+	return s_componentTypeMap[GetUndelyingEnumVal( componentType )];
 }
 
 

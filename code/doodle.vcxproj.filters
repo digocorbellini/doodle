@@ -27,7 +27,7 @@
     <ClCompile Include="src\core\resource_management\resource_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\scene_loader.cpp">
+    <ClCompile Include="src\core\scene_loading\scene_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp">
@@ -43,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\systems\test_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\scene_loading\scene_component_parsers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +65,7 @@
     <ClInclude Include="src\core\resource_management\resource_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\scene_loader.h">
+    <ClInclude Include="src\core\scene_loading\scene_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\hashing\hashed_string.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\hashing\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\scene_loading\scene_component_parsers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

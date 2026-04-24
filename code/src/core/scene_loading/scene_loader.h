@@ -8,8 +8,8 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
+#include "core/components.h"
 #include <nlohmann/json.hpp>
-
 
 // TODO: have to handle the file opening of a scene file with a given name
 // (the starting scene must be set in a config file somewhere).
@@ -19,28 +19,21 @@
 // TODO: Have to figure out how ECS and the resource manager will actually perform
 // the JSON parsing to see what exactly we have to send them.
 
-// TODO: replace this with a config loaded on start up
-#define SCENE_FILE_PATH ""
 
 class SceneLoader
 {
 private:
-	// This class is a singleton
-	SceneLoader();
+//	// TODO: place the entity map here and getters
+	bool testBool = false;
 
 public:
 
-	static SceneLoader& GetInstance();
+	bool LoadScene( const char* sceneRef );
+	
+	// TODO: need some way to load scenes async to avoid blocking game loop to load scene
+	//bool LoadSceneAsync( const char* sceneRef );
 
-	/// <summary>
-	/// Load the scene file and kickoff the necessary entity and 
-	/// </summary>
-	/// <param name="sceneFileName"></param>
-	/// <returns></returns>
-	bool LoadSceneFile( const char* sceneFileName );
-
-	~SceneLoader();
-
-private:
-
+#define COMPONENT(X) friend void ComponentParser_##X##Parser( const nlohmann::json* jsonEntity, X * componentList, SceneLoader* sceneLoader );
+	COMPONENT_LIST
+#undef COMPONENT
 };
