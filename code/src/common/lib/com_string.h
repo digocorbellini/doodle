@@ -9,6 +9,10 @@
 #include <cstring>
 #include <string>
 
+// ========================
+// Obfuscated String
+// ========================
+
 namespace ObfuscatedStringImpl
 {
     ////////////////////////////////////////////////////////////
@@ -90,3 +94,17 @@ namespace ObfuscatedStringImpl
 // meant to obfuscate sting in memory so that it is harder to perform simple string searches
 #define OBFUSCATED_STRING( str ) ObfuscatedStringImpl::DeobfuscatedString<sizeof( str )>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
 #define OBFUSCATED_STRING_CONCAT( obfuscatedStr, str ) ObfuscatedStringImpl::ObfuscatedStringConcatHelper( obfuscatedStr, ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
+
+// ========================
+// String Helpers
+// ========================
+
+inline bool Com_StrEq( const char* a, const char* b, const size_t max )
+{
+    return strncmp( a, b, max ) == 0;
+}
+
+inline bool Com_StrEmpty( const char* str )
+{
+    return !str || str[0] == '\0';
+}
