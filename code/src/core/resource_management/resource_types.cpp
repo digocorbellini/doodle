@@ -6,7 +6,9 @@ using namespace sf;
 
 static const char* s_resourceTypeStrings[] =
 {
-#define RESOURCE(X) OBFUSCATED_STRING(#X),
+	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 
+	// current obscure string implementation which is temporary
+#define RESOURCE(X) #X,
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 };
