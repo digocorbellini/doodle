@@ -63,9 +63,3 @@ void ComponentParser_Camera2DParser( const nlohmann::json* jsonEntity, Camera2D*
 {
 	Com_Printf( "%s - successfully called\n", __FUNCTION__ );
 }
-
-
-//// Ensure all parser functions have been implemented 
-//#define COMPONENT(X) static_assert( sizeof( decltype( ComponentParser_##X##Parser ) ) > 0, "Missing parser implementation for component: " #X );
-//COMPONENT_LIST
-//#undef COMPONENT
