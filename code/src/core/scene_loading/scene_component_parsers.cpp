@@ -5,6 +5,53 @@
 
 using json = nlohmann::json;
 
+#define VALUE_FIELD OBFUSCATED_STRING( "val" )
+
+// parsing logic for 1 to 1 mappings of simple data types
+#define PARSE_SIMPLE_FIELD( jsonFieldName, structDestName ) \
+{\
+	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName );\
+	if ( jsonComponentValues.contains( fieldNameStr ) )\
+	{\
+		const json jsonObj = jsonComponentValues[fieldNameStr];\
+		const decltype( entityComponent->structDestName ) value = jsonObj[VALUE_FIELD.ToStdString()];\
+		entityComponent->structDestName = value;\
+	}\
+}
+
+
+#define PARSE_VECTOR2F_FIELD( jsonFieldName, structDestName ) \
+{\
+	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName ); \
+	if ( jsonComponentValues.contains( fieldNameStr ) )\
+	{\
+		const json jsonObj = jsonComponentValues[fieldNameStr]; \
+		const json jsonValueArr = jsonObj[VALUE_FIELD.ToStdString()]; \
+		if ( jsonValueArr.size() == 2 )\
+		{\
+			entityComponent->structDestName.x = jsonValueArr[0];\
+			entityComponent->structDestName.y = jsonValueArr[1];\
+		}\
+	}\
+}
+
+
+#define PARSE_ENTITY_REF_FIELD( jsonFieldName, structDestName ) \
+{\
+	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName ); \
+	if ( jsonComponentValues.contains( fieldNameStr ) )\
+	{\
+		const json jsonObj = jsonComponentValues[fieldNameStr]; \
+		const json::string_t entityName = jsonObj[VALUE_FIELD.ToStdString()]; \
+		if ( entityName.length() > 0 )\
+		{\
+			EntityID entityID = sceneLoader->GetParsingEntityID( entityName ); \
+			entityComponent->structDestName = entityID; \
+		}\
+	}\
+}
+
+
 
 #define COMPONENT(X) \
 void ComponentParser_##X##ParsingWrapper( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader ) \
@@ -61,29 +108,47 @@ ComponentParser_ParserFunctPtr ComponentParser_GetParserForType( ComponentType c
 
 void ComponentParser_EntityTransform2DParser( const json& jsonComponentValues, EntityTransform2D* entityComponent, SceneLoader* sceneLoader )
 {
-	Com_Printf( "%s - successfully called\n", __FUNCTION__ );	
+	PARSE_VECTOR2F_FIELD( position, position );
 }
 
 
 void ComponentParser_PhysicsBody2DParser( const json& jsonComponentValues, PhysicsBody2D* entityComponent, SceneLoader* sceneLoader )
 {
-	Com_Printf( "%s - successfully called\n", __FUNCTION__ );
+	PARSE_VECTOR2F_FIELD( velocity, velocity );
+	PARSE_SIMPLE_FIELD( gravity, gravity );
 }
-
 
 void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, SpriteRenderer2D* entityComponent, SceneLoader* sceneLoader )
 {
-	Com_Printf( "%s - successfully called\n", __FUNCTION__ );
+	// TODO: see if I can make a resource parsing helper
+	const char* spriteField = OBFUSCATED_STRING( "sprite" );
+	if ( jsonComponentValues.contains( spriteField ) )
+	{
+		const json jsonSprite = jsonComponentValues[spriteField];
+		const json::string_t spriteRef = jsonSprite[VALUE_FIELD.ToStdString()];
+		if ( spriteRef.length() > 0 )
+		{
+			entityComponent->sprite.SetTexture( ResourceHandle<Texture>( HashedString( spriteRef.c_str(), spriteRef.length() ) ) );
+		}
+	}
+
+	PARSE_SIMPLE_FIELD( renderingOrder, renderingOrder );
+	PARSE_SIMPLE_FIELD( isXFlipped, isXFlipped );
+	PARSE_SIMPLE_FIELD( isYFlipped, isYFlipped );
 }
 
 
 void ComponentParser_PlayerController2DParser( const json& jsonComponentValues, PlayerController2D* entityComponent, SceneLoader* sceneLoader )
 {
-	Com_Printf( "%s - successfully called\n", __FUNCTION__ );
+	PARSE_SIMPLE_FIELD( moveSpeed, moveSpeed );
+	PARSE_SIMPLE_FIELD( jumpSpeed, jumpSpeed );
 }
 
 
 void ComponentParser_Camera2DParser( const json& jsonComponentValues, Camera2D* entityComponent, SceneLoader* sceneLoader )
 {
-	Com_Printf( "%s - successfully called\n", __FUNCTION__ );
+	PARSE_ENTITY_REF_FIELD( targetEntity, targetEntity );
+	PARSE_VECTOR2F_FIELD( viewOffsetFromPos, viewOffsetFromPos );
+	// TODO: figure out if have to parse "view" 
+	PARSE_SIMPLE_FIELD( isMainCam, isMainCam );
 }

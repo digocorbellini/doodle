@@ -207,6 +207,6 @@ struct Camera2D
 {
 	EntityID targetEntity = INVALID_ENTITY_ID; // if INVALID_ENTITY_ID, will not try to follow a target and will instead be controlled by its transform
 	Vector2f viewOffsetFromPos; // used to center the camera since position is top left corner
-	View cameraView;
+	View cameraView; // TODO: need some way to specify if field should not be included in editor (maybe a comment?)
 	bool isMainCam; // If true, this camera will be displayed on the window
 };
