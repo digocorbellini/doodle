@@ -186,7 +186,7 @@ bool LoadAndCacheResource<ResourceType::Texture>( const HashedString resourceHas
 {
 	if ( CachedResourceExists( resourceHashName ) )
 	{
-		return false;
+		return true;
 	}
 
 	const char* fullResourcePath = GetFullResourcePath( resourcePath );
