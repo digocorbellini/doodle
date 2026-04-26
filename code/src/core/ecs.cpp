@@ -105,12 +105,6 @@ static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 // Private Helpers
 // ====================
 
-static bool IsValidEntityID( const EntityID id )
-{
-	return id >= 0 && id < MAX_ENTITIES && id != INVALID_ENTITY_ID;
-}
-
-
 static void ProcessEntityCreationAndDeletion()
 {
 	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
@@ -169,7 +163,7 @@ const static EntityIterator ENTITY_ITERATOR_END = EntityIteratorCreator::CreateI
 
 static EntityID GetNextValidEntityID( const EntityID startingID )
 {
-	if ( !IsValidEntityID( startingID ) )
+	if ( !ECS_IsValidEntityID( startingID ) )
 	{
 		return INVALID_ENTITY_ID;
 	}
@@ -207,7 +201,7 @@ EntityIterator::EntityIterator()
 
 EntityIterator::EntityIterator( const EntityID startingID )
 {
-	if ( !IsValidEntityID( startingID ) )
+	if ( !ECS_IsValidEntityID( startingID ) )
 	{
 		currEntity = INVALID_ENTITY_ID;
 		count = 0;
@@ -287,7 +281,7 @@ const EntityID ECS_QueueEntityCreation( const ComponentsMask compMask )
 
 bool ECS_QueueEntityRemoval( const EntityID entityID )
 {
-	if ( !IsValidEntityID( entityID ) )
+	if ( !ECS_IsValidEntityID( entityID ) )
 	{
 		return false;
 	}
@@ -309,7 +303,7 @@ bool ECS_QueueEntityRemoval( const EntityID entityID )
 
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 {
-	if ( !IsValidEntityID( entityID ) )
+	if ( !ECS_IsValidEntityID( entityID ) )
 	{
 		return INVALID_COMPONENTS_MASK;
 	}
@@ -326,7 +320,7 @@ const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID )
 
 bool ECS_AddComponentToEntity( const EntityID entityID, const ComponentType component )
 {
-	if ( !IsValidEntityID( entityID ) )
+	if ( !ECS_IsValidEntityID( entityID ) )
 	{
 		return false;
 	}
@@ -338,7 +332,7 @@ bool ECS_AddComponentToEntity( const EntityID entityID, const ComponentType comp
 
 bool ECS_CanOperateOnEntity( const EntityID entityID )
 {
-	if ( !IsValidEntityID( entityID ) )
+	if ( !ECS_IsValidEntityID( entityID ) )
 	{
 		return false;
 	}
@@ -416,6 +410,12 @@ EntityID ECS_AddEntity()
 	}
 
 	return INVALID_ENTITY_ID;
+}
+
+
+bool ECS_IsValidEntityID( const EntityID id )
+{
+	return id >= 0 && id < MAX_ENTITIES && id != INVALID_ENTITY_ID;
 }
 
 

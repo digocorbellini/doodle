@@ -132,6 +132,14 @@ T* ECS_GetComponentList( ComponentType componentType )
 }
 
 /// <summary>
+/// See if the given entity ID is valid
+/// </summary>
+/// <param name="id">the entity ID to check</param>
+/// <returns>True if the enttiy ID is not an invalid entity ID and if it is within the boudns of possible entity IDs. 
+/// False otherwise.</returns>
+bool ECS_IsValidEntityID( const EntityID id );
+
+/// <summary>
 /// Start the game loop logic. The loop will handle :
 /// - loading and unloading scenes
 /// - running all systems to modify entities and componenets
