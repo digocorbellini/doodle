@@ -219,7 +219,7 @@ static_assert( ARRAY_SIZE( s_LoadAndCacheFunctions ) == GetUndelyingEnumVal( Res
 // Public Functions
 // ===========================
 
-bool ResourceManager_LoadAsset( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType )
+bool ResourceManager_LoadResource( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType )
 {
 	if ( resourceType == ResourceType::Invalid || !resourcePath || resourceHashName == INVALID_HASHED_STRING )
 	{

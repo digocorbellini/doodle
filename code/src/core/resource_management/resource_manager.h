@@ -31,7 +31,7 @@ struct ResourceHandle
 /// <param name="resourcePath">the path to the resource</param>
 /// <param name="resourceType">the type of the resource</param>
 /// <returns></returns>
-bool ResourceManager_LoadAsset( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType );
+bool ResourceManager_LoadResource( const HashedString resourceHashName, const char* resourcePath, const ResourceType resourceType );
 
 /// <summary>
 /// Unload all currently loaded resources.
