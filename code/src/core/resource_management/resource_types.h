@@ -36,7 +36,7 @@ const char* ResourceTypes_GetResourceTypeString( ResourceType resourceType );
 /// </summary>
 /// <param name="resourceTypeStr">The string equivalent of the resource type</param>
 /// <returns>The ResourceType enum value which matches the given string. Otherwise ResourceType::Invalid</returns>
-ResourceType ResourceTypes_GetResourceTypeForString( const char* resourceTypeStr);
+ResourceType ResourceTypes_GetResourceTypeForString( const char* resourceTypeStr );
 
 // Each resouce type should define a type overload for this function in resource_types.cpp
 template<typename T>
