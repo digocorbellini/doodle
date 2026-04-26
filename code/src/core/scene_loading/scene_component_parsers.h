@@ -13,21 +13,17 @@ class SceneLoader;
 
 // TODO: potentially make scene loader const everywhere here?
 
-typedef void ( *ComponentParser_ParserFunctPtr ) ( const nlohmann::json* jsonEntity, SceneLoader* sceneLoader );
+typedef void ( *ComponentParser_ParserFunctPtr ) ( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader );
 
 ComponentParser_ParserFunctPtr ComponentParser_GetParserForType( ComponentType componentType );
 
-#define COMPONENT(X) void ComponentParser_##X##Parser( const nlohmann::json* jsonEntity, X * componentList, SceneLoader* sceneLoader );
-COMPONENT_LIST
-#undef COMPONENT
-
-// TODO: create wrapper functions around the functions that the user will define which perform the getting of the right component type list from ECS
+// wrapper functions around the functions that the user will define which perform the getting of the right component from ECS
 #define COMPONENT(X) \
-inline void ComponentParser_##X##ParsingWrapper( const nlohmann::json* jsonEntity, SceneLoader* sceneLoader ) \
-{ \
-	X* componentList = ECS_GetComponentList<X>( ComponentType::X ); \
-	ComponentParser_##X##Parser( jsonEntity, componentList, sceneLoader ); \
-}
+void ComponentParser_##X##ParsingWrapper( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader ); \
 COMPONENT_LIST
 #undef COMPONENT 
 
+// declare the functions which the user will later define for parsing components 
+#define COMPONENT(X) void ComponentParser_##X##Parser( const nlohmann::json& jsonComponentValues, X * entityComponent, SceneLoader* sceneLoader );
+COMPONENT_LIST
+#undef COMPONENT

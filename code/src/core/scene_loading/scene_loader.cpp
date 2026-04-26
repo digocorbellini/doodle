@@ -30,11 +30,14 @@ using namespace std;
 #define COMPONENT_VALUES_FIELD OBFUSCATED_STRING( "values" )
 #define COMPONENT_ENTITY_NAME_FIELD OBFUSCATED_STRING( "entityName" )
 
+#define TEMPLATE_PARENT_FIELD OBFUSCATED_STRING( "parentTemplate" )
+
+
 static constexpr size_t MAX_PATH_LEN = 512;
 static constexpr size_t MAX_FULL_PATH_LEN = MAX_PATH_LEN + 64;
 static constexpr size_t MAX_ENTITY_NAME_LEN = 256;
 
-struct ParsingEnitity
+struct ParsingEntity
 {
 	char entityName[MAX_ENTITY_NAME_LEN] = { 0 };
 	char templatePath[MAX_PATH_LEN] = { 0 };
@@ -49,8 +52,9 @@ struct ParsingEnitity
 };
 
 // TODO: maybe only have this memory instantiated when scene loading is needed instead of making it global and static all the 
-// time? Maybe make it part of the SceneLoader object?
-static ParsingEnitity s_entitiesMap[MAX_ENTITIES];
+// time? Maybe make it part of the SceneLoader object? Or place this in the SceneLoader object and then we only initialize the
+// scene loader on the stack so that this memory is freed whenever the scene loader goes out of scope?
+static ParsingEntity s_entitiesMap[MAX_ENTITIES];
 
 static char s_fullPath[MAX_FULL_PATH_LEN];
 
@@ -84,7 +88,7 @@ static bool CacheParsingEntity( const json::string_t& entityName, const json::st
 	for ( size_t i = 0; i < arrSize; ++i )
 	{
 		const size_t currIndex = ( hashIndex + i ) % arrSize;
-		ParsingEnitity* currParsingEntity = &s_entitiesMap[currIndex];
+		ParsingEntity* currParsingEntity = &s_entitiesMap[currIndex];
 		if ( currParsingEntity->entityID == INVALID_ENTITY_ID )
 		{
 			currParsingEntity->entityID = entityID;
@@ -100,7 +104,7 @@ static bool CacheParsingEntity( const json::string_t& entityName, const json::st
 }
 
 
-static const ParsingEnitity* GetCachedParsingEntity( const json::string_t& entityName )
+static const ParsingEntity* GetCachedParsingEntity( const json::string_t& entityName )
 {
 	COM_ASSERT( entityName.length() <= MAX_ENTITY_NAME_LEN, "[%s]: %s - entity name exceeds max entity name length. %zu > %zu\n", SCENE_LOADER_STR, __FUNCTION__, entityName.length(), MAX_ENTITY_NAME_LEN );
 
@@ -110,7 +114,7 @@ static const ParsingEnitity* GetCachedParsingEntity( const json::string_t& entit
 	for ( size_t i = 0; i < arrSize; ++i )
 	{
 		const size_t currIndex = ( hashIndex + i ) % arrSize;
-		const ParsingEnitity* currParsingEntity = &s_entitiesMap[currIndex];
+		const ParsingEntity* currParsingEntity = &s_entitiesMap[currIndex];
 		if ( Com_StrEq( currParsingEntity->entityName, entityName.c_str(), MAX_ENTITY_NAME_LEN ) )
 		{
 			return currParsingEntity;
@@ -128,23 +132,161 @@ static const char* GetFullPath( const char* pathPrefix, const char* scenePath )
 		return nullptr;
 	}
 
-	COM_ASSERT( ( strlen( scenePath ) + strlen( pathPrefix ) ) < MAX_FULL_PATH_LEN, "[ResourceManager]: given scene path '%s%s' exceeds max scene path length of '%zu'\n", pathPrefix, scenePath, MAX_FULL_PATH_LEN );
+	COM_ASSERT( ( strlen( scenePath ) + strlen( pathPrefix ) ) < MAX_FULL_PATH_LEN, "[%s]: given scene path '%s%s' exceeds max scene path length of '%zu'\n", SCENE_LOADER_STR, pathPrefix, scenePath, MAX_FULL_PATH_LEN );
 
 	snprintf( s_fullPath, MAX_FULL_PATH_LEN, "%s%s", pathPrefix, scenePath );
 	return s_fullPath;
 }
 
-// ===========================
-// TODO: maybe define the per-component parsers here? 
-// ===========================
+
+static void ParseAndLoadResources( const json& jsonResourcesArray )
+{
+	for ( size_t i = 0; i < jsonResourcesArray.size(); ++i )
+	{
+		const json jsonCurrResource = jsonResourcesArray[i];
+		const json::string_t currResourceName = jsonCurrResource[RESOURCE_NAME_FIELD.ToStdString()];
+		const json::string_t currResourceTypeStr = jsonCurrResource[RESOURCE_TYPE_FIELD.ToStdString()];
+		const ResourceType currResourceType = ResourceTypes_GetResourceTypeForString( currResourceTypeStr.c_str() );
+		if ( currResourceType == ResourceType::Invalid )
+		{
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "resource '%s' has invalid resource type '%s'\n", currResourceName.c_str(), currResourceTypeStr.c_str() );
+			continue;
+		}
+
+		if ( !ResourceManager_LoadResource( HashedString( currResourceName.c_str(), currResourceName.length() ), currResourceName.c_str(), currResourceType ) )
+		{
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load resource '%s' with type '%s'\n", currResourceName.c_str(), currResourceTypeStr.c_str() );
+		}
+	}
+}
+
+
+bool ParseTemplateForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const EntityID entityID, const char* templatePath, SceneLoader* sceneLoader )
+{
+	if ( !componentParser )
+	{
+		COM_ALWAYS_ASSERT( "[%s]: component parser is null\n", SCENE_LOADER_STR );
+		return false;
+	}
+
+	if ( !componentName )
+	{
+		COM_ALWAYS_ASSERT( "[%s]: component name is null\n", SCENE_LOADER_STR );
+		return false;
+	}
+
+	// see if we have reached leaf template
+	if ( Com_StrEmpty( templatePath ) )
+	{
+		return true;
+	}
+	
+	// TODO: load template file (would be best to cache this somehow so that we don't have to re-open re-used templates for every
+	// component and entity that uses this)
+	const char* fullTemplatePath = GetFullPath( ENTITY_TEMPLATES_DIR_PATH, templatePath );
+	if ( !fullTemplatePath )
+	{
+		return false;
+	}
+
+	ifstream templateFile( fullTemplatePath );
+	if ( !templateFile.is_open() )
+	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'\n", fullTemplatePath );
+		return false;
+	}
+
+	// get file size
+	templateFile.seekg( 0, ios::end );
+	const streamsize templateFileSize = templateFile.tellg();
+	templateFile.seekg( 0, ios::beg );
+
+	// load full file content 
+	vector<char> fileBuffer( templateFileSize, 0 );
+	templateFile.read( fileBuffer.data(), templateFileSize );
+
+	// parse json
+	const json jsonTemplate = json::parse( fileBuffer );
+
+	// process parent template 
+	// TODO: have to figure out case where child overrides parent resources so have currently 
+	// the resources loaded by the parent will stay in memory and remain unused foever. Maybe template holds reference of overriden
+	// resources? OR resource manager can free resources that have no references (AKA keep a reference counter)
+	const json::string_t jsonParentTemplatePath = jsonTemplate[TEMPLATE_PARENT_FIELD.ToStdString()];
+	if ( jsonParentTemplatePath.length() > 0 )
+	{
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) );
+	}
+
+	// load resources for template
+	const json jsonResourcesArray = jsonTemplate[RESOURCES_ARRAY_FIELD.ToStdString()];
+	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in file [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, fullTemplatePath );
+	ParseAndLoadResources( jsonResourcesArray );
+
+	// load component values (will override parent values if applicable)
+	const json jsonComponents = jsonTemplate[COMPONENTS_ARRAY_FIELD.ToStdString()];
+	const json jsonCurrComponent = jsonComponents[componentName];
+	const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD.ToStdString()];
+	componentParser( entityID, jsonComponentValues, sceneLoader );
+
+	return true;
+}
+
+bool ParseEntityForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const json& jsonEntity, SceneLoader* sceneLoader )
+{
+	if ( !componentParser )
+	{ 
+		COM_ALWAYS_ASSERT( "[%s]: component parser is null\n", SCENE_LOADER_STR );
+		return false;
+	}
+
+	// get entity name and entity ID
+	const json::string_t entityName = jsonEntity[ENTITY_NAME_FIELD.ToStdString()];
+	const ParsingEntity* parsingEntity = GetCachedParsingEntity( entityName );
+	if ( !parsingEntity )
+	{
+		return false;
+	}
+
+	const EntityID entityID = parsingEntity->entityID;
+	if ( entityID == INVALID_ENTITY_ID )
+	{
+		return false;
+	}
+
+	// process template
+	const char* templatePath = parsingEntity->templatePath;
+	if ( !Com_StrEmpty( templatePath ) )
+	{
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader ) )
+		{
+			return false;
+		}
+	}
+
+	// load components for entity (will override template values if applicable)
+	const json jsonComponentValues = jsonEntity[COMPONENT_VALUES_FIELD.ToStdString()];
+	componentParser( entityID, jsonComponentValues, sceneLoader );
+
+	return true;
+}
 
 
 // ===========================
 // SceneLoader Methods
 // ===========================
 
-// TODO: might be worth moving scene loading logic to ecs.cpp since I will need to modify the components list anyways...
-// unless I expose the components list through a public function somehow but that could be dangerous?
+EntityID SceneLoader::GetParsingEntityID( const json::string_t& entityName )
+{
+	const ParsingEntity* parsingEnitity = GetCachedParsingEntity( entityName );
+	if ( !parsingEnitity )
+	{
+		return INVALID_ENTITY_ID;
+	}
+
+	return parsingEnitity->entityID;
+}
+
 
 bool SceneLoader::LoadScene( const char* sceneRef )
 {
@@ -154,39 +296,35 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 		return false;
 	}
 
-	ifstream inputFile( fullScenePath );
-	if ( !inputFile.is_open() )
+	ifstream sceneFile( fullScenePath );
+	if ( !sceneFile.is_open() )
 	{
 		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'\n", fullScenePath);
 		return false;
 	}
 
 	// get file size
-	inputFile.seekg( 0, ios::end );
-	const streamsize inputFileSize = inputFile.tellg();
-	inputFile.seekg( 0, ios::beg );
+	sceneFile.seekg( 0, ios::end );
+	const streamsize sceneFileSize = sceneFile.tellg();
+	sceneFile.seekg( 0, ios::beg );
 
 	// load full file content 
-	vector<char> fileBuffer( inputFileSize, 0 );
-	inputFile.read( fileBuffer.data(), inputFileSize);
+	vector<char> fileBuffer( sceneFileSize, 0 );
+	sceneFile.read( fileBuffer.data(), sceneFileSize);
 
 	// parse json
 	const json jsonScene = json::parse( fileBuffer );
-	
-	// TODO: remove this print
-	std::cout << std::setw( 4 ) << jsonScene << "\n\n";
 
 	// clear all previous scene data
 	ECS_DeleteAllEntities();
 	ResourceManager_UnloadAllResources();
 
-	// TODO: loading scene steps:
-	// 1) initialize all entities and map entity ID to entity name + keep track of template 
-	//    - either keep track of template name so that it can be loaded later or pre-load template in separate map so that
-	//      it can be re-used by all entities that need it and then also keep name in entity map so that I know how to get from
-	//      entity to template
-	//    - potentially handle loading resources here too especially if I am already pre-loading templates so I can already
-	//      see what resources need to be loaded
+	// load all resources for the given entity
+	const json jsonResourcesArray = jsonScene[RESOURCES_ARRAY_FIELD.ToStdString()];
+	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD );
+	ParseAndLoadResources( jsonResourcesArray );
+
+	// initialize all entities in the scene and cache entity parsing metadata 
 	ResetCachedParsingEntities();
 	const json jsonEntitiesArray = jsonScene[ENTITIES_ARRAY_FIELD.ToStdString()];
 	COM_ASSERT( jsonEntitiesArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, ENTITIES_ARRAY_FIELD );
@@ -206,29 +344,7 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 		CacheParsingEntity( currEntityName, currTemplatePath, newEntityID );
 	}
 
-	Com_Printf( "template for no_template_entity: %s\n", GetCachedParsingEntity( "no_template_entity" )->templatePath );
-	Com_Printf( "template for template_override_values: %s\n", GetCachedParsingEntity( "template_override_values" )->templatePath );
-	Com_Printf( "template for using_template: %s\n", GetCachedParsingEntity( "using_template" )->templatePath );
-
-	Com_Printf( "ID for no_template_entity: %zu\n", GetCachedParsingEntity( "no_template_entity" )->entityID );
-	Com_Printf( "ID for template_override_values: %zu\n", GetCachedParsingEntity( "template_override_values" )->entityID );
-	Com_Printf( "ID for using_template: %zu\n", GetCachedParsingEntity( "using_template" )->entityID );
-
-
-	// 2) iterate through list of components, use entity name to get entity ID and potential template
-	// values/overrides and then initialize component 
-	//    - potentially have logic be:
-	//     a) if using template, recurse through all templates and their parents until no parent is used
-	//     b) apply parent template values, pop, apply previous parent overrides, pop, etc.
-	//         - do this by indexing in to template component list using component name as key (component object migth be empty)
-	//         - this means that parent values will be set even if they are overriden... which is ok but maybe inefficient? 
-	//             - so maybe as recursing, set values, go to parent, only set unset values, etc. This can also avoid loading
-	//				 resources that are never used. The only thing is how can I tell that value has been set or not? Do I have to
-	//               make a dirty bit for all values? Maybe in entity ID to template mapping keep track of already set fields somehow?
-	//               Maybe as a list of strings? This might be overkill
-	//     c) then apply loaded entity overrides (hopefully by re-using the same deserialization function as the 
-	//        parent recursion used
-	//     d) if no template is used, re-use same deserialization function to set entity's component's values
+	// initialize components in all entities grouped by component type (since this is friendlier to the ECS design pattern)
 	const json jsonComponentsArray = jsonScene[COMPONENTS_ARRAY_FIELD.ToStdString()];
 	COM_ASSERT( jsonComponentsArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, COMPONENTS_ARRAY_FIELD );
 	for ( size_t componentIndex = 0; componentIndex < jsonComponentsArray.size(); ++componentIndex )
@@ -243,34 +359,26 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 			continue;
 		}
 
-		// TODO: somehow call processing function for the given component type and then process the entities recursivelly somehow to get the values from
-		// the parents
+		ComponentParser_ParserFunctPtr componentTypeParsingFunct = ComponentParser_GetParserForType( currCompType );
+		if ( !componentTypeParsingFunct )
+		{
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to find parsing function for component '%s'", currCompName.c_str() );
+			continue;
+		}
+
 		const json jsonCurrCompEntitiesList = jsonCurrComp[COMPONENT_PER_ENTITY_VALUES_ARR_FIELD.ToStdString()];
 		for ( size_t entityIndex = 0; entityIndex < jsonCurrCompEntitiesList.size(); ++entityIndex )
 		{
 			const json currEntity = jsonCurrCompEntitiesList[entityIndex];
-			// TODO: have to figure out how to handle recursion here and then only call parser when I want to store 
-			// component values
-			ComponentParser_ParserFunctPtr parsingFunct = ComponentParser_GetParserForType( currCompType );
-			parsingFunct( &currEntity, this );
+			if ( !ParseEntityForComponent( currCompName.c_str(), componentTypeParsingFunct, currEntity, this ) )
+			{
+				const json::string_t currEntityName = currEntity[ENTITY_NAME_FIELD.ToStdString()];
+				Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load component '%s' values for entity '%s'", currCompName.c_str(), currEntityName.c_str() );
+			}
 		}
 
 	}
 
-	 
-	
-	// 3) in loading process, as resources come up, cache them 
-
-	// TODO: for the per component de-serilizers/parsers, maybe pass in a pointer to the component to be set, that way
-	// they don't have to care about the entity ID as it recurses through parents.
-	//    - Although need to somehow allow access to resource map (for loading resources) and to entities map (for entity name
-	//      to entity ID resolving for fields)
-	//	  - Ideally don't have to pass in resource map, so maybe the resources can be loaded separately? Maybe during entity 
-	//      parsing since I will be able to pre-load all templates as well so might as well pre-load resources too? Then 
-	//      components can simply pash a hashed version of the resource name to get the resoruce.
-	//			- although this might cause a problem where template has resource defined, but in the actual scene, the 
-	//			  resource is overriden so the template resource is never used but is loaded. This is inefficient, so maybe 
-	//			  it is best to only load final values? 
 	Com_PrintfVerbose( SCENE_LOADER_STR, "Finished loading scene '%s'", sceneRef );
 	return true;
 }
