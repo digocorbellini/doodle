@@ -5,10 +5,15 @@
 
 using json = nlohmann::json;
 
+// ==================================
+// Parsing Helper Macros
+// ==================================
+
 #define VALUE_FIELD OBFUSCATED_STRING( "val" )
 
+
 // parsing logic for 1 to 1 mappings of simple data types
-#define PARSE_SIMPLE_FIELD( jsonFieldName, structDestName ) \
+#define PARSE_SIMPLE_FIELD_MAPPED( jsonFieldName, structDestName ) \
 {\
 	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName );\
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
@@ -18,9 +23,10 @@ using json = nlohmann::json;
 		entityComponent->structDestName = value;\
 	}\
 }
+#define PARSE_SIMPLE_FIELD( fieldName ) PARSE_SIMPLE_FIELD_MAPPED( fieldName, fieldName )
 
 
-#define PARSE_VECTOR2F_FIELD( jsonFieldName, structDestName ) \
+#define PARSE_VECTOR2F_FIELD_MAPPED( jsonFieldName, structDestName ) \
 {\
 	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName ); \
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
@@ -34,9 +40,10 @@ using json = nlohmann::json;
 		}\
 	}\
 }
+#define PARSE_VECTOR2F_FIELD( fieldName ) PARSE_VECTOR2F_FIELD_MAPPED( fieldName, fieldName )
 
 
-#define PARSE_ENTITY_REF_FIELD( jsonFieldName, structDestName ) \
+#define PARSE_ENTITY_REF_FIELD_MAPPED( jsonFieldName, structDestName ) \
 {\
 	const char* fieldNameStr = OBFUSCATED_STRING( #jsonFieldName ); \
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
@@ -50,8 +57,11 @@ using json = nlohmann::json;
 		}\
 	}\
 }
+#define PARSE_ENTITY_REF_FIELD( fieldName ) PARSE_ENTITY_REF_FIELD_MAPPED( fieldName, fieldName )
 
-
+// ==================================
+// Parsing Wrapper Functions
+// ==================================
 
 #define COMPONENT(X) \
 void ComponentParser_##X##ParsingWrapper( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader ) \
@@ -108,14 +118,15 @@ ComponentParser_ParserFunctPtr ComponentParser_GetParserForType( ComponentType c
 
 void ComponentParser_EntityTransform2DParser( const json& jsonComponentValues, EntityTransform2D* entityComponent, SceneLoader* sceneLoader )
 {
-	PARSE_VECTOR2F_FIELD( position, position );
+	PARSE_VECTOR2F_FIELD( position );
+	PARSE_VECTOR2F_FIELD( scale );
 }
 
 
 void ComponentParser_PhysicsBody2DParser( const json& jsonComponentValues, PhysicsBody2D* entityComponent, SceneLoader* sceneLoader )
 {
-	PARSE_VECTOR2F_FIELD( velocity, velocity );
-	PARSE_SIMPLE_FIELD( gravity, gravity );
+	PARSE_VECTOR2F_FIELD( velocity );
+	PARSE_SIMPLE_FIELD( gravity );
 }
 
 void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, SpriteRenderer2D* entityComponent, SceneLoader* sceneLoader )
@@ -132,23 +143,24 @@ void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, Sp
 		}
 	}
 
-	PARSE_SIMPLE_FIELD( renderingOrder, renderingOrder );
-	PARSE_SIMPLE_FIELD( isXFlipped, isXFlipped );
-	PARSE_SIMPLE_FIELD( isYFlipped, isYFlipped );
+	PARSE_SIMPLE_FIELD( renderingOrder );
+	PARSE_SIMPLE_FIELD( hasCenteredOrigin );
+	PARSE_SIMPLE_FIELD( isXFlipped );
+	PARSE_SIMPLE_FIELD( isYFlipped );
 }
 
 
 void ComponentParser_PlayerController2DParser( const json& jsonComponentValues, PlayerController2D* entityComponent, SceneLoader* sceneLoader )
 {
-	PARSE_SIMPLE_FIELD( moveSpeed, moveSpeed );
-	PARSE_SIMPLE_FIELD( jumpSpeed, jumpSpeed );
+	PARSE_SIMPLE_FIELD( moveSpeed );
+	PARSE_SIMPLE_FIELD( jumpSpeed );
 }
 
 
 void ComponentParser_Camera2DParser( const json& jsonComponentValues, Camera2D* entityComponent, SceneLoader* sceneLoader )
 {
-	PARSE_ENTITY_REF_FIELD( targetEntity, targetEntity );
-	PARSE_VECTOR2F_FIELD( viewOffsetFromPos, viewOffsetFromPos );
+	PARSE_ENTITY_REF_FIELD( targetEntity );
+	PARSE_VECTOR2F_FIELD( viewOffsetFromPos );
 	// TODO: figure out if have to parse "view" 
-	PARSE_SIMPLE_FIELD( isMainCam, isMainCam );
+	PARSE_SIMPLE_FIELD( isMainCam );
 }

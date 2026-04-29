@@ -176,6 +176,7 @@ static constexpr ComponentsMask INVALID_COMPONENTS_MASK;
 struct EntityTransform2D
 {
 	Vector2f position;
+	Vector2f scale;
 };
 
 
@@ -191,6 +192,7 @@ struct SpriteRenderer2D
 	SpriteRenderer sprite; // TODO: the texture resource is stored in this sprite
 	int renderingOrder;
 
+	bool hasCenteredOrigin;
 	bool isXFlipped;
 	bool isYFlipped;
 };
