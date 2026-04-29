@@ -11,7 +11,7 @@ static NanoSeconds s_timeElapsedNs = 0;
 
 static bool haveRun = false;
 
-void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator )
+void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator )
 {
 	s_timeElapsedNs += deltaTimeNs;
 	if ( s_timeElapsedNs > s_printIntervalNs )

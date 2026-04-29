@@ -199,6 +199,13 @@ EntityIterator::EntityIterator()
 }
 
 
+EntityIterator::EntityIterator( const EntityIterator& other )
+{
+	this->currEntity = other.currEntity;
+	this->count = other.count;
+}
+
+
 EntityIterator::EntityIterator( const EntityID startingID )
 {
 	if ( !ECS_IsValidEntityID( startingID ) )
@@ -404,6 +411,7 @@ EntityID ECS_AddEntity()
 		if ( currEntity->state == EntityState::Available )
 		{
 			currEntity->state = EntityState::Assigned;
+			currEntity->isEnabled = true;
 			++s_numEntities;
 			return entityIndex;
 		}
@@ -453,28 +461,28 @@ void ECS_StartGameLoop()
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameStart( deltaTimeNs, &it );
+			s_systems[i]->OnFrameStart( deltaTimeNs, it );
 		}
 
 		// run frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrame( deltaTimeNs, &it );
+			s_systems[i]->OnFrame( deltaTimeNs, it );
 		}
 
 		// run frame end
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameEnd( deltaTimeNs, &it );
+			s_systems[i]->OnFrameEnd( deltaTimeNs, it );
 		}
 		
 		// run physics frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnPhysicsFrame( deltaTimeNs, &it );
+			s_systems[i]->OnPhysicsFrame( deltaTimeNs, it );
 		}
 
 		// run drawing frame
@@ -482,7 +490,7 @@ void ECS_StartGameLoop()
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
 			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnDrawFrame( &window, &it );
+			s_systems[i]->OnDrawFrame( &window, it );
 		}
 		window.display();
 

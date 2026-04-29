@@ -32,6 +32,8 @@ private:
 	friend class EntityIteratorCreator;
 
 public:
+	EntityIterator( const EntityIterator& other );
+
 	/// <summary>
 	/// The entity ID that the iterator is currently pointing to.
 	/// </summary>

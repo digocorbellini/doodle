@@ -3,5 +3,5 @@
 
 class TestSystem : public System
 {
-	void OnFrame( const NanoSeconds deltaTimeNs, const EntityIterator* entityIterator ) override;
+	void OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator ) override;
 };

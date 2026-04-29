@@ -232,7 +232,7 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	return true;
 }
 
-bool ParseEntityForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const json& jsonEntity, SceneLoader* sceneLoader )
+bool ParseEntityForComponent( const ComponentType componentType, const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const json& jsonEntity, SceneLoader* sceneLoader )
 {
 	if ( !componentParser )
 	{ 
@@ -254,7 +254,7 @@ bool ParseEntityForComponent( const char* componentName, const ComponentParser_P
 		return false;
 	}
 
-	// process template
+	// process template component values
 	const char* templatePath = parsingEntity->templatePath;
 	if ( !Com_StrEmpty( templatePath ) )
 	{
@@ -264,9 +264,15 @@ bool ParseEntityForComponent( const char* componentName, const ComponentParser_P
 		}
 	}
 
-	// load components for entity (will override template values if applicable)
+	// load component values for entity (will override template values if applicable)
 	const json jsonComponentValues = jsonEntity[COMPONENT_VALUES_FIELD.ToStdString()];
 	componentParser( entityID, jsonComponentValues, sceneLoader );
+
+	// add component to entity
+	if ( !ECS_AddComponentToEntity( entityID, componentType ) )
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -370,7 +376,7 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 		for ( size_t entityIndex = 0; entityIndex < jsonCurrCompEntitiesList.size(); ++entityIndex )
 		{
 			const json currEntity = jsonCurrCompEntitiesList[entityIndex];
-			if ( !ParseEntityForComponent( currCompName.c_str(), componentTypeParsingFunct, currEntity, this ) )
+			if ( !ParseEntityForComponent( currCompType, currCompName.c_str(), componentTypeParsingFunct, currEntity, this ) )
 			{
 				const json::string_t currEntityName = currEntity[ENTITY_NAME_FIELD.ToStdString()];
 				Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load component '%s' values for entity '%s'", currCompName.c_str(), currEntityName.c_str() );
