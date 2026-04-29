@@ -14,8 +14,16 @@ Definitely One Odd Dumb Little Engine
     * This mask can then be used to decide what entities should be modified by your desired system which utilizes this component 
 * Go to `scene_component_parsers.cpp` and create a function with the following definition `void ComponentParser_<Component Name>Parser( const json& jsonComponentValues, <Component Type>* entityComponent, SceneLoader* sceneLoader )`
   * Note that the parameter names should match exactly if you want to use the helper parsing macros.
-* Within this new function, parse the content of `jsonComponentValues` into your new component struct found in the parameter `entityComponent`
-  * The top of the file contains parsing helpers in the form of macros.
+  * Within this new function, parse the content of `jsonComponentValues` into your new component struct found in the parameter `entityComponent`
+    * The top of the file contains parsing helpers in the form of macros for simplifying the parsing logic
+  * Ex:
+    ```c++
+    void ComponentParser_EntityTransform2DParser( const json& jsonComponentValues, EntityTransform2D* entityComponent, SceneLoader* sceneLoader )
+    {
+        PARSE_VECTOR2F_FIELD( position );
+        PARSE_VECTOR2F_FIELD( scale );
+    }
+    ```
 
 # Process for Creating/Deleting Entities Dynamically
 * `ECS_QueueEntityCreation` takes a `ComponentMask` and queues up the creation of a new entity at the start of the next frame. 
