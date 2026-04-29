@@ -23,10 +23,6 @@ void CenterOrigin( SpriteRenderer* spriteRend )
 
 void RenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIterator )
 {
-	// TODO: cache these in system constructor? Or maybe make an ECS function for getting the desired component given an entity ID
-	SpriteRenderer2D* spriteRendererList = ECS_GetComponentList<SpriteRenderer2D>( ComponentType::SpriteRenderer2D );
-	EntityTransform2D* entityTransformList = ECS_GetComponentList<EntityTransform2D>( ComponentType::EntityTransform2D );
-
 	for ( EntityIterator itr = entityIterator; itr != entityIterator.end(); ++itr )
 	{
 		EntityID currEntity = *itr;
@@ -37,9 +33,17 @@ void RenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIt
 			continue;
 		}
 
-		// TODO: yea definitely better to have an ECS function for getting this instead so that I can avoid out of bounds indexes
-		SpriteRenderer2D* currRend = &spriteRendererList[currEntity];
-		EntityTransform2D* currTransform = &entityTransformList[currEntity];
+		SpriteRenderer2D* currRend = ECS_GetEntityComponent<SpriteRenderer2D>( currEntity, ComponentType::SpriteRenderer2D );
+		if ( !currRend )
+		{
+			continue;
+		}
+
+		EntityTransform2D* currTransform = ECS_GetEntityComponent<EntityTransform2D>( currEntity, ComponentType::EntityTransform2D );
+		if ( !currTransform )
+		{
+			continue;
+		}
 
 		// TODO: eventually have to take into account x and y flipping and rendering order but for now lets just get it on the screen somehow
 		if ( currRend->hasCenteredOrigin )

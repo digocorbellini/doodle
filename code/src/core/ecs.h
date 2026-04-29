@@ -115,7 +115,7 @@ bool ECS_CanOperateOnEntity( const EntityID entityID );
 void ECS_RegisterSystem( class System* system );
 
 // TODO: comment this
-void* ECS_GetComponentListRaw( ComponentType componentType );
+void* ECS_GetComponentListRaw( const ComponentType componentType );
 
 /// <summary>
 /// Get the component list for the given component type. This list will contain a component
@@ -127,7 +127,7 @@ void* ECS_GetComponentListRaw( ComponentType componentType );
 /// <returns>The component list for the given component type. If the componentType is invalid, 
 /// nullptr is returned.</returns>
 template<typename T>
-T* ECS_GetComponentList( ComponentType componentType )
+inline T* ECS_GetComponentList( const ComponentType componentType )
 {
 	COM_ASSERT( typeid( T ) == Components_GetComponentTypeIndex( componentType ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), Components_GetComponentTypeIndex( componentType ).name(), Components_GetComponentTypeString( componentType ) );
 	return static_cast<T*>( ECS_GetComponentListRaw( componentType ) );
@@ -140,6 +140,14 @@ T* ECS_GetComponentList( ComponentType componentType )
 /// <returns>True if the enttiy ID is not an invalid entity ID and if it is within the boudns of possible entity IDs. 
 /// False otherwise.</returns>
 bool ECS_IsValidEntityID( const EntityID id );
+
+// TODO: add comment
+template<typename T>
+inline T* ECS_GetEntityComponent( const EntityID entityID, const ComponentType componentType )
+{
+	COM_ASSERT( typeid( T ) == Components_GetComponentTypeIndex( componentType ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), Components_GetComponentTypeIndex( componentType ).name(), Components_GetComponentTypeString( componentType ) );
+	return ECS_IsValidEntityID( entityID ) ? &( static_cast<T*>( ECS_GetComponentListRaw( componentType ) )[entityID] ) : nullptr;
+}
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :

@@ -364,7 +364,7 @@ void ECS_RegisterSystem( System* system )
 }
 
 
-void* ECS_GetComponentListRaw( ComponentType componentType )
+void* ECS_GetComponentListRaw( const ComponentType componentType )
 {
 	if ( !Components_IsComponentValid( componentType ) )
 	{
