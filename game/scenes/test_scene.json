@@ -28,7 +28,11 @@
                     "entityName": "no_template_entity",
                     "values": {
                         "position": {
-                            "val": [-10, -10],
+                            "val": [500, 500],
+                            "fieldType": "vector2"
+                        },
+                        "scale": {
+                            "val": [0.2, 0.1],
                             "fieldType": "vector2"
                         }
                     }
@@ -37,7 +41,7 @@
                     "entityName": "template_override_values",
                     "values": {
                         "position": {
-                            "val": [10, 10]
+                            "val": [600, 600]
                         }
                     }
                 },
@@ -67,6 +71,10 @@
                         },
                         "isYFlipped": {
                             "val": false,
+                            "fieldType": "bool"
+                        },
+                        "hasCenteredOrigin": {
+                            "val": true,
                             "fieldType": "bool"
                         }
                     }

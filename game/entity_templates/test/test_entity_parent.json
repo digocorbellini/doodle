@@ -13,6 +13,10 @@
                 "position": {
                     "val": [0, 0],
                     "fieldType": "vector2"
+                },
+                "scale": {
+                    "val": [1, 1],
+                    "fieldType": "vector2"
                 }
             }
         },
@@ -25,6 +29,10 @@
                 "renderingOrder": {
                     "val": 0,
                     "fieldType": "int"
+                },
+                "hasCenteredOrigin": {
+                    "val": false,
+                    "fieldType": "bool"
                 },
                 "isXFlipped": {
                     "val": false,
