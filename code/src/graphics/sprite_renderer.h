@@ -55,6 +55,11 @@ public:
 		return textureHandle;
 	}
 
+	const sf::Texture* GetTexture() const
+	{
+		return ResourceManager_GetResource( textureHandle );
+	}
+
 	/// <summary>
 	/// Set the position of the sprite.
 	/// </summary>
