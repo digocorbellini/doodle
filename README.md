@@ -12,7 +12,10 @@ Definitely One Odd Dumb Little Engine
     * The name of your component struct must exactly match your component definition in the `COMPONENT_LIST` macro
 * You can now add your component to entities through the use of the `ComponentType` enum value, which matches your component name defined in `MAX_COMPONENTS`, in a `ComponentMask`
     * This mask can then be used to decide what entities should be modified by your desired system which utilizes this component 
-* TODO: need to add JSON deserialization logic needed once the scene loader design is finalized.
+* Go to `scene_component_parsers.cpp` and create a function with the following definition `void ComponentParser_<Component Name>Parser( const json& jsonComponentValues, <Component Type>* entityComponent, SceneLoader* sceneLoader )`
+  * Note that the parameter names should match exactly if you want to use the helper parsing macros.
+* Within this new function, parse the content of `jsonComponentValues` into your new component struct found in the parameter `entityComponent`
+  * The top of the file contains parsing helpers in the form of macros.
 
 # Process for Creating/Deleting Entities Dynamically
 * `ECS_QueueEntityCreation` takes a `ComponentMask` and queues up the creation of a new entity at the start of the next frame. 
@@ -29,8 +32,38 @@ Definitely One Odd Dumb Little Engine
         3. **OnFrameEnd** - End-of-frame cleanup (e.g., post-processing, state finalization)
         4. **OnPhysicsFrame** - Physics simulation and collision resolution
         5. **OnDrawFrame** - Rendering (receives `RenderWindow` to draw to)
-* TODO: add explanation here on how to iterate over entities for performing logic on them 
-* TODO: also add explanation on how to use component mask to know which entities to operate on.
+* Every frame function will have an `EntityIterator` as a parameter which can be used to iterate over all entities
+  * Ex: 
+    ```c++ 
+    for ( EntityIterator itr = entityIterator; itr != entityIterator.end(); ++itr )
+    {
+        EntityID currEntity = *itr;
+    }
+    ```
+* Within the entity iteration, you can use `ECS_GetEntityComponentsMask` to get a given entity's component mask to see if your system should operate on a given entity.
+  * You can then use `ECS_GetEntityComponent` to get an entity's component
+  * Ex:
+    ```c++ 
+    for ( EntityIterator itr = entityIterator; itr != entityIterator.end(); ++itr )
+    {
+        EntityID currEntity = *itr;
+
+        // skip entities that do not have the required components 
+        if ( ECS_GetEntityComponentsMask( currEntity ) != ComponentsMask( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } ) )
+        {
+            continue;
+        }
+
+        // get desired components 
+        SpriteRenderer2D* currRend = ECS_GetEntityComponent<SpriteRenderer2D>( currEntity, ComponentType::SpriteRenderer2D );
+        if ( !currRend )
+        {
+            continue;
+        }
+
+        // perform logic on entity components...
+    }
+    ```
 * Create a static instance of your system. The constructor in the base class will register the system to be run during the game loop.
 
 # Process for Adding a New Resource 
