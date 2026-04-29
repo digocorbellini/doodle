@@ -112,7 +112,7 @@ ComponentParser_ParserFunctPtr ComponentParser_GetParserForType( ComponentType c
 // Component Parsers
 // 
 // Defined using the following naming format:
-// void ComponentParser_<Component Name>Parser( const nlohmann::json jsonComponentValues, <Component Type>* entityComponent, SceneLoader* sceneLoader )
+// void ComponentParser_<Component Name>Parser( const json& jsonComponentValues, <Component Type>* entityComponent, SceneLoader* sceneLoader )
 // Make sure your parser function handles missing fields 
 // ==================================
 
