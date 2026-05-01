@@ -182,7 +182,8 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	}
 	
 	// TODO: load template file (would be best to cache this somehow so that we don't have to re-open re-used templates for every
-	// component and entity that uses this)
+	// component and entity that uses) Also need to keep track of what templates have already been used so that we don't have circular references... 
+	// maybe that's a dev only check so that we save on memory and computational cost? 
 	const char* fullTemplatePath = GetFullPath( ENTITY_TEMPLATES_DIR_PATH, templatePath );
 	if ( !fullTemplatePath )
 	{
@@ -215,7 +216,11 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	const json::string_t jsonParentTemplatePath = jsonTemplate[TEMPLATE_PARENT_FIELD.ToStdString()];
 	if ( jsonParentTemplatePath.length() > 0 )
 	{
-		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) );
+		// TODO: need some way to detect circular references in entities so that we don't enter an infinite loop
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) )
+		{
+			// TODO: print some sort of error or something? maybe not worth it to return false? 
+		}
 	}
 
 	// load resources for template
