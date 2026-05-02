@@ -56,5 +56,5 @@ public:
 	/// </summary>
 	/// <param name="deltaTimeNs">The time since the last frame start</param>
 	/// <param name="entityIterator">An iterator over all entities in the game</param>
-	virtual void OnDrawFrame( RenderWindow* window, EntityIterator entityIterator ) {};
+	virtual void OnDrawFrame( sf::RenderWindow* window, EntityIterator entityIterator ) {};
 };

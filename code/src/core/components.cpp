@@ -1,6 +1,9 @@
 #include "components.h"
 #include "common/lib/com_array.h"
 
+using namespace std;
+using namespace sf;
+
 static const char* s_componentTypeStrings[] =
 {
 	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 

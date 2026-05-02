@@ -3,6 +3,8 @@
 #include "scene_component_parsers.h"
 #include "scene_loader.h"
 
+using namespace sf;
+
 using json = nlohmann::json;
 
 // ==================================

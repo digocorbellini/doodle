@@ -5,6 +5,7 @@
 #include "common/lib/com_assert.h"
 #include "core/system.h"
 
+using namespace sf;
 using SteadyClock = std::chrono::steady_clock;
 using TimePoint = SteadyClock::time_point;
 using Duration = std::chrono::nanoseconds;
@@ -433,7 +434,7 @@ bool ECS_IsValidEntityID( const EntityID id )
 // load scene wrapper which calls the load scene functions which return a list of entities?
 void ECS_StartGameLoop()
 {
-	sf::RenderWindow window( sf::VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
+	RenderWindow window( VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
 
 	// initialize clock
 	s_lastFrameTime = SteadyClock::now();
@@ -441,11 +442,11 @@ void ECS_StartGameLoop()
 	while ( window.isOpen() )
 	{
 		// get user input
-		sf::Event event;
+		Event event;
 		while ( window.pollEvent( event ) )
 		{
 			// see if user has closed application window
-			if ( event.type == sf::Event::Closed )
+			if ( event.type == Event::Closed )
 				window.close();
 		}
 

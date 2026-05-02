@@ -33,15 +33,12 @@ COMPONENT(EntityTransform2D) \
 COMPONENT(PhysicsBody2D) \
 COMPONENT(SpriteRenderer2D) \
 COMPONENT(PlayerController2D) \
-COMPONENT(Camera2D) 
+COMPONENT(Camera2D)
 
-using namespace std;
-using namespace sf;
-
-static constexpr uint64_t MAX_COMPONENTS = 64;
+static constexpr std::uint64_t MAX_COMPONENTS = 64;
 
 // Every new component must have a type in this enum
-enum class ComponentType : size_t
+enum class ComponentType : std::size_t
 {
 #define COMPONENT(X) X,
 	COMPONENT_LIST
@@ -90,7 +87,7 @@ std::type_index Components_GetComponentTypeIndex( const ComponentType componentT
 class ComponentsMask
 {
 private:
-	bitset<MAX_COMPONENTS> mask;
+	std::bitset<MAX_COMPONENTS> mask;
 
 public:
 
@@ -175,14 +172,14 @@ static constexpr ComponentsMask INVALID_COMPONENTS_MASK;
 
 struct EntityTransform2D
 {
-	Vector2f position;
-	Vector2f scale;
+	sf::Vector2f position;
+	sf::Vector2f scale;
 };
 
 
 struct PhysicsBody2D
 {
-	Vector2f velocity;
+	sf::Vector2f velocity;
 	float gravity;
 };
 
@@ -208,7 +205,7 @@ struct PlayerController2D
 struct Camera2D
 {
 	EntityID targetEntity = INVALID_ENTITY_ID; // if INVALID_ENTITY_ID, will not try to follow a target and will instead be controlled by its transform
-	Vector2f viewOffsetFromPos; // used to center the camera since position is top left corner
-	View cameraView; // TODO: need some way to specify if field should not be included in editor (maybe a comment?)
+	sf::Vector2f viewOffsetFromPos; // used to center the camera since position is top left corner
+	sf::View cameraView; // TODO: need some way to specify if field should not be included in editor (maybe a comment?)
 	bool isMainCam; // If true, this camera will be displayed on the window
 };

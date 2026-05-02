@@ -1,6 +1,8 @@
 #include "core/components.h"
 #include "rendering_system.h"
 
+using namespace sf;
+
 static const ComponentsMask RENDERING_SYSTEM_COMP_MASK( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } );
 
 static RenderingSystem s_renderingSystem;

@@ -4,6 +4,8 @@
 #include "core/scene_loading/scene_loader.h"
 #include "common/lib/com_string.h"
 
+using namespace sf;
+
 static TestSystem testSystem;
 
 static NanoSeconds s_printIntervalNs = 1 * 1000 * 1000 * 1000;
