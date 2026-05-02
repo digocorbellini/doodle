@@ -57,7 +57,7 @@ Definitely One Odd Dumb Little Engine
         EntityID currEntity = *itr;
 
         // skip entities that do not have the required components 
-        if ( ECS_GetEntityComponentsMask( currEntity ) != ComponentsMask( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } ) )
+        if ( !ECS_GetEntityComponentsMask( currEntity ).ContainsMask( ComponentsMask( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } ) ) )
         {
             continue;
         }

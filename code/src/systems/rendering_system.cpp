@@ -30,7 +30,7 @@ void RenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIt
 		EntityID currEntity = *itr;
 
 		// skip entities that do not have the required components 
-		if ( ECS_GetEntityComponentsMask( currEntity ) != RENDERING_SYSTEM_COMP_MASK )
+		if ( !ECS_GetEntityComponentsMask( currEntity ).ContainsMask( RENDERING_SYSTEM_COMP_MASK ) )
 		{
 			continue;
 		}

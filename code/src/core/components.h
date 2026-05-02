@@ -139,7 +139,7 @@ public:
 	/// <param name="other">the mask to compare against</param>
 	/// <returns>true if the components in the given mask are a
 	/// subset of the components of this mask. False otherwise</returns>
-	inline bool ContainsMask( const ComponentsMask other )
+	inline bool ContainsMask( const ComponentsMask other ) const
 	{
 		return ( mask & other.mask ) == other.mask;
 	}
