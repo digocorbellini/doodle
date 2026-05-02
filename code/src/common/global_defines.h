@@ -23,6 +23,6 @@
 
 #if IS_ENABLED( DEV_BUILD )
 #define GAME_DIR_PATH OBFUSCATED_STRING( "../../../game/" )
-#elif //#if IS_ENABLED( DEV_BUILD )
-#defiine GAME_DIR_PATH OBFUSCATED_STRING( "./game/" )
+#else //#if IS_ENABLED( DEV_BUILD )
+#define GAME_DIR_PATH OBFUSCATED_STRING( "./game/" )
 #endif // #elif //#if IS_ENABLED( DEV_BUILD )
