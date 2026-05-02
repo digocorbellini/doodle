@@ -108,6 +108,11 @@ static const char s_windowTitle[MAX_WINDOW_TITLE_LENGTH] = "DOODLE";
 
 static void ProcessEntityCreationAndDeletion()
 {
+	if ( s_numEntitiesQueuedForAddition == 0 && s_numEntitiesQueuedForDeletion == 0 )
+	{
+		return;
+	}
+
 	for ( EntityID entityID = 0; entityID < MAX_ENTITIES; ++entityID )
 	{
 		if ( s_numEntitiesQueuedForAddition == 0 && s_numEntitiesQueuedForDeletion == 0 )
