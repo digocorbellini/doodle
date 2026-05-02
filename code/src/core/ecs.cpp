@@ -456,41 +456,37 @@ void ECS_StartGameLoop()
 		const TimePoint currentTime = SteadyClock::now();
 		const NanoSeconds deltaTimeNs = std::chrono::duration_cast<Duration>( currentTime - s_lastFrameTime ).count();
 		s_lastFrameTime = currentTime;
+		EntityIterator entityIterator = EntityIteratorCreator::CreateEntityIterator();
 
 		// run frame start
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameStart( deltaTimeNs, it );
+			s_systems[i]->OnFrameStart( deltaTimeNs, entityIterator );
 		}
 
 		// run frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrame( deltaTimeNs, it );
+			s_systems[i]->OnFrame( deltaTimeNs, entityIterator );
 		}
 
 		// run frame end
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnFrameEnd( deltaTimeNs, it );
+			s_systems[i]->OnFrameEnd( deltaTimeNs, entityIterator );
 		}
 		
 		// run physics frame
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnPhysicsFrame( deltaTimeNs, it );
+			s_systems[i]->OnPhysicsFrame( deltaTimeNs, entityIterator );
 		}
 
 		// run drawing frame
 		window.clear( s_backgroundColor );
 		for ( uint64_t i = 0; i < s_numSystems; ++i )
 		{
-			EntityIterator it = EntityIteratorCreator::CreateEntityIterator();
-			s_systems[i]->OnDrawFrame( &window, it );
+			s_systems[i]->OnDrawFrame( &window, entityIterator );
 		}
 		window.display();
 
