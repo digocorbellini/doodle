@@ -226,7 +226,7 @@ EntityIterator::EntityIterator( const EntityID startingID )
 }
 
 
-EntityIterator EntityIterator::operator++()
+EntityIterator& EntityIterator::operator++()
 {
 	// see if we have reached end
 	if ( currEntity == INVALID_ENTITY_ID || count >= s_numEntities )

@@ -148,7 +148,7 @@ public:
 	/// See if this mask has any components set or not. 
 	/// </summary>
 	/// <returns>true if this mask has any components set and false otherwise</returns>
-	inline bool IsEmpty() 
+	inline bool IsEmpty() const
 	{ 
 		return !mask.any(); 
 	}

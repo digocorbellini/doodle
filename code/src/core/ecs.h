@@ -46,7 +46,7 @@ public:
 	/// </summary>
 	/// <returns>An EntityIterator pointing to the next entity. Will be equal to end() if
 	/// the end of the list of entities has been reached.</returns>
-	EntityIterator operator++();
+	EntityIterator& operator++();
 
 	/// <summary>
 	/// Whether two entity iterators are pointing to the same entity ID.
