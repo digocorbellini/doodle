@@ -41,7 +41,7 @@ public:
 		return hash;
 	}
 
-	const char* GetStringForHash();
+	const char* GetStringForHash() const;
 
 	inline bool operator==( const HashedString& other ) const
 	{

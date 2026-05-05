@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////
 //
-// Wrapper around SFML Sprite that uses ResourceHandle<Texture>
+// Wrapper around SFML Sprite that uses ResourcePtr<Texture>
 // instead of storing raw texture pointers. The texture pointer
 // is resolved and set just before drawing to ensure it remains
 // valid and serializable.
@@ -17,7 +17,7 @@ class SpriteRenderer : public sf::Drawable
 {
 private:
 	sf::Sprite sprite;
-	ResourceHandle<sf::Texture> textureHandle;
+	ResourcePtr<sf::Texture> textureResourcePtr;
 
 	/// <summary>
 	/// Virtual method required by sf::Drawable.
@@ -25,10 +25,9 @@ private:
 	/// </summary>
 	virtual void draw( sf::RenderTarget& target, sf::RenderStates states ) const override
 	{
-		sf::Texture* texturePtr = ResourceManager_GetResource( textureHandle );
-		if ( texturePtr )
+		if ( textureResourcePtr )
 		{
-			const_cast<sf::Sprite&>( sprite ).setTexture( *texturePtr );
+			const_cast<sf::Sprite&>( sprite ).setTexture( *textureResourcePtr );
 			target.draw( sprite, states );
 		}
 	}
@@ -37,27 +36,22 @@ public:
 	SpriteRenderer() = default;
 	
 	/// <summary>
-	/// Sets the texture for this sprite via a resource handle.
+	/// Sets the texture for this sprite via a resource pointer.
 	/// Does NOT immediately set the SFML sprite's texture pointer.
 	/// </summary>
-	/// <param name="handle">The resource handle for the texture</param>
-	void SetTexture( ResourceHandle<sf::Texture> handle )
+	/// <param name="handle">The resource pointer for the texture</param>
+	void SetTexture( ResourcePtr<sf::Texture> resourcePtr )
 	{
-		textureHandle = handle;
+		textureResourcePtr = resourcePtr;
 	}
 
 	/// <summary>
-	/// Get the texture resource handle.
+	/// Get the texture resource pointer.
 	/// </summary>
-	/// <returns>The resource handle for this sprite's texture</returns>
-	ResourceHandle<sf::Texture> GetTextureHandle() const
+	/// <returns>The resource pointer for this sprite's texture</returns>
+	ResourcePtr<sf::Texture> GetTextureResourcePtr() const
 	{
-		return textureHandle;
-	}
-
-	const sf::Texture* GetTexture() const
-	{
-		return ResourceManager_GetResource( textureHandle );
+		return textureResourcePtr;
 	}
 
 	/// <summary>

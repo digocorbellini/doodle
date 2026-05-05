@@ -1,6 +1,5 @@
 #include "common/types.h"
 #include "resource_types.h"
-#include <SFML/Graphics.hpp>
 
 using namespace sf;
 
@@ -8,7 +7,7 @@ static const char* s_resourceTypeStrings[] =
 {
 	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 
 	// current obscure string implementation which is temporary
-#define RESOURCE(X) #X,
+#define RESOURCE(X, Y) #X,
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 };
@@ -50,6 +49,6 @@ ResourceType ResourceTypes_ResourceTypeForType()
 }
 
 
-#define RESOURCE(X) template<>ResourceType ResourceTypes_ResourceTypeForType<X>() { return ResourceType::X; }
+#define RESOURCE(X, Y) template<>ResourceType ResourceTypes_ResourceTypeForType<Y>() { return ResourceType::X; }
 ALL_RESOURCE_TYPES
 #undef RESOURCE

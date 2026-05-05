@@ -208,7 +208,7 @@ bool LoadAndCacheResource<ResourceType::Texture>( const HashedString resourceHas
 
 static LoadAndCacheResourceFunctPtr s_LoadAndCacheFunctions[]
 {
-#define RESOURCE(X) LoadAndCacheResource<ResourceType::X>,
+#define RESOURCE(X, Y) LoadAndCacheResource<ResourceType::X>,
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 };

@@ -76,7 +76,10 @@ Definitely One Odd Dumb Little Engine
 
 # Process for Adding a New Resource 
 * In `resource_types.h`, add your new resource type to the `ALL_RESOURCE_TYPES` macro.
-    * The resource type name should be the same as the data type of your actual resource. So for example, for the resource type that represents a SFML `Texture`, the resource type is also `Texture`. This is due to the way in which the macro is used for code generation.
+    * Define resources using the `RESOURCES( <enum name>, <type name> )` format.
+    * The enum name and the type name should be the **same**, except if additional scoping is needed for the type (Ex: `sf::Texture`)
+        * Example: `RESOURCE(Texture, sf::Texture)`
+        * If they are not the same, some assumptions will be broken and your resource might not work.
 * In `resource_manager.cpp` under the `Private Resource Loaders` section, overload the `LoadAndCacheResource` function for your new resource type.
     * This function should load in the new resource into the heap and then cache the new resource pointer using the `CacheResource` private helper function.
     * Use the `RESOURCE_DELETOR` macro for creating a resource deleting callback function if applicable. 

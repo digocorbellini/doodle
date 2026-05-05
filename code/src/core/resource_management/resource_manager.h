@@ -13,14 +13,64 @@
 #include "common/lib/com_assert.h"
 #include "resource_manager_internal.h"
 
-template <typename T>
-struct ResourceHandle
+/// <summary>
+/// A wrapper around resource pointers which resolves the resource pointer at 
+/// access time and prevents users from storing raw pointers ensuring that
+/// resources remain valid.
+/// </summary>
+/// <typeparam name="T">The type of a resource</typeparam>
+template <ValidResource T>
+class ResourcePtr
 {
-	HashedString handle = INVALID_HASHED_STRING;
+private:
+	resource_manager_impl::ResourceHandle<T> m_handle;
 
-	inline bool IsInvalid()
+	T* Get() const
 	{
-		return handle == INVALID_HASHED_STRING;
+		if ( m_handle.IsInvalid() )
+		{
+			return nullptr;
+		}
+
+		return resource_manager_impl::ResourceManager_GetResource<T>( m_handle );
+	}
+
+public:
+	ResourcePtr() : m_handle( INVALID_HASHED_STRING ) {}
+	ResourcePtr( const resource_manager_impl::ResourceHandle<T> handle ) : m_handle( handle ) {}
+	ResourcePtr( const HashedString handle ) : m_handle( handle ) {}
+	ResourcePtr( const ResourcePtr<T>& other )
+	{
+		this->m_handle = other.m_handle;
+	}
+
+	T* operator->() const
+	{
+		T* resource = Get();
+		COM_ASSERT( resource, "[ScopedResource]: resource '%s' is not loaded\n", m_handle.handle.GetStringForHash() );
+		return resource;
+	}
+
+	T& operator*() const
+	{
+		T* resource = Get();
+		COM_ASSERT( resource, "[ScopedResource]: resource '%s' is not loaded\n", m_handle.handle.GetStringForHash() );
+		return *resource;
+	}
+
+	explicit operator bool() const
+	{
+		if ( m_handle.IsInvalid() )
+		{
+			return false;
+		}
+
+		return Get() != nullptr;
+	}
+
+	inline bool ResourceExists()
+	{
+		return bool();
 	}
 };
 
@@ -37,39 +87,3 @@ bool ResourceManager_LoadResource( const HashedString resourceHashName, const ch
 /// Unload all currently loaded resources.
 /// </summary>
 void ResourceManager_UnloadAllResources();
-
-
-/// <summary>
-/// Get a pointer to the given resource if it has been loaded.
-/// </summary>
-/// <typeparam name="T">The type of the resource. Will determine
-/// the type of the pointer</typeparam>
-/// <param name="resourcehandle">The handle which is used to identify the resource</param>
-/// <returns>A pointer of type T to the given resource if it exists and has been loaded, 
-/// otherwise returns nullptr.</returns>
-template<typename T>
-T* ResourceManager_GetResource( ResourceHandle<T> resourcehandle )
-{
-	// defined function in header due to it being templated
-
-	if ( resourcehandle.IsInvalid() )
-	{
-		return nullptr;
-	}
-	// TODO: maybe figure out a way to return a temporary resource that does not allow
-	// caching between frames, so systems have to request the resouce using the handle
-	// every frame = prevents case where user is using a pointer to a resource that has
-	// been freed / moved to another space in memory... or just don't clear the resouce
-    // from memory until the scene unloads?
-
-	const resource_manager_impl::CachedResource* resource = resource_manager_impl::GetCachedResource( resourcehandle.handle.GetHash() );
-	if ( !resource )
-	{
-		return nullptr;
-	}
-
-	COM_ASSERT( ResourceTypes_ResourceTypeForType<T>() == resource->type, "%s - resource type requested (%s) is not the same as the actual type of the resource (%s).\n", __FUNCTION__,
-				ResourceTypes_GetResourceTypeString( ResourceTypes_ResourceTypeForType<T>() ), ResourceTypes_GetResourceTypeString( resource->type ) );
-
-	return static_cast<T*>( resource->resourcePtr );
-}

@@ -141,7 +141,7 @@ void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, Sp
 		const json::string_t spriteRef = jsonSprite[VALUE_FIELD.ToStdString()];
 		if ( spriteRef.length() > 0 )
 		{
-			entityComponent->sprite.SetTexture( ResourceHandle<Texture>( HashedString( spriteRef.c_str(), spriteRef.length() ) ) );
+			entityComponent->sprite.SetTexture( ResourcePtr<Texture>( HashedString( spriteRef.c_str(), spriteRef.length() ) ) );
 		}
 	}
 

@@ -16,7 +16,7 @@ HashedString::HashedString( const char* str, const size_t strSize ) noexcept
 }
 
 
-const char* HashedString::GetStringForHash()
+const char* HashedString::GetStringForHash() const
 {
 #if IS_ENABLED( HASHED_STRING_CACHING )
 	return GetCachedStringForHash( hash );

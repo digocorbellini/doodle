@@ -31,13 +31,11 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 		HashedString poggiesHash( "poggies.png" );
 		Com_Printf( "Hash string for hash 'poggines.png': %s\n", poggiesHash.GetStringForHash() );
 		ResourceManager_LoadResource( poggiesHash, OBFUSCATED_STRING( "poggies.png" ), ResourceType::Texture );
-		Texture* poggiesTexture = ResourceManager_GetResource( ResourceHandle<sf::Texture>( poggiesHash ) );
 		ResourceType type = ResourceTypes_ResourceTypeForType<sf::Texture>();
 		Com_Printf( "TEST: resource type: %s\n", ResourceTypes_GetResourceTypeString( type ) );
 
 		if ( ResourceManager_LoadResource( HashedString( "test_dir/true.png" ), OBFUSCATED_STRING("test_dir/true.png"), ResourceType::Texture ) )
 		{
-			Texture* trueTexture = ResourceManager_GetResource( ResourceHandle<sf::Texture>( HashedString( "test_dir/true.png" ) ) );
 			Com_Printf( "LOADED TRUE\n" );
 		}
 		else
