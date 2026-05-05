@@ -63,6 +63,17 @@ public:
 };
 
 /// <summary>
+/// Token used by classes which have permission to add/remove entities without the need for a queue
+/// </summary>
+class EntityManagementToken
+{
+private:
+	EntityManagementToken() = default;
+	
+	friend class SceneLoader;
+};
+
+/// <summary>
 /// Queue up the creation of an entity with the componenets in the given mask which will 
 /// be added at the end of the frame.
 /// </summary>
@@ -84,10 +95,14 @@ bool ECS_QueueEntityRemoval( const EntityID entityID );
 /// Delete all entities in the game at once
 /// </summary>
 /// <returns>True if successful and false otherwise</returns>
-bool ECS_DeleteAllEntities();
+bool ECS_DeleteAllEntities( const EntityManagementToken& m_EntityManagementToken );
 
-// TODO: add a comment or make this private ideally
-EntityID ECS_AddEntity();
+
+/// <summary>
+/// Immediately add an entity 
+/// </summary>
+/// <returns>The entity ID of the new entity</returns>
+EntityID ECS_AddEntity( const EntityManagementToken& m_EntityManagementToken );
 
 /// <summary>
 /// Returns the components mask for the given entity. Will return INVALID_COMPONENTS_MASK

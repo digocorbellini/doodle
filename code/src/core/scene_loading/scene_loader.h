@@ -15,10 +15,18 @@
 class SceneLoader
 {
 private:
+	class EntityManagementToken m_EntityManagementToken;
+
 	EntityID GetParsingEntityID( const nlohmann::json::string_t& entityName );
 
 public:
+	SceneLoader() = default;
 
+	/// <summary>
+	/// Unload the currently active scene and load the given scene if it exists.
+	/// </summary>
+	/// <param name="sceneRef">The string referece to the scene to be loaded</param>
+	/// <returns>True if the scene is loaded successfully. False otherwise</returns>
 	bool LoadScene( const char* sceneRef );
 	
 	// TODO: need some way to load scenes async to avoid blocking game loop to load scene

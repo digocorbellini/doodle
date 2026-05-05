@@ -382,8 +382,7 @@ void* ECS_GetComponentListRaw( const ComponentType componentType )
 }
 
 
-// TODO: this should ideally be private and scene adding should be done in here
-bool ECS_DeleteAllEntities()
+bool ECS_DeleteAllEntities( const EntityManagementToken& m_EntityManagementToken )
 {
 	// TODO: add a safety check so that this can not be performed while systems are being processed.
 	// AKA: only run during scene initialization
@@ -404,8 +403,12 @@ bool ECS_DeleteAllEntities()
 }
 
 
-EntityID ECS_AddEntity()
+
+EntityID ECS_AddEntity( const EntityManagementToken& m_EntityManagementToken )
 {
+	// TODO: add a safety check so that this can not be performed while systems are being processed.
+	// AKA: only run during scene initialization
+
 	if ( s_numEntities >= MAX_ENTITIES )
 	{
 		return INVALID_ENTITY_ID;
