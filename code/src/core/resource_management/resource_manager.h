@@ -58,7 +58,7 @@ public:
 		return *resource;
 	}
 
-	explicit operator bool() const
+	inline bool ResourceExists() const
 	{
 		if ( m_handle.IsInvalid() )
 		{
@@ -68,9 +68,9 @@ public:
 		return Get() != nullptr;
 	}
 
-	inline bool ResourceExists()
+	explicit operator bool() const
 	{
-		return bool();
+		return ResourceExists();
 	}
 };
 
