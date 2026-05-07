@@ -95,14 +95,14 @@ bool ECS_QueueEntityRemoval( const EntityID entityID );
 /// Delete all entities in the game at once
 /// </summary>
 /// <returns>True if successful and false otherwise</returns>
-bool ECS_DeleteAllEntities( const EntityManagementToken& m_EntityManagementToken );
+bool ECS_ClearSceneEntities( const EntityManagementToken& m_EntityManagementToken );
 
 
 /// <summary>
 /// Immediately add an entity 
 /// </summary>
 /// <returns>The entity ID of the new entity</returns>
-EntityID ECS_AddEntity( const EntityManagementToken& m_EntityManagementToken );
+EntityID ECS_AddSceneEntity( const EntityManagementToken& m_EntityManagementToken );
 
 /// <summary>
 /// Returns the components mask for the given entity. Will return INVALID_COMPONENTS_MASK

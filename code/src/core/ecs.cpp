@@ -26,9 +26,8 @@ struct Components
 #undef COMPONENT
 };
 
-enum class EntityState : int
+enum class EntityState : Byte
 {
-
 	Available = 0,
 	Claimed,        // claimed by queue addition system 
 	Assigned,       // entity is assigned an entity ID by ecs system
@@ -63,11 +62,14 @@ struct Entity
 	}
 };
 
-struct QueuedEntityAddition
+enum class ECSState : Byte
 {
-	ComponentsMask componentsMask;
-	EntityID claimedID;
+	Inactive = 0,
+	SceneLoading,
+	ProcessingFrame,
 };
+
+static ECSState s_ecsState = ECSState::Inactive;
 
 static Entity s_entities[MAX_ENTITIES];
 static EntityID s_numEntities = 0; 
@@ -382,10 +384,12 @@ void* ECS_GetComponentListRaw( const ComponentType componentType )
 }
 
 
-bool ECS_DeleteAllEntities( const EntityManagementToken& m_EntityManagementToken )
+bool ECS_ClearSceneEntities( const EntityManagementToken& m_EntityManagementToken )
 {
-	// TODO: add a safety check so that this can not be performed while systems are being processed.
-	// AKA: only run during scene initialization
+	if ( s_ecsState != ECSState::SceneLoading )
+	{
+		return false;
+	}
 
 	for ( EntityID entityIndex = 0; entityIndex < MAX_ENTITIES && s_numEntities > 0; ++entityIndex )
 	{
@@ -404,10 +408,12 @@ bool ECS_DeleteAllEntities( const EntityManagementToken& m_EntityManagementToken
 
 
 
-EntityID ECS_AddEntity( const EntityManagementToken& m_EntityManagementToken )
+EntityID ECS_AddSceneEntity( const EntityManagementToken& m_EntityManagementToken )
 {
-	// TODO: add a safety check so that this can not be performed while systems are being processed.
-	// AKA: only run during scene initialization
+	if ( s_ecsState != ECSState::SceneLoading )
+	{
+		return INVALID_ENTITY_ID;
+	}
 
 	if ( s_numEntities >= MAX_ENTITIES )
 	{
@@ -442,6 +448,8 @@ bool ECS_IsValidEntityID( const EntityID id )
 // load scene wrapper which calls the load scene functions which return a list of entities?
 void ECS_StartGameLoop()
 {
+	COM_ASSERT( s_ecsState == ECSState::Inactive, "Game loop already in progress can not start it." );
+
 	RenderWindow window( VideoMode( s_windowSize.x, s_windowSize.y ), s_windowTitle );
 
 	// initialize clock
@@ -458,10 +466,12 @@ void ECS_StartGameLoop()
 				window.close();
 		}
 
+		s_ecsState = ECSState::SceneLoading;
 		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
 		// TODO: have to figure out how scene loader will communicate with this ECS system
 		
 		// run all systems
+		s_ecsState = ECSState::ProcessingFrame;
 		const TimePoint currentTime = SteadyClock::now();
 		const NanoSeconds deltaTimeNs = std::chrono::duration_cast<Duration>( currentTime - s_lastFrameTime ).count();
 		s_lastFrameTime = currentTime;

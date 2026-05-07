@@ -327,7 +327,7 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 	const json jsonScene = json::parse( fileBuffer );
 
 	// clear all previous scene data
-	ECS_DeleteAllEntities( m_EntityManagementToken );
+	ECS_ClearSceneEntities( m_EntityManagementToken );
 	ResourceManager_UnloadAllResources();
 
 	// load all resources for the given entity
@@ -341,7 +341,7 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 	COM_ASSERT( jsonEntitiesArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, ENTITIES_ARRAY_FIELD );
 	for ( size_t i = 0; i < jsonEntitiesArray.size(); ++i )
 	{
-		const EntityID newEntityID = ECS_AddEntity( m_EntityManagementToken );
+		const EntityID newEntityID = ECS_AddSceneEntity( m_EntityManagementToken );
 		if ( newEntityID == INVALID_ENTITY_ID )
 		{
 			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to initialize all entities from scene\n" );
