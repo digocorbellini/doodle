@@ -129,7 +129,11 @@ bool ECS_CanOperateOnEntity( const EntityID entityID );
 /// <param name="system">A pointer to the system to be registered</param>
 void ECS_RegisterSystem( class System* system );
 
-// TODO: comment this
+/// <summary>
+/// Get a void pointer to the component list for the given component type
+/// </summary>
+/// <param name="componentType"></param>
+/// <returns></returns>
 void* ECS_GetComponentListRaw( const ComponentType componentType );
 
 /// <summary>
@@ -156,13 +160,26 @@ inline T* ECS_GetComponentList( const ComponentType componentType )
 /// False otherwise.</returns>
 bool ECS_IsValidEntityID( const EntityID id );
 
-// TODO: add comment
+/// <summary>
+/// Get a pointer to the component of the given type for the given entity 
+/// </summary>
+/// <typeparam name="T">the type of the component</typeparam>
+/// <param name="entityID">a valid entity ID</param>
+/// <param name="componentType">the component type enum value</param>
+/// <returns>A pointer to the given component for the entity. Nullptr otherwise.</returns>
 template<typename T>
 inline T* ECS_GetEntityComponent( const EntityID entityID, const ComponentType componentType )
 {
 	COM_ASSERT( typeid( T ) == Components_GetComponentTypeIndex( componentType ), "Type '%s' does not match expected type '%s' for given component type '%s'\n", typeid( T ).name(), Components_GetComponentTypeIndex( componentType ).name(), Components_GetComponentTypeString( componentType ) );
 	return ECS_IsValidEntityID( entityID ) ? &( static_cast<T*>( ECS_GetComponentListRaw( componentType ) )[entityID] ) : nullptr;
 }
+
+/// <summary>
+/// Queue up a scene to be loaded at the start of the next frame. Only 1 can be queued at a time 
+/// consequitive calls to this will stomp previous queued scene.
+/// </summary>
+/// <param name="scenePath">the path to the given scene</param>
+void ECS_QueueSceneLoad( const char* scenePath );
 
 /// <summary>
 /// Start the game loop logic. The loop will handle :

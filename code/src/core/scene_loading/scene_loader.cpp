@@ -5,35 +5,36 @@
 #include "core/ecs.h"
 #include "scene_component_parsers.h"
 #include "scene_loader.h"
+#include <inttypes.h>
 #include <iostream>
 #include <fstream>
 
 using json = nlohmann::json;
 using namespace std;
 
-#define SCENE_LOADER_STR OBFUSCATED_STRING( "SceneLoader" )
+static const char* SCENE_LOADER_STR = OBFUSCATED_STRING( "SceneLoader" );
 
-#define SCENES_DIR_PATH OBFUSCATED_STRING_CONCAT( GAME_DIR_PATH, "scenes/" )
-#define ENTITY_TEMPLATES_DIR_PATH OBFUSCATED_STRING_CONCAT( GAME_DIR_PATH, "entity_templates/" )
+static const char* SCENES_DIR_PATH = GAME_DIR_PATH "scenes/";
+static const char* ENTITY_TEMPLATES_DIR_PATH = GAME_DIR_PATH "entity_templates/";
 
-#define RESOURCES_ARRAY_FIELD OBFUSCATED_STRING( "resources" )
-#define RESOURCE_NAME_FIELD OBFUSCATED_STRING( "resourceName" )
-#define RESOURCE_TYPE_FIELD OBFUSCATED_STRING( "resourceType" )
+static const char* RESOURCES_ARRAY_FIELD = OBFUSCATED_STRING( "resources" );
+static const char* RESOURCE_NAME_FIELD = OBFUSCATED_STRING( "resourceName" );
+static const char* RESOURCE_TYPE_FIELD = OBFUSCATED_STRING( "resourceType" );
 
-#define ENTITIES_ARRAY_FIELD OBFUSCATED_STRING( "entities" )
-#define ENTITY_NAME_FIELD OBFUSCATED_STRING( "entityName" )
-#define ENTITY_TEMPLATE_FIELD OBFUSCATED_STRING( "template" )
+static const char* ENTITIES_ARRAY_FIELD = OBFUSCATED_STRING( "entities" );
+static const char* ENTITY_NAME_FIELD = OBFUSCATED_STRING( "entityName" );
+static const char* ENTITY_TEMPLATE_FIELD = OBFUSCATED_STRING( "template" );
 
-#define COMPONENTS_ARRAY_FIELD OBFUSCATED_STRING( "components" )
-#define COMPONENT_NAME_FIELD OBFUSCATED_STRING( "componentName" )
-#define COMPONENT_PER_ENTITY_VALUES_ARR_FIELD OBFUSCATED_STRING( "perEntityValues" )
-#define COMPONENT_VALUES_FIELD OBFUSCATED_STRING( "values" )
-#define COMPONENT_ENTITY_NAME_FIELD OBFUSCATED_STRING( "entityName" )
+static const char* COMPONENTS_ARRAY_FIELD = OBFUSCATED_STRING( "components" );
+static const char* COMPONENT_NAME_FIELD = OBFUSCATED_STRING( "componentName" );
+static const char* COMPONENT_PER_ENTITY_VALUES_ARR_FIELD = OBFUSCATED_STRING( "perEntityValues" );
+static const char* COMPONENT_VALUES_FIELD = OBFUSCATED_STRING( "values" );
+static const char* COMPONENT_ENTITY_NAME_FIELD = OBFUSCATED_STRING( "entityName" );
 
-#define TEMPLATE_PARENT_FIELD OBFUSCATED_STRING( "parentTemplate" )
+static const char* TEMPLATE_PARENT_FIELD = OBFUSCATED_STRING( "parentTemplate" );
 
 
-static constexpr size_t MAX_PATH_LEN = 512;
+static constexpr size_t MAX_PATH_LEN = MAX_SCENE_PATH_LEN;
 static constexpr size_t MAX_FULL_PATH_LEN = MAX_PATH_LEN + 64;
 static constexpr size_t MAX_ENTITY_NAME_LEN = 256;
 
@@ -125,16 +126,16 @@ static const ParsingEntity* GetCachedParsingEntity( const json::string_t& entity
 }
 
 
-static const char* GetFullPath( const char* pathPrefix, const char* scenePath )
+static const char* GetFullPath( const char* pathPrefix, const char* path )
 {
-	if ( !pathPrefix || !scenePath )
+	if ( !pathPrefix || !path )
 	{
 		return nullptr;
 	}
 
-	COM_ASSERT( ( strlen( scenePath ) + strlen( pathPrefix ) ) < MAX_FULL_PATH_LEN, "[%s]: given scene path '%s%s' exceeds max scene path length of '%zu'\n", SCENE_LOADER_STR, pathPrefix, scenePath, MAX_FULL_PATH_LEN );
+	COM_ASSERT( ( strlen( path ) + strlen( pathPrefix ) ) < MAX_FULL_PATH_LEN, "[%s]: given scene path '%s%s' exceeds max scene path length of '%zu'\n", SCENE_LOADER_STR, pathPrefix, path, MAX_FULL_PATH_LEN );
 
-	snprintf( s_fullPath, MAX_FULL_PATH_LEN, "%s%s", pathPrefix, scenePath );
+	snprintf( s_fullPath, MAX_FULL_PATH_LEN, "%s%s", pathPrefix, path );
 	return s_fullPath;
 }
 
@@ -144,18 +145,18 @@ static void ParseAndLoadResources( const json& jsonResourcesArray )
 	for ( size_t i = 0; i < jsonResourcesArray.size(); ++i )
 	{
 		const json jsonCurrResource = jsonResourcesArray[i];
-		const json::string_t currResourceName = jsonCurrResource[RESOURCE_NAME_FIELD.ToStdString()];
-		const json::string_t currResourceTypeStr = jsonCurrResource[RESOURCE_TYPE_FIELD.ToStdString()];
+		const json::string_t currResourceName = jsonCurrResource[RESOURCE_NAME_FIELD];
+		const json::string_t currResourceTypeStr = jsonCurrResource[RESOURCE_TYPE_FIELD];
 		const ResourceType currResourceType = ResourceTypes_GetResourceTypeForString( currResourceTypeStr.c_str() );
 		if ( currResourceType == ResourceType::Invalid )
 		{
-			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "resource '%s' has invalid resource type '%s'\n", currResourceName.c_str(), currResourceTypeStr.c_str() );
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "resource '%s' has invalid resource type '%s'", currResourceName.c_str(), currResourceTypeStr.c_str() );
 			continue;
 		}
 
 		if ( !ResourceManager_LoadResource( HashedString( currResourceName.c_str(), currResourceName.length() ), currResourceName.c_str(), currResourceType ) )
 		{
-			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load resource '%s' with type '%s'\n", currResourceName.c_str(), currResourceTypeStr.c_str() );
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load resource '%s' with type '%s'", currResourceName.c_str(), currResourceTypeStr.c_str() );
 		}
 	}
 }
@@ -193,7 +194,7 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	ifstream templateFile( fullTemplatePath );
 	if ( !templateFile.is_open() )
 	{
-		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'\n", fullTemplatePath );
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'", fullTemplatePath );
 		return false;
 	}
 
@@ -213,7 +214,7 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	// TODO: have to figure out case where child overrides parent resources so have currently 
 	// the resources loaded by the parent will stay in memory and remain unused foever. Maybe template holds reference of overriden
 	// resources? OR resource manager can free resources that have no references (AKA keep a reference counter)
-	const json::string_t jsonParentTemplatePath = jsonTemplate[TEMPLATE_PARENT_FIELD.ToStdString()];
+	const json::string_t jsonParentTemplatePath = jsonTemplate[TEMPLATE_PARENT_FIELD];
 	if ( jsonParentTemplatePath.length() > 0 )
 	{
 		// TODO: need some way to detect circular references in entities so that we don't enter an infinite loop
@@ -224,14 +225,14 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	}
 
 	// load resources for template
-	const json jsonResourcesArray = jsonTemplate[RESOURCES_ARRAY_FIELD.ToStdString()];
+	const json jsonResourcesArray = jsonTemplate[RESOURCES_ARRAY_FIELD];
 	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in file [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, fullTemplatePath );
 	ParseAndLoadResources( jsonResourcesArray );
 
 	// load component values (will override parent values if applicable)
-	const json jsonComponents = jsonTemplate[COMPONENTS_ARRAY_FIELD.ToStdString()];
+	const json jsonComponents = jsonTemplate[COMPONENTS_ARRAY_FIELD];
 	const json jsonCurrComponent = jsonComponents[componentName];
-	const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD.ToStdString()];
+	const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD];
 	componentParser( entityID, jsonComponentValues, sceneLoader );
 
 	return true;
@@ -246,16 +247,18 @@ bool ParseEntityForComponent( const ComponentType componentType, const char* com
 	}
 
 	// get entity name and entity ID
-	const json::string_t entityName = jsonEntity[ENTITY_NAME_FIELD.ToStdString()];
+	const json::string_t entityName = jsonEntity[ENTITY_NAME_FIELD];
 	const ParsingEntity* parsingEntity = GetCachedParsingEntity( entityName );
 	if ( !parsingEntity )
 	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to find parsing data for entity '%s'", parsingEntity );
 		return false;
 	}
 
 	const EntityID entityID = parsingEntity->entityID;
 	if ( entityID == INVALID_ENTITY_ID )
 	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "parsing entity data for entity '%s' has invalid entity ID", parsingEntity );
 		return false;
 	}
 
@@ -265,17 +268,19 @@ bool ParseEntityForComponent( const ComponentType componentType, const char* com
 	{
 		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader ) )
 		{
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "error encountered while parsing template for component '%s' for entity '%s' with entity ID '%" PRIu64 "'", componentName, parsingEntity, entityID );
 			return false;
 		}
 	}
 
 	// load component values for entity (will override template values if applicable)
-	const json jsonComponentValues = jsonEntity[COMPONENT_VALUES_FIELD.ToStdString()];
+	const json jsonComponentValues = jsonEntity[COMPONENT_VALUES_FIELD];
 	componentParser( entityID, jsonComponentValues, sceneLoader );
 
 	// add component to entity
 	if ( !ECS_AddComponentToEntity( entityID, componentType ) )
 	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "error encountered while adding component '%s' to entity '%s' with entity ID '%" PRIu64 "'", componentName, parsingEntity, entityID );
 		return false;
 	}
 
@@ -310,7 +315,7 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 	ifstream sceneFile( fullScenePath );
 	if ( !sceneFile.is_open() )
 	{
-		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'\n", fullScenePath);
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'", fullScenePath);
 		return false;
 	}
 
@@ -331,38 +336,38 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 	ResourceManager_UnloadAllResources();
 
 	// load all resources for the given entity
-	const json jsonResourcesArray = jsonScene[RESOURCES_ARRAY_FIELD.ToStdString()];
+	const json jsonResourcesArray = jsonScene[RESOURCES_ARRAY_FIELD];
 	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD );
 	ParseAndLoadResources( jsonResourcesArray );
 
 	// initialize all entities in the scene and cache entity parsing metadata 
 	ResetCachedParsingEntities();
-	const json jsonEntitiesArray = jsonScene[ENTITIES_ARRAY_FIELD.ToStdString()];
+	const json jsonEntitiesArray = jsonScene[ENTITIES_ARRAY_FIELD];
 	COM_ASSERT( jsonEntitiesArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, ENTITIES_ARRAY_FIELD );
 	for ( size_t i = 0; i < jsonEntitiesArray.size(); ++i )
 	{
 		const EntityID newEntityID = ECS_AddSceneEntity( m_EntityManagementToken );
 		if ( newEntityID == INVALID_ENTITY_ID )
 		{
-			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to initialize all entities from scene\n" );
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to initialize all entities from scene" );
 			break;
 		}
 
 		const json jsonCurrEntity = jsonEntitiesArray[i];
-		const json::string_t currEntityName = jsonCurrEntity[ENTITY_NAME_FIELD.ToStdString()];
-		const json::string_t currTemplatePath = jsonCurrEntity[ENTITY_TEMPLATE_FIELD.ToStdString()];
+		const json::string_t currEntityName = jsonCurrEntity[ENTITY_NAME_FIELD];
+		const json::string_t currTemplatePath = jsonCurrEntity[ENTITY_TEMPLATE_FIELD];
 		
 		CacheParsingEntity( currEntityName, currTemplatePath, newEntityID );
 	}
 
 	// initialize components in all entities grouped by component type (since this is friendlier to the ECS design pattern)
-	const json jsonComponentsArray = jsonScene[COMPONENTS_ARRAY_FIELD.ToStdString()];
+	const json jsonComponentsArray = jsonScene[COMPONENTS_ARRAY_FIELD];
 	COM_ASSERT( jsonComponentsArray.is_array(), "[%s]: %s: - json field [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, COMPONENTS_ARRAY_FIELD );
 	for ( size_t componentIndex = 0; componentIndex < jsonComponentsArray.size(); ++componentIndex )
 	{
 		const json jsonCurrComp = jsonComponentsArray[componentIndex];
 
-		const json::string_t currCompName = jsonCurrComp[COMPONENT_NAME_FIELD.ToStdString()];
+		const json::string_t currCompName = jsonCurrComp[COMPONENT_NAME_FIELD];
 		const ComponentType currCompType = Components_GetComponentTypeForString( currCompName.c_str() );
 		if ( currCompType == ComponentType::Invalid )
 		{
@@ -377,13 +382,13 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 			continue;
 		}
 
-		const json jsonCurrCompEntitiesList = jsonCurrComp[COMPONENT_PER_ENTITY_VALUES_ARR_FIELD.ToStdString()];
+		const json jsonCurrCompEntitiesList = jsonCurrComp[COMPONENT_PER_ENTITY_VALUES_ARR_FIELD];
 		for ( size_t entityIndex = 0; entityIndex < jsonCurrCompEntitiesList.size(); ++entityIndex )
 		{
 			const json currEntity = jsonCurrCompEntitiesList[entityIndex];
 			if ( !ParseEntityForComponent( currCompType, currCompName.c_str(), componentTypeParsingFunct, currEntity, this ) )
 			{
-				const json::string_t currEntityName = currEntity[ENTITY_NAME_FIELD.ToStdString()];
+				const json::string_t currEntityName = currEntity[ENTITY_NAME_FIELD];
 				Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load component '%s' values for entity '%s'", currCompName.c_str(), currEntityName.c_str() );
 			}
 		}

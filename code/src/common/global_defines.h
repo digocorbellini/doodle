@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
-#include "common/lib/com_string.h"
 
 // This allows the use of #if IS_ENABLED( X ) to fail at compile time if X has not been defined instead
 // of failing silently.
@@ -22,7 +21,7 @@
 #define HASHED_STRING_CACHING REQUIRES( IS_ENABLED( DEV_BUILD ) )
 
 #if IS_ENABLED( DEV_BUILD )
-#define GAME_DIR_PATH OBFUSCATED_STRING( "../../../game/" )
+#define GAME_DIR_PATH "../../../game/"
 #else //#if IS_ENABLED( DEV_BUILD )
-#define GAME_DIR_PATH OBFUSCATED_STRING( "./game/" )
+#define GAME_DIR_PATH "./game/"
 #endif // #elif //#if IS_ENABLED( DEV_BUILD )

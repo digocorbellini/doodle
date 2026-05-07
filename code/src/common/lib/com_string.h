@@ -47,8 +47,11 @@ namespace ObfuscatedStringImpl
         // occurs at compile time
         constexpr ObfuscatedStringLiteral( const char( &str )[N] )
         {
-            for ( size_t i = 0; i < N; i++ )
+            for ( size_t i = 0; i < N - 1; i++ )
+            {
                 encrypted[i] = str[i] ^ ObfuscatedStringGetKey( i );
+            }
+            encrypted[N - 1] = '\0';
         }
     };
 
@@ -60,8 +63,11 @@ namespace ObfuscatedStringImpl
         // occurs at runtime
         DeobfuscatedString( const ObfuscatedStringLiteral<N>& s )
         {
-            for ( size_t i = 0; i < N; i++ )
+            for ( size_t i = 0; i < N - 1; i++ )
+            {
                 buf[i] = s.encrypted[i] ^ ObfuscatedStringGetKey( i );
+            }
+            buf[N - 1] = '\0';
         }
 
         template<size_t A, size_t B>
@@ -91,9 +97,12 @@ namespace ObfuscatedStringImpl
     }
 }
 
-// meant to obfuscate sting in memory so that it is harder to perform simple string searches
-#define OBFUSCATED_STRING( str ) ObfuscatedStringImpl::DeobfuscatedString<sizeof( str )>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
-#define OBFUSCATED_STRING_CONCAT( obfuscatedStr, str ) ObfuscatedStringImpl::ObfuscatedStringConcatHelper( obfuscatedStr, ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof( str )>( str ) )
+// meant to obfuscate sting in binary executable so that it is harder to reverse engineer
+#define OBFUSCATED_STRING( str ) \
+    []() -> const char* { \
+        static const auto deobfuscated = ObfuscatedStringImpl::DeobfuscatedString<sizeof(str)>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof(str)>(str) ); \
+        return deobfuscated; \
+    }()
 
 // ========================
 // String Helpers

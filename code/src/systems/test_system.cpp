@@ -24,9 +24,7 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 
 	if ( !haveRun )
 	{
-		SceneLoader loader;
-			
-		loader.LoadScene("test_scene.json");
+		ECS_QueueSceneLoad( OBFUSCATED_STRING( "test_scene.json" ) );
 
 		HashedString poggiesHash( "poggies.png" );
 		Com_Printf( "Hash string for hash 'poggines.png': %s\n", poggiesHash.GetStringForHash() );

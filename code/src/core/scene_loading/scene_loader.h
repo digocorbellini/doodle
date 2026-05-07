@@ -12,6 +12,8 @@
 #include <nlohmann/json.hpp>
 
 
+static constexpr size_t MAX_SCENE_PATH_LEN = 512;
+
 class SceneLoader
 {
 private:

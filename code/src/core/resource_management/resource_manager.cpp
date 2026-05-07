@@ -1,4 +1,5 @@
 #include "common/lib/com_print.h"
+#include "common/lib/com_string.h"
 #include "resource_manager.h"
 #include <SFML/Graphics.hpp>
 
@@ -6,8 +7,8 @@ using namespace std;
 using namespace sf;
 using namespace resource_manager_impl;
 
-#define RESOURCE_MANAGER_STR OBFUSCATED_STRING( "ResourceManager" )
-#define RESOURCES_DIR_PATH OBFUSCATED_STRING_CONCAT( GAME_DIR_PATH, "resources/" )
+static const char* RESOURCE_MANAGER_STR = OBFUSCATED_STRING( "ResourceManager" );
+static const char* RESOURCES_DIR_PATH = GAME_DIR_PATH "resources/";
 
 #define RESOURCE_DELETOR(T) [](void* ptr){ delete static_cast<T*>(ptr); }
 

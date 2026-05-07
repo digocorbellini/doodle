@@ -1,4 +1,5 @@
 #include "common/lib/com_print.h"
+#include "common/lib/com_string.h"
 #include "core/resource_management/resource_manager.h"
 #include "scene_component_parsers.h"
 #include "scene_loader.h"
@@ -11,7 +12,7 @@ using json = nlohmann::json;
 // Parsing Helper Macros
 // ==================================
 
-#define VALUE_FIELD OBFUSCATED_STRING( "val" )
+static const char* VALUE_FIELD = OBFUSCATED_STRING( "val" );
 
 
 // parsing logic for 1 to 1 mappings of simple data types
@@ -21,7 +22,7 @@ using json = nlohmann::json;
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
 	{\
 		const json jsonObj = jsonComponentValues[fieldNameStr];\
-		const decltype( entityComponent->structDestName ) value = jsonObj[VALUE_FIELD.ToStdString()];\
+		const decltype( entityComponent->structDestName ) value = jsonObj[VALUE_FIELD];\
 		entityComponent->structDestName = value;\
 	}\
 }
@@ -34,7 +35,7 @@ using json = nlohmann::json;
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
 	{\
 		const json jsonObj = jsonComponentValues[fieldNameStr]; \
-		const json jsonValueArr = jsonObj[VALUE_FIELD.ToStdString()]; \
+		const json jsonValueArr = jsonObj[VALUE_FIELD]; \
 		if ( jsonValueArr.size() == 2 )\
 		{\
 			entityComponent->structDestName.x = jsonValueArr[0];\
@@ -51,7 +52,7 @@ using json = nlohmann::json;
 	if ( jsonComponentValues.contains( fieldNameStr ) )\
 	{\
 		const json jsonObj = jsonComponentValues[fieldNameStr]; \
-		const json::string_t entityName = jsonObj[VALUE_FIELD.ToStdString()]; \
+		const json::string_t entityName = jsonObj[VALUE_FIELD]; \
 		if ( entityName.length() > 0 )\
 		{\
 			EntityID entityID = sceneLoader->GetParsingEntityID( entityName ); \
@@ -67,19 +68,18 @@ using json = nlohmann::json;
 
 #define COMPONENT(X) \
 void ComponentParser_##X##ParsingWrapper( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader ) \
-{ \
+{\
 	if ( !ECS_IsValidEntityID( entityID ) )\
 	{\
 		return;\
 	}\
 \
-	X* componentList = ECS_GetComponentList<X>( ComponentType::X );\
-	if ( !componentList )\
+	X* entityComponent = ECS_GetEntityComponent<X>( entityID, ComponentType::X );\
+	if ( !entityComponent )\
 	{\
 		return;\
 	}\
 \
-	X* entityComponent = &componentList[entityID];\
 	ComponentParser_##X##Parser( jsonComponentValues, entityComponent, sceneLoader );\
 }
 COMPONENT_LIST
@@ -92,7 +92,7 @@ static ComponentParser_ParserFunctPtr s_ParserFunctsList[] =
 	COMPONENT_LIST
 #undef COMPONENT
 };
-static_assert( ARRAY_SIZE( s_ParserFunctsList ) == GetUndelyingEnumVal(ComponentType::Count) );
+static_assert( ARRAY_SIZE( s_ParserFunctsList ) == GetUndelyingEnumVal( ComponentType::Count ) );
 
 
 // ==================================
@@ -138,7 +138,7 @@ void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, Sp
 	if ( jsonComponentValues.contains( spriteField ) )
 	{
 		const json jsonSprite = jsonComponentValues[spriteField];
-		const json::string_t spriteRef = jsonSprite[VALUE_FIELD.ToStdString()];
+		const json::string_t spriteRef = jsonSprite[VALUE_FIELD];
 		if ( spriteRef.length() > 0 )
 		{
 			entityComponent->sprite.SetTexture( ResourcePtr<Texture>( HashedString( spriteRef.c_str(), spriteRef.length() ) ) );

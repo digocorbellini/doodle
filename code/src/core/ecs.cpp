@@ -1,10 +1,16 @@
 #include "ecs.h"
 #include <chrono>
 #include <cinttypes>
-#include "common/lib/com_print.h"
 #include "common/lib/com_assert.h"
+#include "common/lib/com_print.h"
+#include "common/lib/com_string.h"
+#include "core/scene_loading/scene_loader.h"
 #include "core/system.h"
+#include "string.h"
 
+static const char* ECS_SYSTEM_NAME = OBFUSCATED_STRING( "ECS" );
+
+using namespace std;
 using namespace sf;
 using SteadyClock = std::chrono::steady_clock;
 using TimePoint = SteadyClock::time_point;
@@ -93,6 +99,10 @@ static TimePoint s_lastFrameTime;
 static uint64_t s_numEntitiesQueuedForAddition;
 static uint64_t s_numEntitiesQueuedForDeletion;
 
+static SceneLoader s_sceneLoader;
+static char s_currentSceneName[MAX_SCENE_PATH_LEN] = { 0 };
+static char s_sceneToLoad[MAX_SCENE_PATH_LEN] = { 0 };
+
 //// TODO: maybe handle window logic in a separate file? Maybe can't
 //// because it has to be handled by the game loop? Could be its own set
 //// of static functions in a window.cpp file?
@@ -143,6 +153,27 @@ static void ProcessEntityCreationAndDeletion()
 			--s_numEntitiesQueuedForDeletion;
 		}
 	}
+}
+
+
+static void ProcessSceneQueue()
+{
+	COM_ASSERT( s_ecsState == ECSState::SceneLoading, "attempted to process scene while ECS state is not SceneLoading. Current state: %hhu\n", GetUndelyingEnumVal( s_ecsState ) );
+	if ( Com_StrEmpty( s_sceneToLoad ) )
+	{
+		return;
+	}
+
+	if ( !s_sceneLoader.LoadScene( s_sceneToLoad ) )
+	{
+		Com_PrintfErrorVerbose( ECS_SYSTEM_NAME, "failed to load scene '%s'", s_sceneToLoad );
+		memset( s_sceneToLoad, 0, ARRAY_SIZE( s_sceneToLoad ) );
+		return;
+	}
+
+	strncpy_s( s_currentSceneName, s_sceneToLoad, MAX_SCENE_PATH_LEN );
+	memset( s_sceneToLoad, 0, ARRAY_SIZE( s_sceneToLoad ) );
+	Com_PrintfVerbose( ECS_SYSTEM_NAME, "successfully loaded queued scene '%s'", s_currentSceneName);
 }
 
 
@@ -442,10 +473,13 @@ bool ECS_IsValidEntityID( const EntityID id )
 }
 
 
-// TODO: have to figure out how scene loader will mass unload entities + mass load in entities 
-// in respect to game loop. Might have to integrate it somehow into the start of a frame
-// (clear entity list + add new list of entities as a whole). Maybe have a 
-// load scene wrapper which calls the load scene functions which return a list of entities?
+void ECS_QueueSceneLoad( const char* scenePath )
+{
+	COM_ASSERT( strlen( scenePath ) < MAX_SCENE_PATH_LEN - 1, "Scene path '%s' is too long. Max len: %zu\n", scenePath, MAX_SCENE_PATH_LEN - 1 );
+	strncpy_s( s_sceneToLoad, scenePath, MAX_SCENE_PATH_LEN );
+}
+
+
 void ECS_StartGameLoop()
 {
 	COM_ASSERT( s_ecsState == ECSState::Inactive, "Game loop already in progress can not start it." );
@@ -466,9 +500,9 @@ void ECS_StartGameLoop()
 				window.close();
 		}
 
+		// load new scene if needed
 		s_ecsState = ECSState::SceneLoading;
-		// - TODO: handle scenes AKA initialize new scene if applicable AKA clear entities list and fill in new entities
-		// TODO: have to figure out how scene loader will communicate with this ECS system
+		ProcessSceneQueue();
 		
 		// run all systems
 		s_ecsState = ECSState::ProcessingFrame;
