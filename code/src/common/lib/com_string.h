@@ -20,15 +20,8 @@ namespace ObfuscatedStringImpl
     // in order to obfuscate strings in memory
     ////////////////////////////////////////////////////////////
 
-    // seed derived from compile time so the key changes each build
-    static constexpr size_t OBFUSCATED_STRING_SEED =
-        ( __TIME__[0] - '0' ) * 100000 +
-        ( __TIME__[1] - '0' ) * 10000 +
-        ( __TIME__[3] - '0' ) * 1000 +
-        ( __TIME__[4] - '0' ) * 100 +
-        ( __TIME__[6] - '0' ) * 10 +
-        ( __TIME__[7] - '0' );
-
+    //change seed if strings are decrypted 
+    static constexpr size_t OBFUSCATED_STRING_SEED = 1234;
     static constexpr size_t KNUTH_CONSTANT = 2654435761ULL;
     static constexpr size_t CHAR_BITMASK = 0xFF;
 
@@ -40,12 +33,12 @@ namespace ObfuscatedStringImpl
     }
 
     template<size_t N>
-    struct ObfuscatedStringLiteral
+    struct ObfuscatedString
     {
         char encrypted[N] = { 0 };
 
         // occurs at compile time
-        constexpr ObfuscatedStringLiteral( const char( &str )[N] )
+        constexpr ObfuscatedString( const char( &str )[N] )
         {
             for ( size_t i = 0; i < N - 1; i++ )
             {
@@ -61,7 +54,7 @@ namespace ObfuscatedStringImpl
         char buf[N] = { 0 };
 
         // occurs at runtime
-        DeobfuscatedString( const ObfuscatedStringLiteral<N>& s )
+        DeobfuscatedString( const ObfuscatedString<N>& s )
         {
             for ( size_t i = 0; i < N - 1; i++ )
             {
@@ -70,37 +63,18 @@ namespace ObfuscatedStringImpl
             buf[N - 1] = '\0';
         }
 
-        template<size_t A, size_t B>
-        DeobfuscatedString( const DeobfuscatedString<A>& a, const DeobfuscatedString<B>& b )
-        {
-            static_assert( A + B - 1 == N, "Buffer size mismatch" );
-            memcpy( buf, a.buf, A - 1 );           // copy a without null terminator
-            memcpy( buf + A - 1, b.buf, B );       // copy b including null terminator
-        }
-
-        operator const char* ( ) const
+        operator const char* () const
         {
             return buf;
         }
-
-        std::string ToStdString() const
-        {
-            return std::string( buf );
-        }
     };
-
-    template<size_t A, size_t B>
-    DeobfuscatedString<A + B - 1> ObfuscatedStringConcatHelper( const DeobfuscatedString<A>& a, const ObfuscatedStringLiteral<B>& b )
-    {
-        // -1 in order to ignore 1 of the 2 null terminators 
-        return DeobfuscatedString<A + B - 1>( a, DeobfuscatedString<B>( b ) );
-    }
 }
 
-// meant to obfuscate sting in binary executable so that it is harder to reverse engineer
+// meant to obfuscate string in binary executable
 #define OBFUSCATED_STRING( str ) \
     []() -> const char* { \
-        static const auto deobfuscated = ObfuscatedStringImpl::DeobfuscatedString<sizeof(str)>( ObfuscatedStringImpl::ObfuscatedStringLiteral<sizeof(str)>(str) ); \
+        static constexpr ObfuscatedStringImpl::ObfuscatedString<sizeof(str)> encrypted( str ); \
+        static const ObfuscatedStringImpl::DeobfuscatedString<sizeof(str)> deobfuscated( encrypted ); \
         return deobfuscated; \
     }()
 
