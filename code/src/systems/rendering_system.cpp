@@ -15,7 +15,7 @@ static RenderingSystem s_renderingSystem;
 void CenterOrigin( SpriteRenderer* spriteRend )
 {
 	const ResourcePtr<Texture> textureResource = spriteRend->GetTextureResourcePtr();
-	spriteRend->SetOrigin( textureResource->getSize().x / 2, textureResource->getSize().y / 2 );
+	spriteRend->SetOrigin( textureResource->getSize().x / 2.0f, textureResource->getSize().y / 2.0f );
 }
 
 
