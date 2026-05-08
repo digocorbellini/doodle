@@ -122,5 +122,8 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\lib\math\vector_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
