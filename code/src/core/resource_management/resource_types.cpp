@@ -1,3 +1,4 @@
+#include "common/lib/com_string.h"
 #include "common/types.h"
 #include "resource_types.h"
 
@@ -5,9 +6,7 @@ using namespace sf;
 
 static const char* s_resourceTypeStrings[] =
 {
-	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 
-	// current obscure string implementation which is temporary
-#define RESOURCE(X, Y) #X,
+#define RESOURCE(X, Y) OBFUSCATED_STRING( #X ),
 	ALL_RESOURCE_TYPES
 #undef RESOURCE
 };

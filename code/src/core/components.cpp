@@ -1,14 +1,13 @@
 #include "components.h"
 #include "common/lib/com_array.h"
+#include "common/lib/com_string.h"
 
 using namespace std;
 using namespace sf;
 
 static const char* s_componentTypeStrings[] =
 {
-	// TODO: figure out how to obscure these strings... maybe do it by having static versions of each instead of 
-	// current obscure string implementation which is temporary
-#define COMPONENT(X) #X,
+#define COMPONENT(X) OBFUSCATED_STRING( #X ),
 	COMPONENT_LIST
 #undef COMPONENT
 };
