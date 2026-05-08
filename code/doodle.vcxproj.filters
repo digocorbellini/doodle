@@ -116,5 +116,11 @@
     <ClInclude Include="src\systems\rendering_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\lib\data_structures\fixed_heap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
