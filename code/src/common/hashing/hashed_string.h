@@ -68,9 +68,14 @@ public:
 constexpr HashedString INVALID_HASHED_STRING = { 0 };
 
 
+#if IS_ENABLED( HASHED_STRING_CACHING )
+#define STATIC_HASHED_STRING( str ) HashedString( str )
+#else // #if IS_ENABLED( HASHED_STRING_CACHING )
 // static compile time string which is onfuscated in binary
 #define STATIC_HASHED_STRING( str ) \
     []() -> HashedString { \
         static constexpr HashedString hashedStr( str ); \
         return hashedStr; \
     }()
+#endif // #else // #if IS_ENABLED( HASHED_STRING_CACHING )
+
