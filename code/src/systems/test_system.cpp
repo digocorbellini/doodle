@@ -24,15 +24,17 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 
 	if ( !haveRun )
 	{
-		ECS_QueueSceneLoad( OBFUSCATED_STRING( "test_scene.json" ) );
+		const char* testScenename = OBFUSCATED_STRING( "test_scene.json" );
+		ECS_QueueSceneLoad( testScenename );
 
-		HashedString poggiesHash( "poggies.png" );
+		const HashedString poggiesHash = STATIC_HASHED_STRING( "poggies.png" );
 		Com_Printf( "Hash string for hash 'poggines.png': %s\n", poggiesHash.GetStringForHash() );
 		ResourceManager_LoadResource( poggiesHash, OBFUSCATED_STRING( "poggies.png" ), ResourceType::Texture );
 		ResourceType type = ResourceTypes_ResourceTypeForType<sf::Texture>();
 		Com_Printf( "TEST: resource type: %s\n", ResourceTypes_GetResourceTypeString( type ) );
 
-		if ( ResourceManager_LoadResource( HashedString( "test_dir/true.png" ), OBFUSCATED_STRING("test_dir/true.png"), ResourceType::Texture ) )
+		const HashedString trueHash = STATIC_HASHED_STRING( "test_dir/true.png" );
+		if ( ResourceManager_LoadResource( trueHash , OBFUSCATED_STRING("test_dir/true.png"), ResourceType::Texture ) )
 		{
 			Com_Printf( "LOADED TRUE\n" );
 		}
@@ -40,7 +42,7 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 		{
 			Com_Printf( "Failed to load true\n" );
 		}
-		Com_Printf( OBFUSCATED_STRING( "Hash string for hash 'test_dir/true.png': %s\n"), HashedString( "test_dir/true.png" ).GetStringForHash());
+		Com_Printf( OBFUSCATED_STRING( "Hash string for hash 'test_dir/true.png': %s\n"), trueHash.GetStringForHash());
 
 
 		haveRun = true;
