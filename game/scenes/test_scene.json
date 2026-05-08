@@ -32,7 +32,7 @@
                             "fieldType": "vector2"
                         },
                         "scale": {
-                            "val": [0.2, 0.1],
+                            "val": [0.5, 0.1],
                             "fieldType": "vector2"
                         }
                     }
@@ -70,7 +70,7 @@
                             "fieldType": "int"
                         },
                         "isXFlipped": {
-                            "val": false,
+                            "val": true,
                             "fieldType": "bool"
                         },
                         "isYFlipped": {
@@ -87,8 +87,10 @@
                     "entityName": "template_override_values",
                     "values": {
                         "renderingOrder": {
-                            "val": 0,
-                            "fieldType": "int"
+                            "val": 100
+                        },
+                        "isXFlipped": {
+                            "val": false
                         }
                     }
                 },
@@ -96,8 +98,7 @@
                     "entityName": "using_template",
                     "values": {
                         "renderingOrder": {
-                            "val": 11,
-                            "fieldType": "int"
+                            "val": 11
                         }
                     }
                 }

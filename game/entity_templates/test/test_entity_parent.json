@@ -31,7 +31,7 @@
                     "fieldType": "int"
                 },
                 "hasCenteredOrigin": {
-                    "val": false,
+                    "val": true,
                     "fieldType": "bool"
                 },
                 "isXFlipped": {

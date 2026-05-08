@@ -186,7 +186,7 @@ struct PhysicsBody2D
 
 struct SpriteRenderer2D
 {
-	SpriteRenderer sprite; // TODO: the texture resource is stored in this sprite
+	SpriteRenderer sprite;
 	int renderingOrder;
 
 	bool hasCenteredOrigin;

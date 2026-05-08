@@ -2,6 +2,7 @@
 #include "common/lib/data_structures/fixed_skip_list.h"
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
+#include "common/lib/math/vector_math.h"
 #include "sprite_2d_rendering_system.h"
 
 using namespace sf;
@@ -59,7 +60,6 @@ void Sprite2DRenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator 
 			continue;
 		}
 
-		// TODO: eventually have to take into account x and y flipping and rendering order but for now lets just get it on the screen somehow
 		if ( currRend->hasCenteredOrigin )
 		{
 			CenterOrigin( &currRend->sprite );
@@ -68,8 +68,12 @@ void Sprite2DRenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator 
 		{
 			currRend->sprite.SetOrigin( 0, 0 );
 		}
-		// TODO: potentially set origin offset
-		currRend->sprite.SetScale( currTransform->scale );
+
+		// apply scale and flip sprite X or Y
+		const Vector2f flippingVector = Vector2f( currRend->isXFlipped ? -1 : 1, currRend->isYFlipped ? -1 : 1 );
+		currRend->sprite.SetScale( Vec2Math::Scale( currTransform->scale, flippingVector ) );
+
+		// apply sprite position in world
 		currRend->sprite.SetPosition( currTransform->position );
 
 		// add sprite to rendering queue to draw later
