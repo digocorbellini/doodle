@@ -2,7 +2,7 @@
 #include "common/lib/data_structures/fixed_skip_list.h"
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
-#include "rendering_system.h"
+#include "sprite_2d_rendering_system.h"
 
 using namespace sf;
 
@@ -14,11 +14,11 @@ struct RenderingOrderComp
 	}
 };
 
-static const char* RENDERING_SYSTEM_NAME = OBFUSCATED_STRING( "RenderingSystem" );
+static const char* RENDERING_SYSTEM_NAME = OBFUSCATED_STRING( "Sprite2DRenderingSystem" );
 
 static const ComponentsMask RENDERING_SYSTEM_COMP_MASK( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } );
 static FixedSkipList<SpriteRenderer2D*, MAX_ENTITIES, 6, RenderingOrderComp> s_sortedRenderingOrder;
-static RenderingSystem s_renderingSystem;
+static Sprite2DRenderingSystem s_renderingSystem;
 
 // ==================
 // Private Helpers
@@ -35,7 +35,7 @@ void CenterOrigin( SpriteRenderer* spriteRend )
 // Public Methods
 // ==================
 
-void RenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIterator )
+void Sprite2DRenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIterator )
 {
 	for ( EntityIterator itr = entityIterator; itr != entityIterator.end(); ++itr )
 	{

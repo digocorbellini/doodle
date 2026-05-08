@@ -48,7 +48,7 @@
     <ClCompile Include="src\core\scene_loading\scene_component_parsers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\systems\rendering_system.cpp">
+    <ClCompile Include="src\systems\sprite_2d_rendering_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,7 +113,7 @@
     <ClInclude Include="src\core\scene_loading\scene_component_parsers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\systems\rendering_system.h">
+    <ClInclude Include="src\systems\sprite_2d_rendering_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\lib\data_structures\fixed_heap.h">
