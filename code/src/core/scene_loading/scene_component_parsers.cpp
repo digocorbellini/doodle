@@ -133,7 +133,6 @@ void ComponentParser_PhysicsBody2DParser( const json& jsonComponentValues, Physi
 
 void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, SpriteRenderer2D* entityComponent, SceneLoader* sceneLoader )
 {
-	// TODO: see if I can make a resource parsing helper
 	const char* spriteField = OBFUSCATED_STRING( "sprite" );
 	if ( jsonComponentValues.contains( spriteField ) )
 	{
