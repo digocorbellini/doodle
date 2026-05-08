@@ -11,8 +11,6 @@
 
 class SceneLoader;
 
-// TODO: potentially make scene loader const everywhere here?
-
 typedef void ( *ComponentParser_ParserFunctPtr ) ( const EntityID entityID, const nlohmann::json& jsonComponentValues, SceneLoader* sceneLoader );
 
 ComponentParser_ParserFunctPtr ComponentParser_GetParserForType( ComponentType componentType );

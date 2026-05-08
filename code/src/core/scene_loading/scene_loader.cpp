@@ -220,7 +220,7 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 		// TODO: need some way to detect circular references in entities so that we don't enter an infinite loop
 		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) )
 		{
-			// TODO: print some sort of error or something? maybe not worth it to return false? 
+			// TODO: print some sort of error or something?
 		}
 	}
 
