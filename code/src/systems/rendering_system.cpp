@@ -1,12 +1,24 @@
 #include "core/components.h"
+#include "common/lib/data_structures/fixed_skip_list.h"
+#include "common/lib/com_print.h"
+#include "common/lib/com_string.h"
 #include "rendering_system.h"
 
 using namespace sf;
 
+struct RenderingOrderComp
+{
+	constexpr bool operator()(const SpriteRenderer2D * left, const SpriteRenderer2D * right) const
+	{
+		return left->renderingOrder < right->renderingOrder;
+	}
+};
+
+static const char* RENDERING_SYSTEM_NAME = OBFUSCATED_STRING( "RenderingSystem" );
+
 static const ComponentsMask RENDERING_SYSTEM_COMP_MASK( { ComponentType::SpriteRenderer2D, ComponentType::EntityTransform2D } );
-
+static FixedSkipList<SpriteRenderer2D*, MAX_ENTITIES, 6, RenderingOrderComp> s_sortedRenderingOrder;
 static RenderingSystem s_renderingSystem;
-
 
 // ==================
 // Private Helpers
@@ -59,6 +71,20 @@ void RenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIt
 		// TODO: potentially set origin offset
 		currRend->sprite.SetScale( currTransform->scale );
 		currRend->sprite.SetPosition( currTransform->position );
-		window->draw( currRend->sprite );
+
+		// add sprite to rendering queue to draw later
+		if ( !s_sortedRenderingOrder.Insert( currRend ) )
+		{
+			COM_ALWAYS_ASSERT( "[%s]: exceeded rendering order heap size during draw frame. Max buffer size: %zu\n", RENDERING_SYSTEM_NAME, s_sortedRenderingOrder.Capacity() );
+			break;
+		}
 	}
+
+	// draw sprites following rendering order (higher order means draw later)
+	for ( auto itr = s_sortedRenderingOrder.begin(); itr != s_sortedRenderingOrder.end(); ++itr )
+	{
+		const SpriteRenderer2D* currSpriteRend = *itr;
+		window->draw( currSpriteRend->sprite );
+	}
+	s_sortedRenderingOrder.Clear();
 }

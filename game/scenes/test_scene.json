@@ -47,7 +47,11 @@
                 },
                 {
                     "entityName": "using_template",
-                    "values": {}
+                    "values": {
+                        "position": {
+                            "val": [100, 100]
+                        }
+                    }
                 }
             ]
         },
@@ -62,7 +66,7 @@
                             "fieldType": "resource"
                         },
                         "renderingOrder": {
-                            "val": 0,
+                            "val": 10,
                             "fieldType": "int"
                         },
                         "isXFlipped": {
@@ -81,11 +85,21 @@
                 },
                 {
                     "entityName": "template_override_values",
-                    "values": {}
+                    "values": {
+                        "renderingOrder": {
+                            "val": 0,
+                            "fieldType": "int"
+                        }
+                    }
                 },
                 {
                     "entityName": "using_template",
-                    "values": {}
+                    "values": {
+                        "renderingOrder": {
+                            "val": 11,
+                            "fieldType": "int"
+                        }
+                    }
                 }
             ]
         }
