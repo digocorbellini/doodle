@@ -113,7 +113,12 @@ EntityID ECS_AddSceneEntity( const EntityManagementToken& m_EntityManagementToke
 /// otherwise returns INVALID_COMPONENTS_MASK</returns>
 const ComponentsMask ECS_GetEntityComponentsMask( const EntityID entityID );
 
-// TODO: add a way to modify entity component mask (adding/removing components)
+/// <summary>
+/// Add the given component to the entities component mask
+/// </summary>
+/// <param name="entityID">The entity ID for the entity to modify</param>
+/// <param name="component">The component type to add to the component mask</param>
+/// <returns>True if the component mask for the entity was modified with the given component, otherwise false</returns>
 bool ECS_AddComponentToEntity( const EntityID entityID, const ComponentType component );
 
 /// <summary>
