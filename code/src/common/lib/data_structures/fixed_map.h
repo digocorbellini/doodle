@@ -111,9 +111,9 @@ public:
 		return true;
 	}
 
-	const ValType* Get( const KeyType& key )
+	ValType* Get( const KeyType& key )
 	{
-		const Entry* entry = getEntry( key );
+		Entry* entry = getEntry( key );
 		if ( !entry )
 		{
 			return nullptr;
@@ -122,7 +122,7 @@ public:
 		return &entry->val;
 	}
 
-	const ValType* operator[]( const KeyType& key )
+	ValType* operator[]( const KeyType& key )
 	{
 		return Get( key );
 	}
