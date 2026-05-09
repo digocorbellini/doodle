@@ -147,6 +147,11 @@ public:
 		return m_count;
 	}
 
+	size_t Capacity() const
+	{
+		return N;
+	}
+
 	bool IsFull() const
 	{
 		return m_count == N;
@@ -160,22 +165,58 @@ public:
 
 namespace FixedMapStringKeyImpl
 {
+	template<size_t N>
+	struct FixedString
+	{
+		char str[N] = { 0 };
+
+		FixedString() = default;
+
+		FixedString( const char* other )
+		{
+			strncpy_s( str, other, N );
+		}
+
+		FixedString( const FixedString& other )
+		{
+			FixedString( other.str );
+		}
+
+		size_t Length() const
+		{
+			return N;
+		}
+
+		bool operator==( const FixedString<N>& other ) const
+		{
+			return std::strncmp( str, other.str, N ) == 0;
+		}
+
+		FixedString& operator=( const FixedString& other )
+		{
+			strncpy_s( str, other.str, N );
+			return *this;
+		}
+	};
+
+	template<size_t N>
 	struct Hash
 	{
-		size_t operator()( const char* str ) const
+		size_t operator()( const FixedString<N>& str ) const
 		{
-			return static_cast<size_t>( FNV1A_64_Hash( str, std::strlen( str ) ) );
+			return static_cast<size_t>( FNV1A_64_Hash( str.str, str.Length() ) );
 		}
 	};
 	
+	template<size_t N>
 	struct Equals
 	{
-		bool operator()( const char* a, const char* b ) const
+		bool operator()( const FixedString<N>& a, const FixedString<N>& b ) const
 		{
-			return std::strcmp( a, b ) == 0;
+			return a == b;
 		}
 	};
 }
 
-template<class ValType, size_t N>
-using FixedMapStringKey = FixedMap<const char*, ValType, N, FixedMapStringKeyImpl::Hash, FixedMapStringKeyImpl::Equals>;
+template<class ValType, size_t strSize, size_t N>
+using FixedMapStringKey = FixedMap<FixedMapStringKeyImpl::FixedString<strSize>, ValType, N, FixedMapStringKeyImpl::Hash<strSize>, FixedMapStringKeyImpl::Equals<strSize>>;
