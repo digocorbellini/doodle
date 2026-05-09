@@ -98,6 +98,40 @@ public:
 		return false;
 	}
 
+	ValType* InsertKey( const KeyType& key )
+	{
+		if ( m_count == N )
+		{
+			return nullptr;
+		}
+
+		// see if key already exists
+		Entry* existingEntry = getEntry( key );
+		if ( existingEntry )
+		{
+			return nullptr;
+		}
+
+		// insert a new entry
+		const size_t hash = m_hash( key );
+		const size_t hashIndex = hash % N;
+		for ( size_t i = 0; i < N; ++i )
+		{
+			const size_t currIndex = ( hashIndex + i ) % N;
+			Entry* currEntry = &m_buffer[currIndex];
+			if ( currEntry->state != EntryState::Claimed )
+			{
+				currEntry->state = EntryState::Claimed;
+				currEntry->key = key;
+				++m_count;
+
+				return &currEntry->val;
+			}
+		}
+
+		return nullptr;
+	}
+
 	bool Remove( const KeyType& key )
 	{
 		Entry* entry = getEntry(key);
