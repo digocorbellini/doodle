@@ -1,6 +1,7 @@
 #include "common/lib/com_assert.h"
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
+#include "common/lib/data_structures/fixed_map.h"
 #include "common/hashing/hash.h"
 #include "core/ecs.h"
 #include "scene_component_parsers.h"
@@ -33,29 +34,40 @@ static const char* COMPONENT_ENTITY_NAME_FIELD = OBFUSCATED_STRING( "entityName"
 
 static const char* TEMPLATE_PARENT_FIELD = OBFUSCATED_STRING( "parentTemplate" );
 
-
 static constexpr size_t MAX_PATH_LEN = MAX_SCENE_PATH_LEN;
 static constexpr size_t MAX_FULL_PATH_LEN = MAX_PATH_LEN + 64;
 static constexpr size_t MAX_ENTITY_NAME_LEN = 256;
 
 struct ParsingEntity
 {
-	char entityName[MAX_ENTITY_NAME_LEN] = { 0 };
 	char templatePath[MAX_PATH_LEN] = { 0 };
 	EntityID entityID = INVALID_ENTITY_ID;
 
-	void Reset()
+	ParsingEntity() = default;
+
+	ParsingEntity( const char* templatePath, const EntityID entityID )
 	{
-		memset( entityName, 0, ARRAY_SIZE( entityName ) );
-		memset( templatePath, 0, ARRAY_SIZE( templatePath ) );
-		entityID = INVALID_ENTITY_ID;
+		strcpy_s( this->templatePath, templatePath );
+		this->entityID = entityID;
+	}
+
+	ParsingEntity( const ParsingEntity& other )
+	{
+		ParsingEntity( other.templatePath, other.entityID );
+	}
+
+	ParsingEntity& operator=( const ParsingEntity& other )
+	{
+		strcpy_s( templatePath, other.templatePath );
+		entityID = other.entityID;
+		return *this;
 	}
 };
 
 // TODO: maybe only have this memory instantiated when scene loading is needed instead of making it global and static all the 
 // time? Maybe make it part of the SceneLoader object? Or place this in the SceneLoader object and then we only initialize the
 // scene loader on the stack so that this memory is freed whenever the scene loader goes out of scope?
-static ParsingEntity s_entitiesMap[MAX_ENTITIES];
+static FixedMapStringKey<ParsingEntity, MAX_ENTITY_NAME_LEN, MAX_ENTITIES> s_parsingEntitiesMap;
 
 static char s_fullPath[MAX_FULL_PATH_LEN];
 
@@ -66,10 +78,7 @@ static char s_fullPath[MAX_FULL_PATH_LEN];
 
 static void ResetCachedParsingEntities()
 {
-	for ( size_t i = 0; i < ARRAY_SIZE( s_entitiesMap ); ++i )
-	{
-		s_entitiesMap[i].Reset();
-	}
+	s_parsingEntitiesMap.Clear();
 }
 
 
@@ -83,25 +92,9 @@ static bool CacheParsingEntity( const json::string_t& entityName, const json::st
 		return false;
 	}
 
-	const uint64_t hash = FNV1A_64_Hash( entityName.c_str(), entityName.length() );
-	const size_t arrSize = ARRAY_SIZE( s_entitiesMap );
-	const size_t hashIndex = hash % arrSize;
-	for ( size_t i = 0; i < arrSize; ++i )
-	{
-		const size_t currIndex = ( hashIndex + i ) % arrSize;
-		ParsingEntity* currParsingEntity = &s_entitiesMap[currIndex];
-		if ( currParsingEntity->entityID == INVALID_ENTITY_ID )
-		{
-			currParsingEntity->entityID = entityID;
-			memcpy( currParsingEntity->entityName, entityName.c_str(), MAX_ENTITY_NAME_LEN );
-			memcpy( currParsingEntity->templatePath, templatePath.c_str(), MAX_PATH_LEN );
+	COM_ASSERT( !s_parsingEntitiesMap.IsFull(), "[%s]: %s - unable to cache parsing entity due to map being full. Max entities: %zu\n", SCENE_LOADER_STR, __FUNCTION__, s_parsingEntitiesMap.Capacity() );
 
-			return true;
-		}
-	}
-
-	COM_ALWAYS_ASSERT( "[%s]: %s - unable to cache parsing entity due to map being full. Max entities: %zu\n", SCENE_LOADER_STR, __FUNCTION__, MAX_ENTITIES );
-	return false;
+	return s_parsingEntitiesMap.Insert( entityName.c_str(), ParsingEntity( templatePath.c_str(), entityID ) );
 }
 
 
@@ -109,20 +102,12 @@ static const ParsingEntity* GetCachedParsingEntity( const json::string_t& entity
 {
 	COM_ASSERT( entityName.length() <= MAX_ENTITY_NAME_LEN, "[%s]: %s - entity name exceeds max entity name length. %zu > %zu\n", SCENE_LOADER_STR, __FUNCTION__, entityName.length(), MAX_ENTITY_NAME_LEN );
 
-	const uint64_t hash = FNV1A_64_Hash( entityName.c_str(), entityName.length() );
-	const size_t arrSize = ARRAY_SIZE( s_entitiesMap );
-	const size_t hashIndex = hash % arrSize;
-	for ( size_t i = 0; i < arrSize; ++i )
+	if ( Com_StrEmpty( entityName.c_str() ) )
 	{
-		const size_t currIndex = ( hashIndex + i ) % arrSize;
-		const ParsingEntity* currParsingEntity = &s_entitiesMap[currIndex];
-		if ( Com_StrEq( currParsingEntity->entityName, entityName.c_str(), MAX_ENTITY_NAME_LEN ) )
-		{
-			return currParsingEntity;
-		}
+		return nullptr;
 	}
 
-	return nullptr;
+	return s_parsingEntitiesMap[entityName.c_str()];
 }
 
 
