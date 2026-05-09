@@ -79,7 +79,7 @@ void Sprite2DRenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator 
 		// add sprite to rendering queue to draw later
 		if ( !s_sortedRenderingOrder.Insert( currRend ) )
 		{
-			COM_ALWAYS_ASSERT( "[%s]: exceeded rendering order heap size during draw frame. Max buffer size: %zu\n", RENDERING_SYSTEM_NAME, s_sortedRenderingOrder.Capacity() );
+			COM_ALWAYS_ASSERT( "[%s]: exceeded rendering order buffer size during draw frame. Max buffer size: %zu\n", RENDERING_SYSTEM_NAME, s_sortedRenderingOrder.Capacity() );
 			break;
 		}
 	}
