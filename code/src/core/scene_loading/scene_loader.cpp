@@ -37,6 +37,7 @@ static const char* TEMPLATE_PARENT_FIELD = OBFUSCATED_STRING( "parentTemplate" )
 static constexpr size_t MAX_PATH_LEN = MAX_SCENE_PATH_LEN;
 static constexpr size_t MAX_FULL_PATH_LEN = MAX_PATH_LEN + 64;
 static constexpr size_t MAX_ENTITY_NAME_LEN = 256;
+static constexpr size_t MAX_CACHED_PARSING_TEMPLATES = 64;
 
 struct ParsingEntity
 {
@@ -53,7 +54,8 @@ struct ParsingEntity
 
 	ParsingEntity( const ParsingEntity& other )
 	{
-		ParsingEntity( other.templatePath, other.entityID );
+		strcpy_s( templatePath, other.templatePath );
+		entityID = other.entityID;
 	}
 
 	ParsingEntity& operator=( const ParsingEntity& other )
@@ -64,10 +66,19 @@ struct ParsingEntity
 	}
 };
 
+struct ParsingTemplate
+{
+	json jsonTemplate;
+	// TODO: in an ideal world, this dynamic memory shouldn't be used or at the very least its memory should be 
+	// freed at the end of the scene loading
+	vector<char> fileBuffer; 
+};
+
 // TODO: maybe only have this memory instantiated when scene loading is needed instead of making it global and static all the 
 // time? Maybe make it part of the SceneLoader object? Or place this in the SceneLoader object and then we only initialize the
 // scene loader on the stack so that this memory is freed whenever the scene loader goes out of scope?
 static FixedMapStringKey<ParsingEntity, MAX_ENTITY_NAME_LEN, MAX_ENTITIES> s_parsingEntitiesMap;
+static FixedMapStringKey<ParsingTemplate, MAX_PATH_LEN, MAX_CACHED_PARSING_TEMPLATES> s_parsingTemplatesMap;
 
 static char s_fullPath[MAX_FULL_PATH_LEN];
 
@@ -147,6 +158,55 @@ static void ParseAndLoadResources( const json& jsonResourcesArray )
 }
 
 
+json* GetTemplateJson( const char* templatePath )
+{
+	if ( Com_StrEmpty( templatePath ) )
+	{
+		return nullptr;
+	}
+	
+	// see if cached entry already exists
+	ParsingTemplate* jsonEntry = s_parsingTemplatesMap[templatePath];
+	if ( jsonEntry )
+	{
+		return &jsonEntry->jsonTemplate;
+	}
+
+	// cache new entry 
+	COM_ASSERT( !s_parsingTemplatesMap.IsFull(), "[%s]: %s - unable to cache parsing tempalte due to map being full. Max entities: %zu\n", SCENE_LOADER_STR, __FUNCTION__, s_parsingTemplatesMap.Capacity() );
+	ParsingTemplate* newEntry = s_parsingTemplatesMap.InsertKey( templatePath );
+	COM_ASSERT( newEntry, "[%s]: %s - attempted to cache duplicate template path: %s\n", SCENE_LOADER_STR, __FUNCTION__, templatePath );
+
+	newEntry->fileBuffer.clear();
+	newEntry->jsonTemplate.clear();
+
+	const char* fullTemplatePath = GetFullPath( ENTITY_TEMPLATES_DIR_PATH, templatePath );
+	if ( !fullTemplatePath )
+	{
+		return nullptr;
+	}
+
+	ifstream templateFile( fullTemplatePath );
+	if ( !templateFile.is_open() )
+	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'", fullTemplatePath );
+		return nullptr;
+	}
+
+	// get file size
+	templateFile.seekg( 0, ios::end );
+	const streamsize templateFileSize = templateFile.tellg();
+	templateFile.seekg( 0, ios::beg );
+
+	newEntry->fileBuffer.resize( templateFileSize, '\0' );
+	templateFile.read( newEntry->fileBuffer.data(), templateFileSize );
+
+	newEntry->jsonTemplate = json::parse( newEntry->fileBuffer );
+
+	return &newEntry->jsonTemplate;
+}
+
+
 bool ParseTemplateForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const EntityID entityID, const char* templatePath, SceneLoader* sceneLoader )
 {
 	if ( !componentParser )
@@ -166,56 +226,35 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	{
 		return true;
 	}
-	
-	// TODO: load template file (would be best to cache this somehow so that we don't have to re-open re-used templates for every
-	// component and entity that uses) Also need to keep track of what templates have already been used so that we don't have circular references... 
-	// maybe that's a dev only check so that we save on memory and computational cost? 
-	const char* fullTemplatePath = GetFullPath( ENTITY_TEMPLATES_DIR_PATH, templatePath );
-	if ( !fullTemplatePath )
+
+	json* jsonTemplate = GetTemplateJson( templatePath );
+	if ( !jsonTemplate )
 	{
+		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to get json template for path '%s'", templatePath );
 		return false;
 	}
-
-	ifstream templateFile( fullTemplatePath );
-	if ( !templateFile.is_open() )
-	{
-		Com_PrintfErrorVerbose( SCENE_LOADER_STR, "Failed to open scene file '%s'", fullTemplatePath );
-		return false;
-	}
-
-	// get file size
-	templateFile.seekg( 0, ios::end );
-	const streamsize templateFileSize = templateFile.tellg();
-	templateFile.seekg( 0, ios::beg );
-
-	// load full file content 
-	vector<char> fileBuffer( templateFileSize, 0 );
-	templateFile.read( fileBuffer.data(), templateFileSize );
-
-	// parse json
-	const json jsonTemplate = json::parse( fileBuffer );
 
 	// process parent template 
 	// TODO: have to figure out case where child overrides parent resources so have currently 
 	// the resources loaded by the parent will stay in memory and remain unused foever. Maybe template holds reference of overriden
 	// resources? OR resource manager can free resources that have no references (AKA keep a reference counter)
-	const json::string_t jsonParentTemplatePath = jsonTemplate[TEMPLATE_PARENT_FIELD];
+	const json::string_t jsonParentTemplatePath = (*jsonTemplate)[TEMPLATE_PARENT_FIELD];
 	if ( jsonParentTemplatePath.length() > 0 )
 	{
 		// TODO: need some way to detect circular references in entities so that we don't enter an infinite loop
 		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) )
 		{
-			// TODO: print some sort of error or something?
+			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to parse parent '%s' for template '%s'", jsonParentTemplatePath.c_str(), templatePath );
 		}
 	}
 
 	// load resources for template
-	const json jsonResourcesArray = jsonTemplate[RESOURCES_ARRAY_FIELD];
-	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in file [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, fullTemplatePath );
+	const json jsonResourcesArray = (*jsonTemplate)[RESOURCES_ARRAY_FIELD];
+	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in template [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, templatePath );
 	ParseAndLoadResources( jsonResourcesArray );
 
 	// load component values (will override parent values if applicable)
-	const json jsonComponents = jsonTemplate[COMPONENTS_ARRAY_FIELD];
+	const json jsonComponents = (*jsonTemplate)[COMPONENTS_ARRAY_FIELD];
 	const json jsonCurrComponent = jsonComponents[componentName];
 	const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD];
 	componentParser( entityID, jsonComponentValues, sceneLoader );
@@ -379,6 +418,9 @@ bool SceneLoader::LoadScene( const char* sceneRef )
 		}
 
 	}
+
+	// clear parsing caches
+	s_parsingTemplatesMap.Clear();
 
 	Com_PrintfVerbose( SCENE_LOADER_STR, "Finished loading scene '%s'", sceneRef );
 	return true;
