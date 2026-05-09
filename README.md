@@ -85,7 +85,7 @@ Definitely One Odd Dumb Little Engine
     * Use the `RESOURCE_DELETOR` macro for creating a resource deleting callback function if applicable. 
 
 # Temporary Building Process
-* Currently don't have a building pipeline, so using Visual Studio 2022 itself to build. 
+* Currently don't have a building pipeline, so using Visual Studio 2022 itself to build with MCVS C++ 20
 * In "Configuration Properties", the "Debugging -> Working Directory" is set to `$(OutDir)` so that the debugging process can simulate running the built exe directly
 * The "General -> Output Directory" is also set to `$(SolutionDir)\..\builds\$(Platform)\$(Configuration)\`
 * The "General -> Intermediate Directory" is also set to `$(SolutionDir)\..\builds\intermediate\$(Platform)\$(Configuration)\`
