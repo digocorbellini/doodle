@@ -179,7 +179,7 @@ namespace FixedMapStringKeyImpl
 
 		FixedString( const FixedString& other )
 		{
-			FixedString( other.str );
+			strncpy_s( str, other.str, N );
 		}
 
 		size_t Length() const
