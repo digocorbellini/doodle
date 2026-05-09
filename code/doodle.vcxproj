@@ -40,6 +40,7 @@
     <ClInclude Include="src\common\global_defines.h" />
     <ClInclude Include="src\common\lib\com_print.h" />
     <ClInclude Include="src\common\lib\com_string.h" />
+    <ClInclude Include="src\common\lib\data_structures\fixed_map.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_heap.h" />
     <ClInclude Include="src\common\lib\math\vector_math.h" />
