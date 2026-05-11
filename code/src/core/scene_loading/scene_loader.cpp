@@ -153,6 +153,7 @@ static void ParseAndLoadResources( const json& jsonResourcesArray )
 			continue;
 		}
 
+		// handles already loaded resources internally
 		if ( !ResourceManager_LoadResource( HashedString( currResourceName.c_str(), currResourceName.length() ), currResourceName.c_str(), currResourceType ) )
 		{
 			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to load resource '%s' with type '%s'", currResourceName.c_str(), currResourceTypeStr.c_str() );
@@ -268,7 +269,7 @@ static bool ParseTemplateForComponent( const char* componentName, const Componen
 		}
 	}
 
-	// load resources for template
+	// load resources for template 
 	const json jsonResourcesArray = (*jsonTemplate)[RESOURCES_ARRAY_FIELD];
 	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in template [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, templatePath );
 	ParseAndLoadResources( jsonResourcesArray );
