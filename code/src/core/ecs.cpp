@@ -491,7 +491,8 @@ void ECS_StartGameLoop()
 
 	while ( window.isOpen() )
 	{
-		// get user input
+		// TODO: eventually have to see if this can be passed onto systems or used as a way to
+		// trigger input events that can have subscribers listening for
 		Event event;
 		while ( window.pollEvent( event ) )
 		{

@@ -3,6 +3,7 @@
 #include "core/resource_management/resource_manager.h"
 #include "core/scene_loading/scene_loader.h"
 #include "common/lib/com_string.h"
+#include <SFML/Window/Keyboard.hpp>
 
 using namespace sf;
 
@@ -20,6 +21,11 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 	{
 		//Com_Printf( "HOWDY GAMER!!! Delta time: %zu, elapsed time %zu\n", deltaTimeNs, s_timeElapsedNs);
 		s_timeElapsedNs = 0;
+	}
+
+	if ( Keyboard::isKeyPressed(Keyboard::A) )
+	{
+		Com_Printf( "A key pressed!!!!!\n" );
 	}
 
 	if ( !haveRun )
