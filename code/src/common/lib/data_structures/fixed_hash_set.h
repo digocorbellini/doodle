@@ -7,6 +7,8 @@
 
 #pragma once
 #include "common/hashing/hash.h"
+#include "fixed_string.h"
+
 
 template<class KeyType, size_t N, class Hash = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
 class FixedHashSet
@@ -208,4 +210,10 @@ public:
 	}
 };
 
-// TODO: make a fixed string variant of this set
+
+// ========================
+// Useful Aliases
+// ========================
+
+template<size_t strSize, size_t N>
+using FixedHashSetStringKey = FixedHashSet<FixedString<strSize>, N, FixedStringHashHelpers::Hash<strSize>, FixedStringHashHelpers::Equals<strSize>>;
