@@ -185,11 +185,6 @@ bool LoadAndCacheResource<ResourceType::Invalid>( const HashedString resourceHas
 template <>
 bool LoadAndCacheResource<ResourceType::Texture>( const HashedString resourceHashName, const char* resourcePath )
 {
-	if ( CachedResourceExists( resourceHashName ) )
-	{
-		return true;
-	}
-
 	const char* fullResourcePath = GetFullResourcePath( resourcePath );
 	if ( !fullResourcePath )
 	{
@@ -225,6 +220,12 @@ bool ResourceManager_LoadResource( const HashedString resourceHashName, const ch
 	if ( resourceType == ResourceType::Invalid || !resourcePath || resourceHashName == INVALID_HASHED_STRING )
 	{
 		return false;
+	}
+
+	// resource is already cached
+	if ( CachedResourceExists( resourceHashName ) )
+	{
+		return true;
 	}
 
 	return s_LoadAndCacheFunctions[GetUndelyingEnumVal( resourceType )]( resourceHashName, resourcePath );
