@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "parentTemplate": "circular_ref_parent.json",
+    "resources": [],
+    "components": {
+        "EntityTransform2D": {
+            "values": {
+                "position": {
+                    "val": [1, 1]
+                }
+            }
+        },
+        "SpriteRenderer2D": {
+            "values": {
+                "isXFlipped": {
+                    "val": true
+                }
+            }
+        }
+    }
+}

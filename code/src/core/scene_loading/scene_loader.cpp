@@ -2,6 +2,7 @@
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
 #include "common/lib/data_structures/fixed_map.h"
+#include "common/lib/data_structures/fixed_hash_set.h"
 #include "common/hashing/hash.h"
 #include "core/ecs.h"
 #include "scene_component_parsers.h"
@@ -9,9 +10,6 @@
 #include <inttypes.h>
 #include <iostream>
 #include <fstream>
-
-using json = nlohmann::json;
-using namespace std;
 
 static const char* SCENE_LOADER_STR = OBFUSCATED_STRING( "SceneLoader" );
 
@@ -38,6 +36,10 @@ static constexpr size_t MAX_PATH_LEN = MAX_SCENE_PATH_LEN;
 static constexpr size_t MAX_FULL_PATH_LEN = MAX_PATH_LEN + 64;
 static constexpr size_t MAX_ENTITY_NAME_LEN = 256;
 static constexpr size_t MAX_CACHED_PARSING_TEMPLATES = 64;
+
+using UsedTemplatesSet = FixedHashSetStringKey < MAX_PATH_LEN, MAX_CACHED_PARSING_TEMPLATES>;
+using json = nlohmann::json;
+using namespace std;
 
 struct ParsingEntity
 {
@@ -158,7 +160,7 @@ static void ParseAndLoadResources( const json& jsonResourcesArray )
 }
 
 
-json* GetTemplateJson( const char* templatePath )
+static json* GetTemplateJson( const char* templatePath )
 {
 	if ( Com_StrEmpty( templatePath ) )
 	{
@@ -207,7 +209,7 @@ json* GetTemplateJson( const char* templatePath )
 }
 
 
-bool ParseTemplateForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const EntityID entityID, const char* templatePath, SceneLoader* sceneLoader )
+static bool ParseTemplateForComponent( const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const EntityID entityID, const char* templatePath, SceneLoader* sceneLoader, UsedTemplatesSet* usedTemplatesSet )
 {
 	if ( !componentParser )
 	{
@@ -221,10 +223,28 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 		return false;
 	}
 
+	if ( !usedTemplatesSet )
+	{
+		COM_ALWAYS_ASSERT( "[%s]: used templates set is null\n", SCENE_LOADER_STR );
+		return false;
+	}
+
 	// see if we have reached leaf template
 	if ( Com_StrEmpty( templatePath ) )
 	{
 		return true;
+	}
+
+	// see if we are in a circular reference (AKA processing an already processed template)
+	if ( usedTemplatesSet->Contains( templatePath ) )
+	{
+		COM_ALWAYS_ASSERT( "[%s]: encountered a circular reference while processing templates. Duplicate template: '%s'\n", SCENE_LOADER_STR, templatePath );
+		return false;
+	}
+	else
+	{
+		COM_ASSERT( !usedTemplatesSet->IsFull(), "[%s]: unable to add to used templates set due to it being full. Might need to bump size. Size: %zu\n", SCENE_LOADER_STR, usedTemplatesSet->Capacity() );
+		usedTemplatesSet->Insert( templatePath );
 	}
 
 	json* jsonTemplate = GetTemplateJson( templatePath );
@@ -241,10 +261,10 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	const json::string_t jsonParentTemplatePath = (*jsonTemplate)[TEMPLATE_PARENT_FIELD];
 	if ( jsonParentTemplatePath.length() > 0 )
 	{
-		// TODO: need some way to detect circular references in entities so that we don't enter an infinite loop
-		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader ) )
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, jsonParentTemplatePath.c_str(), sceneLoader, usedTemplatesSet ) )
 		{
 			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "unable to parse parent '%s' for template '%s'", jsonParentTemplatePath.c_str(), templatePath );
+			return false;
 		}
 	}
 
@@ -253,16 +273,19 @@ bool ParseTemplateForComponent( const char* componentName, const ComponentParser
 	COM_ASSERT( jsonResourcesArray.is_array(), "[%s]: %s: - json field [%s] in template [%s] is not an array\n", SCENE_LOADER_STR, __FUNCTION__, RESOURCES_ARRAY_FIELD, templatePath );
 	ParseAndLoadResources( jsonResourcesArray );
 
-	// load component values (will override parent values if applicable)
+	// load component values if they exist (will override parent values if applicable)
 	const json jsonComponents = (*jsonTemplate)[COMPONENTS_ARRAY_FIELD];
-	const json jsonCurrComponent = jsonComponents[componentName];
-	const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD];
-	componentParser( entityID, jsonComponentValues, sceneLoader );
+	if ( jsonComponents.contains( componentName ) )
+	{
+		const json jsonCurrComponent = jsonComponents[componentName];
+		const json jsonComponentValues = jsonCurrComponent[COMPONENT_VALUES_FIELD];
+		componentParser( entityID, jsonComponentValues, sceneLoader );
+	}
 
 	return true;
 }
 
-bool ParseEntityForComponent( const ComponentType componentType, const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const json& jsonEntity, SceneLoader* sceneLoader )
+static bool ParseEntityForComponent( const ComponentType componentType, const char* componentName, const ComponentParser_ParserFunctPtr componentParser, const json& jsonEntity, SceneLoader* sceneLoader )
 {
 	if ( !componentParser )
 	{ 
@@ -290,7 +313,8 @@ bool ParseEntityForComponent( const ComponentType componentType, const char* com
 	const char* templatePath = parsingEntity->templatePath;
 	if ( !Com_StrEmpty( templatePath ) )
 	{
-		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader ) )
+		UsedTemplatesSet usedTemplatesSet;
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader, &usedTemplatesSet ) )
 		{
 			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "error encountered while parsing template for component '%s' for entity '%s' with entity ID '%" PRIu64 "'", componentName, parsingEntity, entityID );
 			return false;

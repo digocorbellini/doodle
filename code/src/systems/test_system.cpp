@@ -24,6 +24,7 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 
 	if ( !haveRun )
 	{
+		//const char* testScenename = OBFUSCATED_STRING( "test_circular_reference_scene.json" );
 		const char* testScenename = OBFUSCATED_STRING( "test_scene.json" );
 		ECS_QueueSceneLoad( testScenename );
 

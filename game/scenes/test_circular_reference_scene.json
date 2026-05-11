@@ -1,0 +1,108 @@
+{
+    "version": 1,
+    "resources": [
+        {
+            "resourceName": "test_dir/true.png",
+            "resourceType": "Texture"
+        }
+    ],
+    "entities": [
+        {
+            "entityName": "no_template_entity",
+            "template": ""
+        },
+        {
+            "entityName": "template_override_values",
+            "template": "test_entity.json"
+        },
+        {
+            "entityName": "using_template",
+            "template": "circular_ref_child.json"
+        }
+    ],
+    "components": [
+        {
+            "componentName": "EntityTransform2D",
+            "perEntityValues": [
+                {
+                    "entityName": "no_template_entity",
+                    "values": {
+                        "position": {
+                            "val": [500, 500],
+                            "fieldType": "vector2"
+                        },
+                        "scale": {
+                            "val": [0.5, 0.1],
+                            "fieldType": "vector2"
+                        }
+                    }
+                },
+                {
+                    "entityName": "template_override_values",
+                    "values": {
+                        "position": {
+                            "val": [600, 600]
+                        }
+                    }
+                },
+                {
+                    "entityName": "using_template",
+                    "values": {
+                        "position": {
+                            "val": [100, 100]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "componentName": "SpriteRenderer2D",
+            "perEntityValues": [
+                {
+                    "entityName": "no_template_entity",
+                    "values": {
+                        "sprite": {
+                            "val": "test_dir/true.png",
+                            "fieldType": "resource"
+                        },
+                        "renderingOrder": {
+                            "val": 10,
+                            "fieldType": "int"
+                        },
+                        "isXFlipped": {
+                            "val": true,
+                            "fieldType": "bool"
+                        },
+                        "isYFlipped": {
+                            "val": false,
+                            "fieldType": "bool"
+                        },
+                        "hasCenteredOrigin": {
+                            "val": true,
+                            "fieldType": "bool"
+                        }
+                    }
+                },
+                {
+                    "entityName": "template_override_values",
+                    "values": {
+                        "renderingOrder": {
+                            "val": 100
+                        },
+                        "isXFlipped": {
+                            "val": false
+                        }
+                    }
+                },
+                {
+                    "entityName": "using_template",
+                    "values": {
+                        "renderingOrder": {
+                            "val": 11
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
