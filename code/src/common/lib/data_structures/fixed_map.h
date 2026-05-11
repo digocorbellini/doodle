@@ -7,8 +7,7 @@
 
 #pragma once
 #include "common/hashing/hash.h"
-#include <cstring>
-#include <functional>
+#include "fixed_string.h"
 
 
 template<class KeyType, class ValType, size_t N, class Hash = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
@@ -197,60 +196,5 @@ public:
 // Useful Map Aliases
 // ========================
 
-namespace FixedMapStringKeyImpl
-{
-	template<size_t N>
-	struct FixedString
-	{
-		char str[N] = { 0 };
-
-		FixedString() = default;
-
-		FixedString( const char* other )
-		{
-			strncpy_s( str, other, N );
-		}
-
-		FixedString( const FixedString& other )
-		{
-			strncpy_s( str, other.str, N );
-		}
-
-		size_t Length() const
-		{
-			return N;
-		}
-
-		bool operator==( const FixedString<N>& other ) const
-		{
-			return std::strncmp( str, other.str, N ) == 0;
-		}
-
-		FixedString& operator=( const FixedString& other )
-		{
-			strncpy_s( str, other.str, N );
-			return *this;
-		}
-	};
-
-	template<size_t N>
-	struct Hash
-	{
-		size_t operator()( const FixedString<N>& str ) const
-		{
-			return static_cast<size_t>( FNV1A_64_Hash( str.str, str.Length() ) );
-		}
-	};
-	
-	template<size_t N>
-	struct Equals
-	{
-		bool operator()( const FixedString<N>& a, const FixedString<N>& b ) const
-		{
-			return a == b;
-		}
-	};
-}
-
 template<class ValType, size_t strSize, size_t N>
-using FixedMapStringKey = FixedMap<FixedMapStringKeyImpl::FixedString<strSize>, ValType, N, FixedMapStringKeyImpl::Hash<strSize>, FixedMapStringKeyImpl::Equals<strSize>>;
+using FixedMapStringKey = FixedMap<FixedString<strSize>, ValType, N, FixedStringHashHelpers::Hash<strSize>, FixedStringHashHelpers::Equals<strSize>>;

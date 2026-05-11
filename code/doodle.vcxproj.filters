@@ -131,5 +131,8 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_hash_set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\lib\data_structures\fixed_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

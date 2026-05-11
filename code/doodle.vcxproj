@@ -44,6 +44,7 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_map.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_heap.h" />
+    <ClInclude Include="src\common\lib\data_structures\fixed_string.h" />
     <ClInclude Include="src\common\lib\math\vector_math.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\core\components.h" />
