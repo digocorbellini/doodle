@@ -11,7 +11,6 @@
 #pragma once
 #include "common/types.h"
 #include "core/ecs.h"
-#include <SFML/Graphics.hpp>
 
 class System
 {
@@ -56,5 +55,5 @@ public:
 	/// </summary>
 	/// <param name="deltaTimeNs">The time since the last frame start</param>
 	/// <param name="entityIterator">An iterator over all entities in the game</param>
-	virtual void OnDrawFrame( sf::RenderWindow* window, EntityIterator entityIterator ) {};
+	virtual void OnDrawFrame( class sf::RenderWindow* window, EntityIterator entityIterator ) {};
 };
