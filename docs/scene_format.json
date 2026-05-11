@@ -33,7 +33,9 @@
             // list is sorted by entityName in alphabetical order
             "perEntityValues": [ 
                 {
-                    // example of using a template
+                    // example of using a template. still have to include entity here if 
+                    // parent has component in order for game to know to look at parent's 
+                    // component values
                     "entityName": "unique_name_1", 
                     "values": {}
                 },
