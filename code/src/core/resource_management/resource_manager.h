@@ -17,6 +17,10 @@
 /// A wrapper around resource pointers which resolves the resource pointer at 
 /// access time and prevents users from storing raw pointers ensuring that
 /// resources remain valid.
+/// 
+/// This is how users will be able to get references to resources through
+/// ResourceHandles. Ex usage:
+/// `entityComponent->sprite.SetTexture( ResourcePtr<Texture>( HashedString( spriteRef.c_str(), spriteRef.length() ) ) );`
 /// </summary>
 /// <typeparam name="T">The type of a resource</typeparam>
 template <ValidResource T>
