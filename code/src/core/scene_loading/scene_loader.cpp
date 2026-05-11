@@ -1,3 +1,4 @@
+#include "common/global_defines.h"
 #include "common/lib/com_assert.h"
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
@@ -223,29 +224,28 @@ static bool ParseTemplateForComponent( const char* componentName, const Componen
 		return false;
 	}
 
-	if ( !usedTemplatesSet )
-	{
-		COM_ALWAYS_ASSERT( "[%s]: used templates set is null\n", SCENE_LOADER_STR );
-		return false;
-	}
-
 	// see if we have reached leaf template
 	if ( Com_StrEmpty( templatePath ) )
 	{
 		return true;
 	}
 
+#if IS_ENABLED( DEV_BUILD )
 	// see if we are in a circular reference (AKA processing an already processed template)
-	if ( usedTemplatesSet->Contains( templatePath ) )
+	if ( usedTemplatesSet )
 	{
-		COM_ALWAYS_ASSERT( "[%s]: encountered a circular reference while processing templates. Duplicate template: '%s'\n", SCENE_LOADER_STR, templatePath );
-		return false;
+		if ( usedTemplatesSet->Contains( templatePath ) )
+		{
+			COM_ALWAYS_ASSERT( "[%s]: encountered a circular reference while processing templates. Duplicate template: '%s'\n", SCENE_LOADER_STR, templatePath );
+			return false;
+		}
+		else
+		{
+			COM_ASSERT( !usedTemplatesSet->IsFull(), "[%s]: unable to add to used templates set due to it being full. Might need to bump size. Size: %zu\n", SCENE_LOADER_STR, usedTemplatesSet->Capacity() );
+			usedTemplatesSet->Insert( templatePath );
+		}
 	}
-	else
-	{
-		COM_ASSERT( !usedTemplatesSet->IsFull(), "[%s]: unable to add to used templates set due to it being full. Might need to bump size. Size: %zu\n", SCENE_LOADER_STR, usedTemplatesSet->Capacity() );
-		usedTemplatesSet->Insert( templatePath );
-	}
+#endif // #if IS_ENABLED( DEV_BUILD )
 
 	json* jsonTemplate = GetTemplateJson( templatePath );
 	if ( !jsonTemplate )
@@ -313,8 +313,15 @@ static bool ParseEntityForComponent( const ComponentType componentType, const ch
 	const char* templatePath = parsingEntity->templatePath;
 	if ( !Com_StrEmpty( templatePath ) )
 	{
+#if IS_ENABLED( DEV_BUILD )
+		// dev only logic used to detect circular references in templates
 		UsedTemplatesSet usedTemplatesSet;
-		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader, &usedTemplatesSet ) )
+		UsedTemplatesSet* usedTemplatesSetPtr = &usedTemplatesSet;
+#else // #if IS_ENABLED( DEV_BUILD )
+		UsedTemplatesSet* usedTemplatesSetPtr = nullptr;
+#endif // #else // #if IS_ENABLED( DEV_BUILD )
+
+		if ( !ParseTemplateForComponent( componentName, componentParser, entityID, templatePath, sceneLoader, usedTemplatesSetPtr ) )
 		{
 			Com_PrintfErrorVerbose( SCENE_LOADER_STR, "error encountered while parsing template for component '%s' for entity '%s' with entity ID '%" PRIu64 "'", componentName, parsingEntity, entityID );
 			return false;
