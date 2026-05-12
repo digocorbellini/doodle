@@ -22,17 +22,17 @@
     ],
     "components": [
         {
-            "componentName": "EntityTransform2D",
+            "componentName": "EntityTransform2D",   
             "perEntityValues": [
                 {
                     "entityName": "no_template_entity",
                     "values": {
                         "position": {
-                            "val": [500, 500],
+                            "val": [200, 200],
                             "fieldType": "vector2"
                         },
                         "scale": {
-                            "val": [0.5, 0.1],
+                            "val": [ 0.1, 0.1 ],
                             "fieldType": "vector2"
                         }
                     }
@@ -49,7 +49,7 @@
                     "entityName": "using_template",
                     "values": {
                         "position": {
-                            "val": [100, 100]
+                            "val": [0, 0]
                         }
                     }
                 }
@@ -70,7 +70,7 @@
                             "fieldType": "int"
                         },
                         "isXFlipped": {
-                            "val": true,
+                            "val": false,
                             "fieldType": "bool"
                         },
                         "isYFlipped": {
@@ -103,6 +103,20 @@
                     }
                 }
             ]
+        },
+        {
+            "componentName": "PhysicsBody2D",
+            "perEntityValues":[
+                {
+                    "entityName": "no_template_entity",
+                    "values": {
+                        "hasGravity": {
+                            "val": false,
+                            "fieldType": "bool"
+                        }
+                    }
+                }   
+            ]  
         }
     ]
 }

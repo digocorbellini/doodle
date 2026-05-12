@@ -128,7 +128,7 @@ void ComponentParser_EntityTransform2DParser( const json& jsonComponentValues, E
 void ComponentParser_PhysicsBody2DParser( const json& jsonComponentValues, PhysicsBody2D* entityComponent, SceneLoader* sceneLoader )
 {
 	PARSE_VECTOR2F_FIELD( velocity );
-	PARSE_SIMPLE_FIELD( gravity );
+	PARSE_SIMPLE_FIELD( hasGravity );
 }
 
 void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, SpriteRenderer2D* entityComponent, SceneLoader* sceneLoader )

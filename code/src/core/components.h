@@ -174,13 +174,20 @@ struct EntityTransform2D
 {
 	sf::Vector2f position;
 	sf::Vector2f scale;
+
+	// TODO: should add "rotation" and "parent entity" as fields
+	// for parent entity, the position, scale, and rotation will be  
+	// relative to the parent's world space. Will have to figure out how to
+	// handle recursive parents... maybe it will all just solve itself 
+	// in the frame functions?
 };
 
 
 struct PhysicsBody2D
 {
 	sf::Vector2f velocity;
-	float gravity;
+	// TODO: add rotational velocity and potentially a gravity override?
+	bool hasGravity;
 };
 
 
