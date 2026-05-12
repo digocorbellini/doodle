@@ -4,7 +4,7 @@
 #include "core/scene_loading/scene_loader.h"
 #include "common/lib/com_string.h"
 #include <SFML/Window/Keyboard.hpp>
-#include "lua.h"
+#include <lua.hpp>
 
 using namespace sf;
 
@@ -14,6 +14,14 @@ static NanoSeconds s_printIntervalNs = 1 * 1000 * 1000 * 1000;
 static NanoSeconds s_timeElapsedNs = 0;
 
 static bool haveRun = false;
+
+void TestLua()
+{
+	lua_State* L = luaL_newstate();
+	luaL_openlibs( L );
+	luaL_dostring( L, "print('LuaJIT is alive: ' .. jit.version)" );
+	lua_close( L );
+}
 
 void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator )
 {
@@ -31,6 +39,9 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 
 	if ( !haveRun )
 	{
+		// test running a lua snippet
+		TestLua();
+
 		//const char* testScenename = OBFUSCATED_STRING( "test_circular_reference_scene.json" );
 		const char* testScenename = OBFUSCATED_STRING( "test_scene.json" );
 		ECS_QueueSceneLoad( testScenename );
