@@ -153,6 +153,7 @@ void ComponentParser_SpriteRenderer2DParser( const json& jsonComponentValues, Sp
 
 void ComponentParser_PlayerController2DParser( const json& jsonComponentValues, PlayerController2D* entityComponent, SceneLoader* sceneLoader )
 {
+	PARSE_SIMPLE_FIELD( isPlatformingController );
 	PARSE_SIMPLE_FIELD( moveSpeed );
 	PARSE_SIMPLE_FIELD( jumpSpeed );
 }

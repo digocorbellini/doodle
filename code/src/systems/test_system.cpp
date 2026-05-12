@@ -23,10 +23,10 @@ void TestSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIt
 		s_timeElapsedNs = 0;
 	}
 
-	if ( Keyboard::isKeyPressed(Keyboard::A) )
+	/*if ( Keyboard::isKeyPressed(Keyboard::A) )
 	{
 		Com_Printf( "A key pressed!!!!!\n" );
-	}
+	}*/
 
 	if ( !haveRun )
 	{

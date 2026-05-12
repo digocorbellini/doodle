@@ -30,6 +30,7 @@
     <ClCompile Include="src\core\scene_loading\scene_loader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\systems\physicsbody2d_system.cpp" />
+    <ClCompile Include="src\systems\playercontroller2d_system.cpp" />
     <ClCompile Include="src\systems\sprite_2d_rendering_system.cpp" />
     <ClCompile Include="src\systems\test_system.cpp" />
   </ItemGroup>
@@ -61,6 +62,7 @@
     <ClInclude Include="src\core\system.h" />
     <ClInclude Include="src\graphics\sprite_renderer.h" />
     <ClInclude Include="src\systems\physicsbody2d_system.h" />
+    <ClInclude Include="src\systems\playercontroller2d_system.h" />
     <ClInclude Include="src\systems\sprite_2d_rendering_system.h" />
     <ClInclude Include="src\systems\test_system.h" />
   </ItemGroup>

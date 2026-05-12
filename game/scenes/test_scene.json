@@ -49,7 +49,7 @@
                     "entityName": "using_template",
                     "values": {
                         "position": {
-                            "val": [0, 0]
+                            "val": [700, 200]
                         }
                     }
                 }
@@ -87,7 +87,7 @@
                     "entityName": "template_override_values",
                     "values": {
                         "renderingOrder": {
-                            "val": 100
+                            "val": 1
                         },
                         "isXFlipped": {
                             "val": false
@@ -113,6 +113,24 @@
                         "hasGravity": {
                             "val": false,
                             "fieldType": "bool"
+                        }
+                    }
+                }   
+            ]  
+        },
+        {
+            "componentName": "PlayerController2D",
+            "perEntityValues":[
+                {
+                    "entityName": "no_template_entity",
+                    "values": {
+                        "isPlatformingController": {
+                            "val": false,
+                            "fieldType": "bool"
+                        },
+                        "moveSpeed": {
+                            "val": 500.0,
+                            "fieldType": "float"
                         }
                     }
                 }   

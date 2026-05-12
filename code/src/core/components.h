@@ -204,8 +204,13 @@ struct SpriteRenderer2D
 
 struct PlayerController2D
 {
+	bool isPlatformingController;
+
 	float moveSpeed;
 	float jumpSpeed;
+
+	// TODO: should eventually add support for multiple imput options so that multiple
+	// entities can have this component and not be all controlled by the same player/input
 };
 
 
