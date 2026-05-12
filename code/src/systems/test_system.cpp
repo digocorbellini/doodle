@@ -4,6 +4,7 @@
 #include "core/scene_loading/scene_loader.h"
 #include "common/lib/com_string.h"
 #include <SFML/Window/Keyboard.hpp>
+#include "lua.h"
 
 using namespace sf;
 
