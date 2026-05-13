@@ -2,8 +2,9 @@
 Definitely One Odd Dumb Little Engine
 
 # Libraries Used
-* Multimedia Library - https://www.sfml-dev.org/ 
+* SFML (Multimedia Library) - https://www.sfml-dev.org/ 
 * JSON parsing and serializing - https://github.com/nlohmann/json
+* LuaJIT - https://luajit.org/
 
 # Process for Adding a New Component
 * Go to `components.h` and add your new component to the `COMPONENT_LIST` macro in the following format `COMPONENT(<YourComponentName>)`
