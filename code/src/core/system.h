@@ -14,7 +14,7 @@
 
 class System
 {
-public:
+protected:
 	System()
 	{
 		ECS_RegisterSystem( this );
@@ -56,4 +56,7 @@ public:
 	/// <param name="deltaTimeNs">The time since the last frame start</param>
 	/// <param name="entityIterator">An iterator over all entities in the game</param>
 	virtual void OnDrawFrame( class sf::RenderWindow* window, EntityIterator entityIterator ) {};
+
+private:
+	friend void ECS_StartGameLoop();
 };
