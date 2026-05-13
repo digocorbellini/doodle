@@ -92,3 +92,15 @@ Definitely One Odd Dumb Little Engine
 * The "General -> Intermediate Directory" is also set to `$(SolutionDir)\..\builds\intermediate\$(Platform)\$(Configuration)\`
 * The long term plan is to have a tool which will perform the compilation and launching of the executable (along with some potential post-compilation tasks) 
     * This way these per-user settings don't have to be touched and you don't have to rely on using the vs code debugger.
+
+# Exposing C++ Functions to Lua Scripts
+* In `lua_function_registration.h`, find your desired library macro under the `Lua Function Macro Declarations` comment.
+    * Ex: `LUA_ENGINE_SYSTEM_FUNCTIONS` is the library macro for the "Engine" library of API functions
+    * A "library" in this case is just a way to group functions when they are called from Lua.
+        * Ex: for the "Engine" library, its functions will be called like `Engine.functionName()`
+* Create a new `LUA_FUNCTION` entry. This takes 2 parameters: the lua function signature, and your new API function signature in C++
+* You can now define your new API function using the same function signature as in the `LUA_FUNCTION` macro in your selected library's .cpp file found in the `code\src\lua\scripts_api` directory.
+* **All API functions should follow the following format:** `int <function name>( lua_State* luaState );`
+* If you would like to create a new library to place your function into, create a new macro for your library under the `Lua Function Macro Declarations` comment
+* Then go to the `LUA_FUNCTION_LIBRARIES` macro in the same file and create a new `LUA_LIBRARY` entry. This macro takes 2 parameters: the library name and the macro representing all of the library's API functions which should be declared above in this file.
+    * Rcommended: also create a new .cpp file in the `code\src\lua\scripts_api` directory which is where all API function definitions for your library will live.
