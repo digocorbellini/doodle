@@ -33,7 +33,7 @@ void CenterOrigin( SpriteRenderer* spriteRend )
 
 
 // ==================
-// Public Methods
+// System Methods
 // ==================
 
 void Sprite2DRenderingSystem::OnDrawFrame( RenderWindow* window, EntityIterator entityIterator )

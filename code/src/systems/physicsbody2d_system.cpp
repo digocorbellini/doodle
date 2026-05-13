@@ -23,7 +23,7 @@ float newVelocity( const float initialVelocity, const float gravity, const float
 }
 
 // =========================
-// Public Methods
+// System Methods
 // =========================
 
 void PhysicsBody2DSystem::OnPhysicsFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator )

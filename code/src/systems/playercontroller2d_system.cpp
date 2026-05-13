@@ -11,7 +11,7 @@ using namespace sf;
 
 
 // =========================
-// Public Methods
+// System Methods
 // =========================
 
 void PlayerController2DSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator )
