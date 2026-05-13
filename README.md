@@ -104,3 +104,5 @@ Definitely One Odd Dumb Little Engine
 * If you would like to create a new library to place your function into, create a new macro for your library under the `Lua Function Macro Declarations` comment
 * Then go to the `LUA_FUNCTION_LIBRARIES` macro in the same file and create a new `LUA_LIBRARY` entry. This macro takes 2 parameters: the library name and the macro representing all of the library's API functions which should be declared above in this file.
     * Rcommended: also create a new .cpp file in the `code\src\lua\scripts_api` directory which is where all API function definitions for your library will live.
+### Defining C++ API Function
+* TODO: describe how to get parameters from lua + how to return values to lua using the luajit API
