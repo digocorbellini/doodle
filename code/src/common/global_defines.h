@@ -53,3 +53,5 @@
 #else //#if IS_ENABLED( DEV_BUILD )
 #define GAME_DIR_PATH "./game/"
 #endif // #elif //#if IS_ENABLED( DEV_BUILD )
+
+#define LUA_DEBUGGER REQUIRES( IS_ENABLED( DEV_BUILD ) )

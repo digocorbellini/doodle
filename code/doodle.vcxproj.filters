@@ -69,6 +69,9 @@
     <ClCompile Include="src\common\platform\windows\windows_thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\lua\debugger\lua_debugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\components.h">
@@ -170,7 +173,10 @@
     <ClInclude Include="src\common\platform\net_socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\platform\com_thread.h">
+    <ClInclude Include="src\common\platform\platform_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\lua\debugger\lua_debugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

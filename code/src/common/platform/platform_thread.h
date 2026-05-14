@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
-// Platform agnostic header for threads
+// Platform agnostic header for wrapping platform specific
+// thread operations (Ex: sleep)
 //
 ////////////////////////////////////////////////////////////
 
@@ -8,4 +9,4 @@
 #pragma once
 #include "common/types.h"
 
-void ComThread_SleepMs( uint32_t miliseconds );
+void Platform_SleepMs( uint32_t miliseconds );

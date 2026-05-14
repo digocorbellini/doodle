@@ -1,14 +1,14 @@
 #include "common/global_defines.h"
 
 #if IS_ENABLED( PLATFORM_WINDOWS )
-#include "common/platform/com_thread.h"
+#include "common/platform/platform_thread.h"
 #include <Windows.h>
 
 // =====================
 // Public Functions
 // =====================
 
-void ComThread_SleepMs( uint32_t miliseconds )
+void Platform_SleepMs( uint32_t miliseconds )
 {
 	Sleep( static_cast<DWORD>( miliseconds ) );
 }

@@ -26,6 +26,7 @@
     <ClCompile Include="src\common\platform\windows\windows_thread.cpp" />
     <ClCompile Include="src\core\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
+    <ClCompile Include="src\core\lua\debugger\lua_debugger.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
     <ClCompile Include="src\core\resource_management\resource_types.cpp" />
     <ClCompile Include="src\core\scene_loading\scene_component_parsers.cpp" />
@@ -53,13 +54,14 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_string.h" />
     <ClInclude Include="src\common\lib\math\time_utils.h" />
     <ClInclude Include="src\common\lib\math\vector_math.h" />
-    <ClInclude Include="src\common\platform\com_thread.h" />
+    <ClInclude Include="src\common\platform\platform_thread.h" />
     <ClInclude Include="src\common\platform\net_socket.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\core\components.h" />
     <ClInclude Include="src\core\ecs.h" />
     <ClInclude Include="src\common\hashing\hashed_string.h" />
     <ClInclude Include="src\common\hashing\hashed_string_internal.h" />
+    <ClInclude Include="src\core\lua\debugger\lua_debugger.h" />
     <ClInclude Include="src\core\resource_management\resource_manager.h" />
     <ClInclude Include="src\core\resource_management\resource_manager_internal.h" />
     <ClInclude Include="src\core\resource_management\resource_types.h" />
