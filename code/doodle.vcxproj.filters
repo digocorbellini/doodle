@@ -72,6 +72,9 @@
     <ClCompile Include="src\core\lua\debugger\lua_debugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\lib\com_thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\components.h">
@@ -177,6 +180,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\lua\debugger\lua_debugger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\lib\com_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

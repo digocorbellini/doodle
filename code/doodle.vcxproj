@@ -22,6 +22,7 @@
     <ClCompile Include="src\common\hashing\hashed_string.cpp" />
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp" />
     <ClCompile Include="src\common\lib\com_print.cpp" />
+    <ClCompile Include="src\common\lib\com_thread.cpp" />
     <ClCompile Include="src\common\platform\windows\net_socket_windows.cpp" />
     <ClCompile Include="src\common\platform\windows\windows_thread.cpp" />
     <ClCompile Include="src\core\components.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="src\common\global_defines.h" />
     <ClInclude Include="src\common\lib\com_print.h" />
     <ClInclude Include="src\common\lib\com_string.h" />
+    <ClInclude Include="src\common\lib\com_thread.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_hash_set.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_map.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h" />
