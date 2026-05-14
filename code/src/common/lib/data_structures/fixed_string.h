@@ -48,6 +48,8 @@ public:
 		strncpy_s( str, other.str, N );
 		return *this;
 	}
+
+	// TODO: create additional string helper methods here
 };
 
 
