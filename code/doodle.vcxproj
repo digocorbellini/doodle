@@ -22,6 +22,7 @@
     <ClCompile Include="src\common\hashing\hashed_string.cpp" />
     <ClCompile Include="src\common\hashing\hashed_string_internal.cpp" />
     <ClCompile Include="src\common\lib\com_print.cpp" />
+    <ClCompile Include="src\common\platform\windows\net_socket_windows.cpp" />
     <ClCompile Include="src\core\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
     <ClCompile Include="src\core\resource_management\resource_manager.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_string.h" />
     <ClInclude Include="src\common\lib\math\time_utils.h" />
     <ClInclude Include="src\common\lib\math\vector_math.h" />
+    <ClInclude Include="src\common\platform\net_socket.h" />
     <ClInclude Include="src\common\types.h" />
     <ClInclude Include="src\core\components.h" />
     <ClInclude Include="src\core\ecs.h" />
