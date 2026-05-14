@@ -49,7 +49,7 @@ namespace monitor_impl
 
     // Wait must be callable, take in a generic type as its one parameter, and can return anything
     template<typename ParamType, typename FuncType>
-    concept WaitOrAccessCallable = std::invocable<FuncType, const ParamType&>;
+    concept WaitOrAccessCallable = std::invocable<FuncType, ParamType&>;
 }
 template<typename T>
 class Monitor
@@ -61,7 +61,8 @@ private:
 
 public:    
     // Access data exclusively. No waiting, no notify.
-    template<monitor_impl::WaitOrAccessCallable<T> Func>
+    template<typename Func>
+    requires monitor_impl::WaitOrAccessCallable<T, Func>
     auto Access( Func&& func )
     {
         std::unique_lock<std::mutex> lock( m_mutex );
@@ -72,7 +73,8 @@ public:
     // Notify happens after the lock is released, not before,
     // so woken threads can acquire the lock without immediately
     // blocking again.
-    template<monitor_impl::ModifyCallable<T> Func>
+    template<typename Func>
+    requires monitor_impl::ModifyCallable<T, Func>
     void Modify( Func&& func )
     {
         {
@@ -84,7 +86,8 @@ public:
 
     // Sleep until predicate(data) returns true, then run func under the lock.
     // Re-checks predicate on every wakeup to handle spurious wakeups.
-    template<monitor_impl::PredicateCallable<T> Predicate, monitor_impl::WaitOrAccessCallable<T> Func>
+    template<typename Func>
+    requires monitor_impl::WaitOrAccessCallable<T, Func>
     auto WaitUntil( Predicate&& predicate, Func&& func )
     {
         std::unique_lock<std::mutex> lock( m_mutex );
