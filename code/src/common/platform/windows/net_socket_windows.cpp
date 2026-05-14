@@ -12,7 +12,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#define WINSOCK_VERSION MAKEWORD( 2, 2 )
+#define NET_SOCKET_WINSOCK_VERSION MAKEWORD( 2, 2 )
 
 using namespace net_socket_impl;
 
@@ -111,7 +111,7 @@ bool NetSocket_Init()
 {
 	// initialize winsock library
 	WSADATA wsaData;
-	int result = WSAStartup( WINSOCK_VERSION, &wsaData );
+	int result = WSAStartup( NET_SOCKET_WINSOCK_VERSION, &wsaData );
 	if ( result != 0 )
 	{
 		Com_PrintfErrorVerbose( NET_SOCKET_STR, "Failed to initialize WinSock library with WSAStartup. Result: %d\n", result );

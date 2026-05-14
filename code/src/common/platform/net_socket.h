@@ -6,6 +6,7 @@
 
 
 #pragma once
+#include "common/lib/com_assert.h"
 #include "common/types.h"
 #include <memory>
 
