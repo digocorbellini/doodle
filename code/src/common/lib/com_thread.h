@@ -22,19 +22,17 @@ bool Com_IsMainThread();
 //
 // Three operations:
 //
-//   Access    — lock, read or write, unlock.
+//   Access    - lock, read or write, unlock.
 //               Use when no thread ever sleeps on this data.
 //
-//   Modify    — lock, write, unlock, then notify_all.
+//   Modify    - lock, write, unlock, then notify_all.
 //               Use when another thread may be sleeping via WaitUntil.
 //               Notify fires AFTER the lock is released so woken threads
 //               can immediately acquire the lock without double-blocking.
 //
-//   WaitUntil — sleep until predicate(data) is true, then run a function.
+//   WaitUntil - sleep until predicate(data) is true, then run a function.
 //               The predicate is re-checked on every wakeup to guard
-//               against spurious wakeups (condition variables can wake
-//               without being explicitly notified — this is a known
-//               behaviour of the standard and must always be handled).
+//               against spurious wakeups.
 //               Only useful on data that is written via Modify. If data
 //               is only ever written with Access this will sleep forever.
 //
