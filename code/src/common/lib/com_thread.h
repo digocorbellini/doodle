@@ -41,8 +41,17 @@ bool Com_IsMainThread();
 ////////////////////////////////////////////////////////////
 namespace monitor_impl
 {
+    // Predicate must be callable, return bool, and take in a generic type as its singular parameter
     template <typename ParamType, typename PredicateType>
-    concept IsPredicateFunctionPtr = std::is_same_v<PredicateType, bool( * )( ParamType )>;
+    concept PredicateCallable = std::invocable<PredicateType, ParamType&> && std::same_as<std::invoke_result_t<PredicateType, ParamType&>, bool>;
+
+    // Modify must be callable, take in a generic type as its one parameter, and return void
+    template<typename ParamType, typename FuncType>
+    concept ModifyCallable = std::invocable<FuncType, ParamType&> && std::same_as<std::invoke_result_t<FuncType, ParamType&>, void>;
+
+    // Wait must be callable, take in a generic type as its one parameter, and can return anything
+    template<typename ParamType, typename FuncType>
+    concept WaitOrAccessCallable = std::invocable<FuncType, const ParamType&>;
 }
 template<typename T>
 class Monitor
@@ -54,7 +63,7 @@ private:
 
 public:    
     // Access data exclusively. No waiting, no notify.
-    template<typename Func>
+    template<monitor_impl::WaitOrAccessCallable<T> Func>
     auto Access( Func&& func )
     {
         std::unique_lock<std::mutex> lock( m_mutex );
@@ -62,11 +71,11 @@ public:
     }
 
     // Modify data and wake all threads sleeping in WaitUntil.
-    // Notify happens after the lock is released — not before —
+    // Notify happens after the lock is released, not before,
     // so woken threads can acquire the lock without immediately
     // blocking again.
-    template<typename Func>
-    auto Modify( Func&& func )
+    template<monitor_impl::ModifyCallable<T> Func>
+    void Modify( Func&& func )
     {
         {
             std::unique_lock<std::mutex> lock( m_mutex );
@@ -77,7 +86,7 @@ public:
 
     // Sleep until predicate(data) returns true, then run func under the lock.
     // Re-checks predicate on every wakeup to handle spurious wakeups.
-    template<monitor_impl::IsPredicateFunctionPtr<T> Predicate, typename Func>
+    template<monitor_impl::PredicateCallable<T> Predicate, monitor_impl::WaitOrAccessCallable<T> Func>
     auto WaitUntil( Predicate&& predicate, Func&& func )
     {
         std::unique_lock<std::mutex> lock( m_mutex );
