@@ -60,7 +60,7 @@
     <ClCompile Include="src\systems\lua_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua\scripts_api\lua_engine_functions.cpp">
+    <ClCompile Include="src\core\lua\scripts_api\lua_engine_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,7 +158,7 @@
     <ClInclude Include="src\systems\lua_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lua\scripts_api\lua_function_registration.h">
+    <ClInclude Include="src\core\lua\scripts_api\lua_function_registration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,7 +2,7 @@
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
 #include <lua.hpp>
-#include "lua/scripts_api/lua_function_registration.h"
+#include "core/lua/scripts_api/lua_function_registration.h"
 #include "lua_system.h"
 
 #define SCRIPTS_PATH GAME_DIR_PATH "scripts/"
