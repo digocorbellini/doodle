@@ -86,8 +86,8 @@ public:
 
     // Sleep until predicate(data) returns true, then run func under the lock.
     // Re-checks predicate on every wakeup to handle spurious wakeups.
-    template<typename Func>
-    requires monitor_impl::WaitOrAccessCallable<T, Func>
+    template<typename Predicate, typename Func> 
+    requires monitor_impl::WaitOrAccessCallable<T, Func> && monitor_impl::PredicateCallable<T, Predicate>
     auto WaitUntil( Predicate&& predicate, Func&& func )
     {
         std::unique_lock<std::mutex> lock( m_mutex );
