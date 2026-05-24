@@ -4,6 +4,7 @@
 #include <lua.hpp>
 #include "core/lua/scripts_api/lua_function_registration.h"
 #include "lua_system.h"
+#include "core/lua/debugger/lua_debugger.h"
 
 #define SCRIPTS_PATH GAME_DIR_PATH "scripts/"
 #define ENTRY_SCRIPT_PATH SCRIPTS_PATH "main.lua"
@@ -51,6 +52,10 @@ static bool InitLua()
 	}
 	luaL_openlibs( s_luaState );
 
+#if IS_ENABLED( LUA_DEBUGGER )
+	LuaDebugger_Init(s_luaState);
+#endif // #if IS_ENABLED( LUA_DEBUGGER )
+
 	if ( luaL_dostring( s_luaState, "package.path = package.path .. ';" SCRIPTS_PATH "?.lua'" ) != LUA_OK )
 	{
 		COM_ALWAYS_ASSERT( "[%s]: failed to set package path to '%s'\n", LUA_SYSTEM_STR, SCRIPTS_PATH );
@@ -79,7 +84,12 @@ static bool InitLua()
 
 void LuaSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator )
 {
+#if IS_ENABLED( LUA_DEBUGGER )
+	LuaDebugger_Frame();
+#endif // #if IS_ENABLED( LUA_DEBUGGER )
+
 	// TODO: call frame in lua
+
 }
 
 
@@ -87,7 +97,7 @@ void LuaSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIte
 // Public Methods
 // =========================
 
-LuaSystem::LuaSystem()
+void LuaSystem::Init()
 {
 	InitLua();
 }
@@ -96,6 +106,10 @@ LuaSystem::LuaSystem()
 LuaSystem::~LuaSystem()
 {
 	lua_close( s_luaState );
+
+#if IS_ENABLED( LUA_DEBUGGER )
+	LuaDebugger_Shutdown();
+#endif // #if IS_ENABLED( LUA_DEBUGGER )
 }
 
 

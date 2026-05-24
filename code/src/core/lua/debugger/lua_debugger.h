@@ -15,6 +15,5 @@ void LuaDebugger_Init( struct lua_State* luaState );
 
 void LuaDebugger_Frame();
 
-// Called on shutdown
 void LuaDebugger_Shutdown();
 #endif // #if IS_ENABLED( LUA_DEBUGGER )

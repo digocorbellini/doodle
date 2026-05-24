@@ -11,10 +11,10 @@
 class LuaSystem : public System
 {
 protected:
+	void Init() override;
 	void OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIterator ) override;
 
 public:
-	LuaSystem();
 	~LuaSystem();
 
 	bool RestartLua();
