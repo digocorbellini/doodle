@@ -489,6 +489,12 @@ void ECS_StartGameLoop()
 	// initialize clock
 	s_lastFrameTime = SteadyClock::now();
 
+	// initialize all systems
+	for ( uint64_t i = 0; i < s_numSystems; ++i )
+	{
+		s_systems[i]->Init();
+	}
+
 	while ( window.isOpen() )
 	{
 		// TODO: eventually have to see if this can be passed onto systems or used as a way to
