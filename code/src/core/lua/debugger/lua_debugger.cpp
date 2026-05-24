@@ -800,6 +800,10 @@ void LuaDebugger_Init( struct lua_State* luaState )
 	COM_ASSERT_IS_MAIN_THREAD();
 
 	StartDAPServer();
+	// set up lua hook callback on 3 events: 
+	// - LUA_MASKLINE = fire hook before every line of lua is executed (used by breakpoint checks)
+	// - LUA_MASKCALL = fire hook when any function is called (used by step over logic)
+	// - LUA_MASKRET = fire hook when any function returns (used by step out logic)
 	lua_sethook( luaState, LuaHook, LUA_MASKLINE | LUA_MASKCALL | LUA_MASKRET, 0 );
 	Com_PrintfVerbose( LUA_DEBUGGER_STR, "initialized lua DAP Server on port %d", DAP_PORT );
 }
