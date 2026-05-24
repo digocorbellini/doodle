@@ -22,6 +22,12 @@ protected:
 
 	virtual ~System() = default;
 
+
+	/// <summary>
+	/// Called once upon ECS startup
+	/// </summary>
+	virtual void Init() {};
+
 	/// <summary>
 	/// Called once per frame at the start of a frame (before the regular frame logic is run)
 	/// </summary>
