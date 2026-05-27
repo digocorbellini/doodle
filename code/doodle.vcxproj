@@ -24,6 +24,7 @@
     <ClCompile Include="src\common\lib\com_print.cpp" />
     <ClCompile Include="src\common\lib\com_thread.cpp" />
     <ClCompile Include="src\common\platform\windows\net_socket_windows.cpp" />
+    <ClCompile Include="src\common\platform\windows\pathing_utils_windows.cpp" />
     <ClCompile Include="src\common\platform\windows\windows_thread.cpp" />
     <ClCompile Include="src\core\components.cpp" />
     <ClCompile Include="src\core\ecs.cpp" />
@@ -56,6 +57,7 @@
     <ClInclude Include="src\common\lib\data_structures\fixed_string.h" />
     <ClInclude Include="src\common\lib\math\time_utils.h" />
     <ClInclude Include="src\common\lib\math\vector_math.h" />
+    <ClInclude Include="src\common\platform\pathing_utils.h" />
     <ClInclude Include="src\common\platform\platform_thread.h" />
     <ClInclude Include="src\common\platform\net_socket.h" />
     <ClInclude Include="src\common\types.h" />

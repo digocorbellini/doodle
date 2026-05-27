@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////
 
 #pragma once
+#include <cctype>
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -90,4 +91,9 @@ inline bool Com_StrEq( const char* a, const char* b, const size_t max )
 inline bool Com_StrEmpty( const char* str )
 {
     return !str || str[0] == '\0';
+}
+
+inline char Com_CharToLower( const char c )
+{
+    return static_cast<char>( std::tolower( static_cast<unsigned char>( c ) ) );
 }

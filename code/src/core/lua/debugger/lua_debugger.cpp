@@ -8,6 +8,7 @@
 #include "common/lib/com_thread.h"
 #include "common/lib/data_structures/fixed_map.h"
 #include "common/platform/net_socket.h"
+#include "common/platform/pathing_utils.h"
 #include "common/platform/platform_thread.h"
 #include <lua.hpp>
 #include "lua_debugger.h"
@@ -19,6 +20,7 @@
 enum class DebugStepMode : Byte
 {
 	None,
+	Pause,
 	Over,
 	In,
 	Out,
@@ -75,8 +77,26 @@ static Monitor<int> s_dapMessageSequenceCounter;
 // Private Helpers
 // ===================
 
+static void NormalizePathSlashes( char* str, const size_t strSize )
+{
+	if ( Com_StrEmpty( str ) || strSize == 0 )
+	{
+		return;
+	}
+
+	// normalize backslashes to forward slashes for consistent comparison
+	for ( size_t i = 0; i < strSize && str[i] != '\0'; ++i )
+	{
+		if ( str[i] == '\\' )
+		{
+			str[i] = '/';
+		}
+	}
+}
+
 // Lua prefixes file-source strings with '@', e.g. "@C:/path/to/main.lua".
 // Strip that prefix so paths match what VS Code sends in setBreakpoints.
+// Also convert relative path to absolute path if relevant
 static bool NormalizeSource( const char* source, char* outBuf, const size_t bufSize )
 {
 	if ( !outBuf || bufSize == 0 )
@@ -91,7 +111,27 @@ static bool NormalizeSource( const char* source, char* outBuf, const size_t bufS
 	}
 
 	const char* stripped = ( source[0] == '@' ) ? source + 1 : source;
-	strncpy_s( outBuf, bufSize, stripped, bufSize );
+
+	if ( !PathingUtils_GetAbsolutePath( stripped, outBuf, bufSize ) )
+	{
+		COM_ALWAYS_ASSERT( "[%s]: failed to get absolute path for source: '%s'\n", LUA_DEBUGGER_STR, stripped );
+		return false;
+	}
+
+	NormalizePathSlashes( outBuf, bufSize );
+
+	// make drive name lowercase
+	for ( int i = 0; i < bufSize && outBuf[i] != '\0'; ++i )
+	{
+		char* currChar = &outBuf[i];
+		if ( *currChar == ':' )
+		{
+			break;
+		}
+
+		*currChar = Com_CharToLower( *currChar );
+	}
+
 	return true;
 }
 
@@ -144,22 +184,26 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 	if ( !lines )
 	{
 		return;
+
 	}
+
+	char normalizedSource[MAX_SOURCE_PATH_LEN] = { 0 };
+	NormalizeSource( scriptSource, normalizedSource, sizeof( normalizedSource ) );
 
 	s_breakpoints.Access(
 		[&]( BreakpointMap& map )
 		{
-			map.Remove( scriptSource );
+			map.Remove( normalizedSource );
 
 			if ( lineCount == 0 )
 			{
 				return;
 			}
 
-			BreakpointsArray* newArray = map.InsertKey( scriptSource );
+			BreakpointsArray* newArray = map.InsertKey( normalizedSource );
 			if ( !newArray )
 			{
-				Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add breakpoints for source '%s' due to map being full", scriptSource );
+				Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add breakpoints for source '%s' due to map being full", normalizedSource );
 				return;
 			}
 
@@ -171,7 +215,7 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 			{
 				if ( i > newArray->max_size() )
 				{
-					Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add all breakpoints for source '%s' due to exceeding max breakpoints per file. %zu >= %zu", scriptSource, lineCount, newArray->max_size() );
+					Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add all breakpoints for source '%s' due to exceeding max breakpoints per file. %zu >= %zu", normalizedSource, lineCount, newArray->max_size() );
 					break;
 				}
 				(*newArray)[i] = lines[i];
@@ -262,7 +306,12 @@ static bool SendDAPMessage( const json& msg )
 				return true;
 			}
 
-			return NetSocket_Send( sock, frame.c_str(), static_cast<int>( frame.size() ) ) >= 0;
+			const bool success = NetSocket_Send( sock, frame.c_str(), static_cast<int>( frame.size() ) ) >= 0;
+			if ( success )
+			{
+				Com_PrintfVerbose( LUA_DEBUGGER_STR, "successfully sent DAP message: \n\n%s\n", msgBody.c_str() );
+			}
+			return success;
 		}
 	);
 }
@@ -278,6 +327,8 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 				return false;
 			}
 
+			NetSocket_SetNonBlocking( sock, true );
+
 			char headerBuff[512]; // header should never be this large in practice 
 			int headerLen = 0;
 			int contentLen = 0;
@@ -291,6 +342,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 
 				if ( bytesRead <= 0 )
 				{
+					NetSocket_SetNonBlocking( sock, false );
 					return false;
 				}
 
@@ -312,6 +364,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 						if ( !contentLenPos )
 						{
 							COM_ALWAYS_ASSERT( "[%s] DAP message missing Content-Length header\n", LUA_DEBUGGER_STR );
+							NetSocket_SetNonBlocking( sock, false );
 							return false;
 						}
 
@@ -339,6 +392,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 
 			if ( !headerFound )
 			{
+				NetSocket_SetNonBlocking( sock, false );
 				return false;
 			}
 
@@ -346,6 +400,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 			if ( contentLen + 1 > buffSize )
 			{
 				COM_ALWAYS_ASSERT( "[%s] DAP message length exceeds given buffer size. %i > %i\n", LUA_DEBUGGER_STR, contentLen + 1, buffSize );
+				NetSocket_SetNonBlocking( sock, false );
 				return false;
 			}
 
@@ -357,6 +412,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 
 				if ( bytesRead <= 0 )
 				{
+					NetSocket_SetNonBlocking( sock, false );
 					return false;
 				}
 
@@ -364,6 +420,8 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 			}
 
 			outBuff[totalBytesRead] = '\0';
+			NetSocket_SetNonBlocking( sock, false );
+			Com_PrintfVerbose( LUA_DEBUGGER_STR, "successfully read DAP message: \n\n%s\n", outBuff );
 			return true;
 		}
 	);
@@ -436,11 +494,11 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	if ( command == "initialize" )
 	{
 		// handshake
-
 		json caps;
 		caps["supportsConfigurationDoneRequest"] = true;
 		caps["supportsTerminateRequest"] = true;
-		SendResponse( seq, command.c_str(), true, caps);
+		caps["supportsSuspendDebuggee"] = true;
+		SendResponse( seq, command.c_str(), true, caps );
 		SendEvent( "initialized" );
 	}
 	else if ( command == "configurationDone" )
@@ -453,8 +511,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	}
 	else if ( command == "setBreakpoints" )
 	{
-		// editor sendign breakpoints for one source file
-
+		// editor sending breakpoints for one source file
 		const json::string_t source = msg["arguments"]["source"]["path"];
 		vector<size_t> lines; // TODO: potentially change this for static array?
 		json verifiedBreakpoints = json::array();
@@ -646,6 +703,18 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		body["variables"] = vars;
 		SendResponse( seq, command.c_str(), true, body );
 	}
+	else if ( command == "pause" )
+	{
+		s_executionState.Modify(
+			[]( DebugExecutionState& state )
+			{
+				state.halted = false;
+				state.stepMode = DebugStepMode::Pause;
+			}
+		);
+
+		SendResponse( seq, command.c_str(), true );
+	}
 	else if ( command == "disconnect" || command == "terminate" )
 	{
 		s_executionState.Modify(
@@ -732,6 +801,19 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 			return state.stepDepth;
 		}
 	);
+
+	// pause 
+	if( stepMode == DebugStepMode::Pause && ar->event == LUA_HOOKLINE )
+	{
+		s_executionState.Modify(
+			[]( DebugExecutionState& state )
+			{
+				state.stepMode = DebugStepMode::None;
+			}
+		);
+		HaltExecution( luaState, ar, "pause" );
+		return;
+	}
 
 	// step in
 	if ( stepMode == DebugStepMode::In && ar->event == LUA_HOOKLINE )

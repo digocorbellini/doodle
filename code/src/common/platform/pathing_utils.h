@@ -1,0 +1,10 @@
+////////////////////////////////////////////////////////////
+//
+// Platform agnostic header for a pathing helper functions
+//
+////////////////////////////////////////////////////////////
+
+
+#pragma once
+
+bool PathingUtils_GetAbsolutePath( const char* relativePath, char* outBuff, const size_t outBuffSize );

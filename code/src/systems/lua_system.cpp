@@ -89,7 +89,12 @@ void LuaSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIte
 #endif // #if IS_ENABLED( LUA_DEBUGGER )
 
 	// TODO: call frame in lua
-
+	lua_getglobal( s_luaState, "Frame" );
+	if ( lua_pcall( s_luaState, 0, 0, 0 ) != LUA_OK )
+	{
+		// TODO: make this print interval so that it doens't spam...
+		Com_PrintfErrorVerbose( LUA_SYSTEM_STR, "failed to call lua frame" );
+	}
 }
 
 

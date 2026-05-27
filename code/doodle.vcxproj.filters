@@ -75,6 +75,9 @@
     <ClCompile Include="src\common\lib\com_thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\common\platform\windows\pathing_utils_windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\components.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\lib\com_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\platform\pathing_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
