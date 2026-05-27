@@ -1,12 +1,4 @@
 import * as net from 'net';
-import {
-    DebugProtocol
-} from 'vscode-debugprotocol';
-import {
-    InitializedEvent,
-    LoggingDebugSession,
-    OutputEvent
-} from 'vscode-debugadapter';
 
 const ENGINE_HOST = '127.0.0.1';
 const ENGINE_PORT = 56789;
@@ -18,53 +10,76 @@ const vscodeOutput = process.stdout;
 
 let retryCount = 0;
 
-class MyDebugSession extends LoggingDebugSession {
-    constructor() {
-        super();
-    }
+let outputSeq    = 1000000; // high number to avoid collision with the engine sequence numbers
 
-    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
-        super.initializeRequest(response, args);
-        this.sendEvent(new InitializedEvent());
-        this.connect();
-    }
+function sendOutputEvent( msg: string )
+{
+    const body = {
+        seq:   outputSeq++,
+        type:  'event',
+        event: 'output',
+        body:  {
+            category: 'console',
+            output:   msg + '\n'
+        }
+    };
 
-    connect()
-    {
-        const engineSocket = new net.Socket();
-
-        engineSocket.connect( ENGINE_PORT, ENGINE_HOST, () =>
-        {
-            retryCount = 0;
-            this.sendEvent(new OutputEvent("[DoodleDebugger] Connected to engine\n"));
-
-            vscodeInput.on( 'data', ( data: Buffer ) => { engineSocket.write( data ); } );
-            engineSocket.on( 'data', ( data: Buffer ) => { vscodeOutput.write( data ); } );
-
-            engineSocket.on( 'close', () =>
-            {
-                this.sendEvent(new OutputEvent( '[DoodleDebugger] Engine disconnected, waiting for reconnect...\n' ));
-                engineSocket.destroy();
-            });
-        });
-
-        engineSocket.on( 'error', ( err: Error ) =>
-        {
-            vscodeInput.removeAllListeners( 'data' );
-            engineSocket.destroy();
-            if ( retryCount < MAX_RETRIES )
-            {
-                retryCount++;
-                this.sendEvent(new OutputEvent(`[DoodleDebugger] Engine not found, retrying... (${retryCount}/${MAX_RETRIES})\n`));
-                setTimeout( () => this.connect(), RETRY_INTERVAL_MS );
-            }
-            else
-            {
-                this.sendEvent(new OutputEvent( '[DoodleDebugger] Could not connect to engine after max retries\n' ));
-                this.shutdown();
-            }
-        });
-    }
+    const json  = JSON.stringify( body );
+    const frame = `Content-Length: ${Buffer.byteLength( json )}\r\n\r\n${json}`;
+    vscodeOutput.write( frame );
 }
 
-MyDebugSession.run(MyDebugSession);
+function connect()
+{
+    const engineSocket = new net.Socket();
+
+    engineSocket.connect( ENGINE_PORT, ENGINE_HOST, () =>
+    {
+        retryCount = 0;
+        sendOutputEvent("[DoodleDebugger] Connected to engine");
+
+        vscodeInput.on( 'data', ( data: Buffer ) =>
+        {
+            sendOutputEvent( `[VS Code -> Engine]\n${data.toString()}\n` );
+            engineSocket.write( data );
+        });
+
+        engineSocket.on( 'data', ( data: Buffer ) =>
+        {
+            sendOutputEvent( `[Engine -> VS Code]\n${data.toString()}\n` );
+            vscodeOutput.write( data );
+        });
+
+        // vscodeInput.on( 'data', ( data: Buffer ) => { engineSocket.write( data ); } );
+        // engineSocket.on( 'data', ( data: Buffer ) => { vscodeOutput.write( data ); } );
+
+        engineSocket.on( 'close', () =>
+        {
+            sendOutputEvent( '[DoodleDebugger] Engine disconnected, waiting for reconnect...' );
+            vscodeInput.removeAllListeners( 'data' );
+            engineSocket.destroy();
+            setTimeout( () => connect(), RETRY_INTERVAL_MS );
+        });
+    });
+
+    engineSocket.on( 'error', ( err: Error ) =>
+    {
+        vscodeInput.removeAllListeners( 'data' );
+        engineSocket.destroy();
+        if ( retryCount < MAX_RETRIES )
+        {
+            retryCount++;
+            sendOutputEvent( `[DoodleDebugger] Engine not found, retrying... (${retryCount}/${MAX_RETRIES})` );
+            setTimeout( () => connect(), RETRY_INTERVAL_MS );
+        }
+        else
+        {
+            sendOutputEvent( '[DoodleDebugger] Could not connect to engine after max retries' );
+            process.exit( 1 );
+        }
+    });
+
+    process.on( 'exit', () => { engineSocket.destroy(); } );
+}
+
+connect();

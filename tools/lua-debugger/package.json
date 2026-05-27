@@ -1,5 +1,6 @@
 {
     "name": "lua-debugger",
+    "publisher": "doodle",
     "displayName": "Doodle Lua Debugger",
     "version": "0.1.0",
     "engines": {
@@ -9,10 +10,23 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onDebugResolve:doodle-lua"
+        "onLanguage:lua",
+        "onDebugResolve:doodle-lua",
+        "onDebugAdapterProtocolTracker:doodle-lua"
     ],
     "main": "./out/debugAdapter.js",
     "contributes": {
+        "languages": [
+            {
+                "id": "lua",
+                "extensions": [".lua"]
+            }
+        ],
+        "breakpoints": [
+            {
+                "language": "lua"
+            }
+        ],
         "debuggers": [
             {
                 "type": "doodle-lua",
@@ -54,9 +68,5 @@
     "devDependencies": {
         "@types/node": "^18.0.0",
         "typescript": "^5.0.0"
-    },
-    "dependencies": {
-        "vscode-debugadapter": "^1.51.0",
-        "vscode-debugprotocol": "^1.51.0"
     }
 }
