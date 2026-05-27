@@ -1,0 +1,10 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+        "type": "doodle-lua",
+        "request": "attach",
+        "name": "Attach to Doodle",
+        "port": 56789,
+        "host": "127.0.0.1"
+    }]
+}

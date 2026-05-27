@@ -174,7 +174,7 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 					Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add all breakpoints for source '%s' due to exceeding max breakpoints per file. %zu >= %zu", scriptSource, lineCount, newArray->max_size() );
 					break;
 				}
-				(*newArray)[i] == lines[i];
+				(*newArray)[i] = lines[i];
 			}
 		}
 	);
@@ -273,6 +273,11 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 	const bool success = s_clientSocket.Access(
 		[&]( const NetSocketPtr& sock )
 		{
+			if ( !sock )
+			{
+				return false;
+			}
+
 			char headerBuff[512]; // header should never be this large in practice 
 			int headerLen = 0;
 			int contentLen = 0;
@@ -482,7 +487,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		thread["name"] = "main";
 		json body;
 		body["threads"] = json::array( { thread } );
-		SendResponse( seq, command.c_str(), true );
+		SendResponse( seq, command.c_str(), true, body );
 	}
 	else if ( command == "continue" )
 	{
@@ -581,7 +586,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		locals["name"] = "Locals";
 		// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
 		COM_ASSERT( frameID < MAX_FRAME_ID, "[%s]: frame ID exceeded max frame ID: %i\n", LUA_DEBUGGER_STR, MAX_FRAME_ID );
-		locals["variableReference"] = frameID + MAX_FRAME_ID;
+		locals["variablesReference"] = frameID + MAX_FRAME_ID;
 		locals["expensive"] = false;
 		
 		json body; 
@@ -590,7 +595,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	}
 	else if ( command == "variables" )
 	{
-		const int ref = msg["arguments"]["variableReference"];
+		const int ref = msg["arguments"]["variablesReference"];
 		// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
 		const int frameID = ref - MAX_FRAME_ID;
 
@@ -605,7 +610,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 			{
 				json var;
 				var["name"] = name;
-				var["variableReference"] = 0;
+				var["variablesReference"] = 0;
 
 				const int type = lua_type( luaState, -1 );
 				switch ( type )
@@ -652,6 +657,8 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		);
 
 		SendResponse( seq, command.c_str(), true );
+
+		// TODO: potentially kick off a new accept loop to wait for another debugger?
 	}
 	else
 	{
@@ -711,11 +718,6 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 	NormalizeSource( ar->source, normalizedPath, sizeof( normalizedPath ) );
 	const int line = ar->currentline;
 
-	if ( ar->event != LUA_HOOKLINE )
-	{
-		return;
-	}
-
 	// read step state 
 	const DebugStepMode stepMode = s_executionState.Access(
 		[]( const DebugExecutionState& state )
@@ -732,7 +734,7 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 	);
 
 	// step in
-	if ( stepMode == DebugStepMode::In  )
+	if ( stepMode == DebugStepMode::In && ar->event == LUA_HOOKLINE )
 	{
 		// halt immediately on next line regardless of depth
 		s_executionState.Modify( 
@@ -746,7 +748,7 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 	}
 
 	// step over
-	if ( stepMode == DebugStepMode::Over )
+	if ( stepMode == DebugStepMode::Over && ar->event == LUA_HOOKLINE )
 	{
 		lua_Debug depthAr;
 		int depth = 0;
@@ -755,7 +757,7 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 			++depth;
 		}
 
-		// stop executioh only when stack return same depth as request
+		// stop execution only when stack return same depth as request
 		if ( depth <= stepDepth )
 		{
 			s_executionState.Modify(
@@ -770,14 +772,14 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 	}
 
 	// step out
-	if ( stepMode == DebugStepMode::Out )
+	if ( stepMode == DebugStepMode::Out && ar->event == LUA_HOOKRET )
 	{
 		// delay halting execution until after a return, then use 
 		// step in to halt
 		s_executionState.Modify(
 			[]( DebugExecutionState& state )
 			{
-				state.stepMode == DebugStepMode::In;
+				state.stepMode = DebugStepMode::In;
 			}
 		);
 		return;
@@ -825,6 +827,10 @@ void LuaDebugger_Frame()
 	{
 		// since this is main thread and not lua hook, don't need to pass in lua state
 		HandleMessage( msg, nullptr );
+	}
+	else
+	{
+		Com_Printf( "RODRIGO: test\n" );
 	}
 }
 

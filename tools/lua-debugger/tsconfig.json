@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "types": ["node"],
+        "target": "ES6",
+        "module": "commonjs",
+        "rootDir": "./src",
+        "outDir": "./out",
+        "strict": true,
+        "sourceMap": true
+    },
+    "include": ["src/**/*"]
+}

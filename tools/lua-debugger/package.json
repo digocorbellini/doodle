@@ -1,0 +1,62 @@
+{
+    "name": "lua-debugger",
+    "displayName": "Doodle Lua Debugger",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Debuggers"
+    ],
+    "activationEvents": [
+        "onDebugResolve:doodle-lua"
+    ],
+    "main": "./out/debugAdapter.js",
+    "contributes": {
+        "debuggers": [
+            {
+                "type": "doodle-lua",
+                "label": "Doodle Lua",
+                "program": "./out/debugAdapter.js",
+                "runtime": "node",
+                "languages": [
+                    "lua"
+                ],
+                "configurationAttributes": {
+                    "attach": {
+                        "properties": {
+                            "port": {
+                                "type": "number",
+                                "default": 56789
+                            },
+                            "host": {
+                                "type": "string",
+                                "default": "127.0.0.1"
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "doodle-lua",
+                        "request": "attach",
+                        "name": "Attach to Doodle",
+                        "port": 56789,
+                        "host": "127.0.0.1"
+                    }
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "compile": "tsc"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.0",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "vscode-debugadapter": "^1.51.0",
+        "vscode-debugprotocol": "^1.51.0"
+    }
+}
