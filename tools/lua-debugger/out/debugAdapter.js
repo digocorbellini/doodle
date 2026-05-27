@@ -26,11 +26,12 @@ class MyDebugSession extends vscode_debugadapter_1.LoggingDebugSession {
             vscodeInput.on('data', (data) => { engineSocket.write(data); });
             engineSocket.on('data', (data) => { vscodeOutput.write(data); });
             engineSocket.on('close', () => {
-                this.sendEvent(new vscode_debugadapter_1.OutputEvent('[DoodleDebugger] Engine disconnected\n'));
+                this.sendEvent(new vscode_debugadapter_1.OutputEvent('[DoodleDebugger] Engine disconnected, waiting for reconnect...\n'));
                 engineSocket.destroy();
             });
         });
         engineSocket.on('error', (err) => {
+            vscodeInput.removeAllListeners('data');
             engineSocket.destroy();
             if (retryCount < MAX_RETRIES) {
                 retryCount++;

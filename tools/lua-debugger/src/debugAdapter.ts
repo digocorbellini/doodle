@@ -43,13 +43,14 @@ class MyDebugSession extends LoggingDebugSession {
 
             engineSocket.on( 'close', () =>
             {
-                this.sendEvent(new OutputEvent( '[DoodleDebugger] Engine disconnected\n' ));
+                this.sendEvent(new OutputEvent( '[DoodleDebugger] Engine disconnected, waiting for reconnect...\n' ));
                 engineSocket.destroy();
             });
         });
 
         engineSocket.on( 'error', ( err: Error ) =>
         {
+            vscodeInput.removeAllListeners( 'data' );
             engineSocket.destroy();
             if ( retryCount < MAX_RETRIES )
             {
