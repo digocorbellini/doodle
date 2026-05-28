@@ -1,6 +1,6 @@
 local TEST = {};
 
-function TEST.testCall()
+function TEST.TestCall()
     print("testCall called");
     Engine.testFunct();
 end

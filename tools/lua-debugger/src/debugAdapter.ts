@@ -55,10 +55,11 @@ function connect()
 
         engineSocket.on( 'close', () =>
         {
-            sendOutputEvent( '[DoodleDebugger] Engine disconnected, waiting for reconnect...' );
+            sendOutputEvent( '[DoodleDebugger] Engine disconnected' );
             vscodeInput.removeAllListeners( 'data' );
             engineSocket.destroy();
-            setTimeout( () => connect(), RETRY_INTERVAL_MS );
+            // setTimeout( () => connect(), RETRY_INTERVAL_MS );
+            process.exit( 0 );
         });
     });
 

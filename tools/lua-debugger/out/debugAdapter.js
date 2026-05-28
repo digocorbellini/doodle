@@ -39,10 +39,11 @@ function connect() {
         // vscodeInput.on( 'data', ( data: Buffer ) => { engineSocket.write( data ); } );
         // engineSocket.on( 'data', ( data: Buffer ) => { vscodeOutput.write( data ); } );
         engineSocket.on('close', () => {
-            sendOutputEvent('[DoodleDebugger] Engine disconnected, waiting for reconnect...');
+            sendOutputEvent('[DoodleDebugger] Engine disconnected');
             vscodeInput.removeAllListeners('data');
             engineSocket.destroy();
-            setTimeout(() => connect(), RETRY_INTERVAL_MS);
+            // setTimeout( () => connect(), RETRY_INTERVAL_MS );
+            process.exit(0);
         });
     });
     engineSocket.on('error', (err) => {

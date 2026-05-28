@@ -41,7 +41,10 @@ static constexpr size_t MAX_SOURCE_PATH_LEN = 512;
 static constexpr size_t MAX_DEBUG_FILES = 128;
 static constexpr size_t MAX_BREAKPOINTS_PER_FILE = 128;
 static constexpr int MAX_FRAME_ID = 1000;
+static constexpr int GLOBALS_VARIABLE_REF = INT32_MAX;
 static constexpr size_t MAX_DAP_MESSAGE_SIZE = 64 * 1024;
+
+static const char* AR_WHAT_LUA_TYPE = OBFUSCATED_STRING( "Lua" );
 
 // TODO: ideally this should be a configurable value
 static constexpr int DAP_PORT = 56789;
@@ -618,8 +621,24 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 			NormalizeSource( ar.source, normalizedPath, sizeof( normalizedPath ) );
 
 			json frame;
+			if ( !ar.name )
+			{
+				if ( Com_StrEq( ar.what, AR_WHAT_LUA_TYPE, strlen( AR_WHAT_LUA_TYPE ) ) )
+				{
+					// lua function location is known, but name is not due to it being called
+					// from code
+					frame["name"] = std::format( "(called from code):{}@{}", ar.short_src, ar.linedefined );
+				}
+				else
+				{
+					frame["name"] = "(unknown)";
+				}
+			}
+			else
+			{
+				frame["name"] = ar.name;
+			}
 			frame["id"] = level;
-			frame["name"] = ar.name ? ar.name : "(unknown)";
 			frame["line"] = ar.currentline;
 			frame["column"] = 1;
 
@@ -639,36 +658,51 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	else if ( command == "scopes" )
 	{
 		const int frameID = msg["arguments"]["frameId"];
-		json locals; 
-		locals["name"] = "Locals";
 		// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
 		COM_ASSERT( frameID < MAX_FRAME_ID, "[%s]: frame ID exceeded max frame ID: %i\n", LUA_DEBUGGER_STR, MAX_FRAME_ID );
-		locals["variablesReference"] = frameID + MAX_FRAME_ID;
+
+		json locals; 
+		locals["name"] = "Locals";
+		const int localsVariableReference = frameID + MAX_FRAME_ID;
+		COM_ASSERT( localsVariableReference < GLOBALS_VARIABLE_REF, "[%s]: locals variable reference is >= to number reserved for globals: %i\n", LUA_DEBUGGER_STR, GLOBALS_VARIABLE_REF )
+		locals["variablesReference"] = localsVariableReference;
 		locals["expensive"] = false;
-		
+
+		json globals;
+		globals["name"] = "Globals";
+		globals["variablesReference"] = GLOBALS_VARIABLE_REF;
+		globals["expensive"] = false;
+
 		json body; 
-		body["scopes"] = json::array( { locals } );
+		body["scopes"] = json::array( { locals, globals } );
 		SendResponse( seq, command.c_str(), true, body );
 	}
 	else if ( command == "variables" )
 	{
 		const int ref = msg["arguments"]["variablesReference"];
-		// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
-		const int frameID = ref - MAX_FRAME_ID;
 
-		json vars = json::array();
-		lua_Debug ar;
-
-		if ( lua_getstack( luaState, frameID, &ar ) )
+		json variablesList = json::array();
+		if ( ref == GLOBALS_VARIABLE_REF )
 		{
-			int i = 1;
-			const char* name;
-			while ( ( name = lua_getlocal( luaState, &ar, i++ ) ) != nullptr )
+			// get all globals
+			lua_pushnil( luaState ); // first key for Lua_next
+			while ( lua_next( luaState, LUA_GLOBALSINDEX ) != 0 )
 			{
+				// 'key' is at index -2 and 'value' at index '-1'
+				const char* name = lua_tostring( luaState, -2 );
+
+				// ignore internal globals
+				if ( !name || name[0] == '_' )
+				{
+					lua_pop( luaState, 1 );
+					continue;
+				}
+
 				json var;
 				var["name"] = name;
 				var["variablesReference"] = 0;
 
+				// TODO: move this to helper function to avoid duplicate logic
 				const int type = lua_type( luaState, -1 );
 				switch ( type )
 				{
@@ -689,18 +723,74 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 						var["type"] = "nil";
 						break;
 					default:
-						var["value"] = lua_typename( luaState, type );
-						var["type"] = lua_typename( luaState, type );
-						break;
+						// don't include other types
+						// TODO: eventually support tables
+						lua_pop( luaState, 1 );
+						continue;
 				}
 
 				lua_pop( luaState, 1 );
-				vars.push_back( var );
+				variablesList.push_back( var );
+			}
+		}
+		else
+		{
+			// get local variables
+			COM_ASSERT( ref >= MAX_FRAME_ID, "[%s]: variablesReference value is less than max frame id: %i < %i\n", LUA_DEBUGGER_STR, ref, MAX_FRAME_ID )
+			// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
+			const int frameID = ref - MAX_FRAME_ID;
+			lua_Debug ar;
+			if ( lua_getstack( luaState, frameID, &ar ) )
+			{
+				int i = 1;
+				const char* name;
+				while ( ( name = lua_getlocal( luaState, &ar, i++ ) ) != nullptr )
+				{
+					// ignore lua temporary values which luaJIT uses 
+					// parenthesis to mark such values' names
+					if ( name[0] == '(' )
+					{
+						lua_pop( luaState, 1 );
+						continue;
+					}
+
+					json var;
+					var["name"] = name;
+					var["variablesReference"] = 0;
+
+					const int type = lua_type( luaState, -1 );
+					switch ( type )
+					{
+						case LUA_TNUMBER:
+							var["value"] = to_string( lua_tonumber( luaState, -1 ) );
+							var["type"] = "number";
+							break;
+						case LUA_TSTRING:
+							var["value"] = lua_tostring( luaState, -1 );
+							var["type"] = "string";
+							break;
+						case LUA_TBOOLEAN:
+							var["value"] = lua_toboolean( luaState, -1 ) ? "true" : "false";
+							var["type"] = "boolean";
+							break;
+						case LUA_TNIL:
+							var["value"] = "nil";
+							var["type"] = "nil";
+							break;
+						default:
+							var["value"] = lua_typename( luaState, type );
+							var["type"] = lua_typename( luaState, type );
+							break;
+					}
+
+					lua_pop( luaState, 1 );
+					variablesList.push_back( var );
+				}
 			}
 		}
 
 		json body;
-		body["variables"] = vars;
+		body["variables"] = variablesList;
 		SendResponse( seq, command.c_str(), true, body );
 	}
 	else if ( command == "pause" )
@@ -898,21 +988,16 @@ void LuaDebugger_Frame()
 {
 	COM_ASSERT_IS_MAIN_THREAD();
 
+	// read all messages sent since last frame
 	char rawBuff[MAX_DAP_MESSAGE_SIZE];
-	if ( !ReadDAPMessage( rawBuff, sizeof( rawBuff ) ) )
+	while ( ReadDAPMessage( rawBuff, sizeof( rawBuff ) ) )
 	{
-		return;
-	}
-
-	const json msg = json::parse( rawBuff, nullptr, false );
-	if ( !msg.is_discarded() && !msg.is_null() )
-	{
-		// since this is main thread and not lua hook, don't need to pass in lua state
-		HandleMessage( msg, nullptr );
-	}
-	else
-	{
-		Com_Printf( "RODRIGO: test\n" );
+		const json msg = json::parse( rawBuff, nullptr, false );
+		if ( !msg.is_discarded() && !msg.is_null() )
+		{
+			// since this is main thread and not lua hook, don't need to pass in lua state
+			HandleMessage( msg, nullptr );
+		}
 	}
 }
 

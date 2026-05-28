@@ -1,22 +1,30 @@
 Engine.testFunct();
 
-local test = require("test");
+Test = require("test");
 
-test.testCall();
+Test.TestCall();
 
-function testFunct()
-    print("test funct");
+local function testFunct2()
+    local testStr = "test2";
+    print(testStr .. " funct");
 end
 
-local value = 0;
+local function testFunct()
+    local testStr = "test";
+    print(testStr .. " funct");
+    testFunct2();
+end
+
+Value = 0;
 function Frame() 
     local test = 0;
     test = test + 5;
-    value = value + 1;
-    if value > 100000 then
+    Value = Value + 1;
+    if Value > 100 then
         print("called from lua frame");
-        value = 0;
+        Value = 0;
         testFunct();
+        Test.TestCall();
     end 
 end
 
