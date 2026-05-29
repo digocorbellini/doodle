@@ -191,5 +191,8 @@
     <ClInclude Include="src\common\platform\pathing_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\lib\data_structures\fixed_circular_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

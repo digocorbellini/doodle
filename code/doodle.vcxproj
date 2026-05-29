@@ -50,6 +50,7 @@
     <ClInclude Include="src\common\lib\com_print.h" />
     <ClInclude Include="src\common\lib\com_string.h" />
     <ClInclude Include="src\common\lib\com_thread.h" />
+    <ClInclude Include="src\common\lib\data_structures\fixed_circular_buffer.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_hash_set.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_map.h" />
     <ClInclude Include="src\common\lib\data_structures\fixed_skip_list.h" />
