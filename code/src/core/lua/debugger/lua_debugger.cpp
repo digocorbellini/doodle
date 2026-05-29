@@ -979,6 +979,8 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 
 void LuaDebugger_Reset()
 {
+	COM_ASSERT_IS_MAIN_THREAD();
+
 	const bool hasClient = s_clientSocket.Access(
 		[]( const NetSocketPtr& sock )
 		{
