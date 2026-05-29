@@ -88,7 +88,8 @@ void LuaSystem::OnFrame( const NanoSeconds deltaTimeNs, EntityIterator entityIte
 	LuaDebugger_Frame();
 #endif // #if IS_ENABLED( LUA_DEBUGGER )
 
-	// TODO: call frame in lua
+	// TODO: call frame in lua and pass in the parameters above (have to figure out how to pass the entity iterator
+	// somehow... or at least some way to iterate over entities? Or maybe not?
 	lua_getglobal( s_luaState, "Frame" );
 	if ( lua_pcall( s_luaState, 0, 0, 0 ) != LUA_OK )
 	{

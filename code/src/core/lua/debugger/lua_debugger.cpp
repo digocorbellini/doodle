@@ -2,7 +2,6 @@
 
 #if IS_ENABLED( LUA_DEBUGGER )
 #include <array>
-#include "common/types.h"
 #include "common/lib/com_print.h"
 #include "common/lib/com_string.h"
 #include "common/lib/com_thread.h"
@@ -10,8 +9,9 @@
 #include "common/platform/net_socket.h"
 #include "common/platform/pathing_utils.h"
 #include "common/platform/platform_thread.h"
-#include <lua.hpp>
+#include "common/types.h"
 #include "lua_debugger.h"
+#include <lua.hpp>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <thread>
@@ -49,12 +49,10 @@ static const char* AR_WHAT_LUA_TYPE = OBFUSCATED_STRING( "Lua" );
 // TODO: ideally this should be a configurable value
 static constexpr int DAP_PORT = 56789;
 
-
 using namespace std;
 using json = nlohmann::json;
 using BreakpointsArray = array<size_t, MAX_BREAKPOINTS_PER_FILE>;
 using BreakpointMap = FixedMapStringKey<BreakpointsArray, MAX_SOURCE_PATH_LEN, MAX_DEBUG_FILES>;
-
 
 // Map of script file path to list of active breakpoint line numbers
 // Ex: s_breakpoints["C:/doodle/game/scripts/main.lua"] = {10, 20, 35}
@@ -96,6 +94,7 @@ static void NormalizePathSlashes( char* str, const size_t strSize )
 		}
 	}
 }
+
 
 // Lua prefixes file-source strings with '@', e.g. "@C:/path/to/main.lua".
 // Strip that prefix so paths match what VS Code sends in setBreakpoints.
@@ -172,12 +171,12 @@ static bool HasBreakpointAtLine( const char* scriptSource, const size_t line )
 			}
 
 			return false;
-		}
+		} 
 	);
 }
 
 
-static void SetBreakpoints( const char* scriptSource, const size_t lines[], const size_t lineCount)
+static void SetBreakpoints( const char* scriptSource, const size_t lines[], const size_t lineCount )
 {
 	if ( Com_StrEmpty( scriptSource ) )
 	{
@@ -187,13 +186,12 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 	if ( !lines )
 	{
 		return;
-
 	}
 
 	char normalizedSource[MAX_SOURCE_PATH_LEN] = { 0 };
 	NormalizeSource( scriptSource, normalizedSource, sizeof( normalizedSource ) );
 
-	s_breakpoints.Access(
+	s_breakpoints.Access( 
 		[&]( BreakpointMap& map )
 		{
 			map.Remove( normalizedSource );
@@ -211,7 +209,7 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 			}
 
 			// clear array
-			*newArray = {}; 
+			*newArray = {};
 
 			// copy breakpoint lines into array
 			for ( size_t i = 0; i < lineCount; ++i )
@@ -221,9 +219,9 @@ static void SetBreakpoints( const char* scriptSource, const size_t lines[], cons
 					Com_PrintfWarningVerbose( LUA_DEBUGGER_STR, "unable to add all breakpoints for source '%s' due to exceeding max breakpoints per file. %zu >= %zu", normalizedSource, lineCount, newArray->max_size() );
 					break;
 				}
-				(*newArray)[i] = lines[i];
+				( *newArray )[i] = lines[i];
 			}
-		}
+		} 
 	);
 }
 
@@ -232,7 +230,7 @@ static void AcceptLoop()
 {
 	Com_PrintfVerbose( LUA_DEBUGGER_STR, "waiting for DAP client on port [%i]", DAP_PORT );
 
-	// Block until IDE connects
+	// block until IDE connects
 	NetSocketPtr acceptedSocket = NetSocket_Accept( s_listenSocket );
 
 	if ( s_isShuttingDown.load() )
@@ -268,7 +266,6 @@ static void StartDAPServer()
 		return;
 	}
 
-
 	// fire accept thread for listening for editor connection
 	s_acceptThread = thread( AcceptLoop );
 }
@@ -276,19 +273,29 @@ static void StartDAPServer()
 
 static void StopDAPServer()
 {
-	s_isShuttingDown.store( true );
 
 	// close socket to unblock accept thread 
-	s_listenSocket.reset(); 
+	// then wait for thread to close
+	s_isShuttingDown.store( true );
+	s_listenSocket.reset();
 	if ( s_acceptThread.joinable() )
 	{
 		s_acceptThread.join();
 	}
+	s_isShuttingDown.store( false );
 
-	s_clientSocket.Modify(
+	s_clientSocket.Modify( 
 		[&]( NetSocketPtr& sock )
 		{
 			sock.reset();
+		} 
+	);
+
+	// clear all breakpoints
+	s_breakpoints.Access(
+		[]( BreakpointMap& map )
+		{
+			map.Clear();
 		}
 	);
 }
@@ -300,12 +307,12 @@ static bool SendDAPMessage( const json& msg )
 	// prepend HTTP-style header to body
 	const json::string_t frame = OBFUSCATED_STRING( "Content-Length: " ) + to_string( msgBody.size() ) + "\r\n\r\n" + msgBody;
 
-	return s_clientSocket.Access(
+	return s_clientSocket.Access( 
 		[&]( const NetSocketPtr& sock )
 		{
 			if ( !sock )
 			{
-				Com_PrintfErrorVerbose( LUA_DEBUGGER_STR, "failed to send message due to client socket not having a DAP connection. Message: %s", frame );
+				Com_PrintfErrorVerbose( LUA_DEBUGGER_STR,"failed to send message due to client socket not having a DAP connection. Message: %s", frame );
 				return true;
 			}
 
@@ -315,14 +322,14 @@ static bool SendDAPMessage( const json& msg )
 				Com_PrintfVerbose( LUA_DEBUGGER_STR, "successfully sent DAP message: \n\n%s\n", msgBody.c_str() );
 			}
 			return success;
-		}
+		} 
 	);
 }
 
 
-static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
+static bool ReadDAPMessage( char* outBuff, const size_t buffSize )
 {
-	const bool success = s_clientSocket.Access(
+	const bool success = s_clientSocket.Access( 
 		[&]( const NetSocketPtr& sock )
 		{
 			if ( !sock )
@@ -332,7 +339,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 
 			NetSocket_SetNonBlocking( sock, true );
 
-			char headerBuff[512]; // header should never be this large in practice 
+			char headerBuff[512]; // header should never be this large in practice
 			int headerLen = 0;
 			int contentLen = 0;
 			int bodyBytesAlreadyRead = 0;
@@ -360,7 +367,7 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 				for ( int i = 0; i <= headerLen - 4; ++i )
 				{
 					if ( headerBuff[i] == '\r' && headerBuff[i + 1] == '\n' &&
-						 headerBuff[i + 2] == '\r' && headerBuff[i + 3] == '\n' )
+							headerBuff[i + 2] == '\r' && headerBuff[i + 3] == '\n' )
 					{
 						// parse content length from header
 						const char* contentLenPos = strstr( headerBuff, DAP_HEADER_CONTENT_LEN_STR );
@@ -391,7 +398,6 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 					break;
 				}
 			}
-
 
 			if ( !headerFound )
 			{
@@ -426,20 +432,21 @@ static bool ReadDAPMessage(char* outBuff, const size_t buffSize)
 			NetSocket_SetNonBlocking( sock, false );
 			Com_PrintfVerbose( LUA_DEBUGGER_STR, "successfully read DAP message: \n\n%s\n", outBuff );
 			return true;
-		}
+		} 
 	);
 
 	return success;
 }
 
 
-static bool SendResponse( const int requestSeq, const char* command, const bool success, const json& body = {} )
+static bool SendResponse( const int requestSeq, const char* command,
+						  const bool success, const json& body = {} )
 {
-	const int seq = s_dapMessageSequenceCounter.Access(
+	const int seq = s_dapMessageSequenceCounter.Access( 
 		[&]( int& s )
 		{
 			return s++;
-		}
+		} 
 	);
 
 	json msg;
@@ -459,11 +466,11 @@ static bool SendResponse( const int requestSeq, const char* command, const bool 
 
 static bool SendEvent( const char* event, const json& body = {} )
 {
-	const int seq = s_dapMessageSequenceCounter.Access(
+	const int seq = s_dapMessageSequenceCounter.Access( 
 		[&]( int& s )
 		{
 			return s++;
-		}
+		} 
 	);
 
 	json msg;
@@ -510,7 +517,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	}
 	else if ( command == "launch" || command == "attach" )
 	{
-		SendResponse( seq, command.c_str(), true);
+		SendResponse( seq, command.c_str(), true );
 	}
 	else if ( command == "setBreakpoints" )
 	{
@@ -551,19 +558,19 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	}
 	else if ( command == "continue" )
 	{
-		s_executionState.Modify(
+		s_executionState.Modify( 
 			[]( DebugExecutionState& state )
 			{
 				state.halted = false;
 				state.stepMode = DebugStepMode::None;
-			}
+			} 
 		);
 
 		SendResponse( seq, command.c_str(), true );
 	}
 	else if ( command == "next" )
 	{
-		s_executionState.Modify(
+		s_executionState.Modify( 
 			[&]( DebugExecutionState& state )
 			{
 				lua_Debug ar;
@@ -576,31 +583,31 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 				state.stepDepth = depth;
 				state.stepMode = DebugStepMode::Over;
 				state.halted = false;
-			}
+			} 
 		);
 
 		SendResponse( seq, command.c_str(), true );
 	}
 	else if ( command == "stepIn" )
 	{
-		s_executionState.Modify(
+		s_executionState.Modify( 
 			[]( DebugExecutionState& state )
 			{
 				state.halted = false;
 				state.stepMode = DebugStepMode::In;
-			}
+			} 
 		);
 
 		SendResponse( seq, command.c_str(), true );
 	}
 	else if ( command == "stepOut" )
 	{
-		s_executionState.Modify(
+		s_executionState.Modify( 
 			[]( DebugExecutionState& state )
 			{
 				state.halted = false;
 				state.stepMode = DebugStepMode::Out;
-			}
+			} 
 		);
 
 		SendResponse( seq, command.c_str(), true );
@@ -625,8 +632,8 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 			{
 				if ( Com_StrEq( ar.what, AR_WHAT_LUA_TYPE, strlen( AR_WHAT_LUA_TYPE ) ) )
 				{
-					// lua function location is known, but name is not due to it being called
-					// from code
+					// lua function location is known, but name is not due to it being
+					// called from code
 					frame["name"] = std::format( "(called from code):{}@{}", ar.short_src, ar.linedefined );
 				}
 				else
@@ -661,10 +668,10 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
 		COM_ASSERT( frameID < MAX_FRAME_ID, "[%s]: frame ID exceeded max frame ID: %i\n", LUA_DEBUGGER_STR, MAX_FRAME_ID );
 
-		json locals; 
+		json locals;
 		locals["name"] = "Locals";
 		const int localsVariableReference = frameID + MAX_FRAME_ID;
-		COM_ASSERT( localsVariableReference < GLOBALS_VARIABLE_REF, "[%s]: locals variable reference is >= to number reserved for globals: %i\n", LUA_DEBUGGER_STR, GLOBALS_VARIABLE_REF )
+		COM_ASSERT( localsVariableReference < GLOBALS_VARIABLE_REF, "[%s]: locals variable reference is >= to number reserved for globals: %i\n", LUA_DEBUGGER_STR, GLOBALS_VARIABLE_REF );
 		locals["variablesReference"] = localsVariableReference;
 		locals["expensive"] = false;
 
@@ -673,7 +680,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		globals["variablesReference"] = GLOBALS_VARIABLE_REF;
 		globals["expensive"] = false;
 
-		json body; 
+		json body;
 		body["scopes"] = json::array( { locals, globals } );
 		SendResponse( seq, command.c_str(), true, body );
 	}
@@ -736,7 +743,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 		else
 		{
 			// get local variables
-			COM_ASSERT( ref >= MAX_FRAME_ID, "[%s]: variablesReference value is less than max frame id: %i < %i\n", LUA_DEBUGGER_STR, ref, MAX_FRAME_ID )
+			COM_ASSERT( ref >= MAX_FRAME_ID, "[%s]: variablesReference value is less than max frame id: %i < %i\n", LUA_DEBUGGER_STR, ref, MAX_FRAME_ID );
 			// 0 to MAX_FRAME_ID = frame IDs and MAX_FRAME_ID+ = variable refs
 			const int frameID = ref - MAX_FRAME_ID;
 			lua_Debug ar;
@@ -746,7 +753,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 				const char* name;
 				while ( ( name = lua_getlocal( luaState, &ar, i++ ) ) != nullptr )
 				{
-					// ignore lua temporary values which luaJIT uses 
+					// ignore lua temporary values which luaJIT uses
 					// parenthesis to mark such values' names
 					if ( name[0] == '(' )
 					{
@@ -808,7 +815,7 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 	else if ( command == "disconnect" || command == "terminate" )
 	{
 		s_executionState.Modify(
-			[]( DebugExecutionState& state)
+			[]( DebugExecutionState& state )
 			{
 				state.halted = false;
 				state.stepMode = DebugStepMode::None;
@@ -817,7 +824,8 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 
 		SendResponse( seq, command.c_str(), true );
 
-		// TODO: potentially kick off a new accept loop to wait for another debugger?
+		// start waiting for another connection
+		LuaDebugger_Reset();
 	}
 	else
 	{
@@ -828,7 +836,8 @@ static void HandleMessage( const json& msg, lua_State* luaState )
 }
 
 
-static void HaltExecution( lua_State* luaState, lua_Debug* ar, const char* reason )
+static void HaltExecution( lua_State* luaState, lua_Debug* ar,
+						   const char* reason )
 {
 	// notify VS Code that execution has stopped
 	json body;
@@ -843,7 +852,6 @@ static void HaltExecution( lua_State* luaState, lua_Debug* ar, const char* reaso
 			state.halted = true;
 		}
 	);
-
 
 	// pump DAP messages while halted
 	bool stillHalted = true;
@@ -872,34 +880,34 @@ static void HaltExecution( lua_State* luaState, lua_Debug* ar, const char* reaso
 static void LuaHook( lua_State* luaState, lua_Debug* ar )
 {
 	lua_getinfo( luaState, "Sl", ar );
-	 
+
 	char normalizedPath[MAX_SOURCE_PATH_LEN];
 	NormalizeSource( ar->source, normalizedPath, sizeof( normalizedPath ) );
 	const int line = ar->currentline;
 
-	// read step state 
+	// read step state
 	const DebugStepMode stepMode = s_executionState.Access(
 		[]( const DebugExecutionState& state )
 		{
 			return state.stepMode;
-		}
+		} 
 	);
 
 	const int stepDepth = s_executionState.Access(
 		[]( const DebugExecutionState& state )
 		{
 			return state.stepDepth;
-		}
+		} 
 	);
 
-	// pause 
-	if( stepMode == DebugStepMode::Pause && ar->event == LUA_HOOKLINE )
+	// pause
+	if ( stepMode == DebugStepMode::Pause && ar->event == LUA_HOOKLINE )
 	{
-		s_executionState.Modify(
+		s_executionState.Modify( 
 			[]( DebugExecutionState& state )
 			{
 				state.stepMode = DebugStepMode::None;
-			}
+			} 
 		);
 		HaltExecution( luaState, ar, "pause" );
 		return;
@@ -913,7 +921,7 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 			[]( DebugExecutionState& state )
 			{
 				state.stepMode = DebugStepMode::None;
-			}
+			} 
 		);
 		HaltExecution( luaState, ar, "step" );
 		return;
@@ -932,11 +940,11 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 		// stop execution only when stack return same depth as request
 		if ( depth <= stepDepth )
 		{
-			s_executionState.Modify(
+			s_executionState.Modify( 
 				[]( DebugExecutionState& state )
 				{
 					state.stepMode = DebugStepMode::None;
-				}
+				} 
 			);
 			HaltExecution( luaState, ar, "step" );
 			return;
@@ -946,13 +954,13 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 	// step out
 	if ( stepMode == DebugStepMode::Out && ar->event == LUA_HOOKRET )
 	{
-		// delay halting execution until after a return, then use 
+		// delay halting execution until after a return, then use
 		// step in to halt
 		s_executionState.Modify(
 			[]( DebugExecutionState& state )
 			{
 				state.stepMode = DebugStepMode::In;
-			}
+			} 
 		);
 		return;
 	}
@@ -969,15 +977,36 @@ static void LuaHook( lua_State* luaState, lua_Debug* ar )
 // Public Functions
 // ===================
 
-void LuaDebugger_Init( struct lua_State* luaState )
+void LuaDebugger_Reset()
+{
+	const bool hasClient = s_clientSocket.Access(
+		[]( const NetSocketPtr& sock )
+		{
+			return sock != nullptr;
+		}
+	);
+
+	if ( hasClient )
+	{
+		StopDAPServer();
+	}
+	StartDAPServer();
+}
+
+
+void LuaDebugger_Init( lua_State* luaState )
 {
 	COM_ASSERT_IS_MAIN_THREAD();
 
-	StartDAPServer();
-	// set up lua hook callback on 3 events: 
-	// - LUA_MASKLINE = fire hook before every line of lua is executed (used by breakpoint checks)
-	// - LUA_MASKCALL = fire hook when any function is called (used by step over logic)
-	// - LUA_MASKRET = fire hook when any function returns (used by step out logic)
+	LuaDebugger_Reset();
+
+	// set up lua hook callback on 3 events:
+	// - LUA_MASKLINE = fire hook before every line of lua is executed (used by
+	// breakpoint checks)
+	// - LUA_MASKCALL = fire hook when any function is called (used by step over
+	// logic)
+	// - LUA_MASKRET = fire hook when any function returns (used by step out
+	// logic)
 	lua_sethook( luaState, LuaHook, LUA_MASKLINE | LUA_MASKCALL | LUA_MASKRET, 0 );
 	Com_PrintfVerbose( LUA_DEBUGGER_STR, "initialized lua DAP Server on port %d", DAP_PORT );
 }
@@ -995,7 +1024,8 @@ void LuaDebugger_Frame()
 		const json msg = json::parse( rawBuff, nullptr, false );
 		if ( !msg.is_discarded() && !msg.is_null() )
 		{
-			// since this is main thread and not lua hook, don't need to pass in lua state
+			// since this is main thread and not lua hook, don't need to pass in lua
+			// state
 			HandleMessage( msg, nullptr );
 		}
 	}
@@ -1006,15 +1036,15 @@ void LuaDebugger_Shutdown()
 {
 	COM_ASSERT_IS_MAIN_THREAD();
 
-	s_executionState.Modify(
+	s_executionState.Modify( 
 		[]( DebugExecutionState& state )
 		{
 			state.halted = false;
 			state.stepMode = DebugStepMode::None;
-		}
+		} 
 	);
 
 	StopDAPServer();
-	Com_PrintfVerbose( LUA_DEBUGGER_STR, "lua debugger shut down")
+	Com_PrintfVerbose( LUA_DEBUGGER_STR, "lua debugger shut down" )
 }
 #endif // #if IS_ENABLED( LUA_DEBUGGER )

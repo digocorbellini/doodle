@@ -6,12 +6,10 @@ Test.TestCall();
 
 local function testFunct2()
     local testStr = "test2";
-    print(testStr .. " funct");
 end
 
 local function testFunct()
     local testStr = "test";
-    print(testStr .. " funct");
     testFunct2();
 end
 
@@ -21,10 +19,9 @@ function Frame()
     test = test + 5;
     Value = Value + 1;
     if Value > 100 then
-        print("called from lua frame");
         Value = 0;
         testFunct();
-        Test.TestCall();
+        -- Test.TestCall();
     end 
 end
 
